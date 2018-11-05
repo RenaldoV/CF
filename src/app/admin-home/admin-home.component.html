@@ -1,3 +1,48 @@
-<p>
-  admin-home works!
-</p>
+<app-nav></app-nav>
+<div class="container">
+  <div class="home-container">
+    <div class="row">
+      <div class="col-4">
+        <h5>Actions</h5>
+      </div>
+      <div class="col-8">
+        <h5>Filters</h5>
+      </div>
+      <div class="col-12">
+        <hr>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-4">
+        <a class="btn btn-lg btn-primary" role="button" [routerLink]="['/add-file']">New File</a>
+      </div>
+     <!--  <div class="col-8">
+        <form [formGroup]="filterForm">
+          <div class="row">
+            <div class="col-3">
+              <mat-form-field>
+                <input matInput placeholder="File Ref" formControlName="fileRef">
+              </mat-form-field>
+            </div>
+            <div class="col-3">
+              <mat-form-field>
+                <input matInput placeholder="Our Ref" formControlName="ourRed">
+              </mat-form-field>
+            </div>
+            <div class="col-3">
+              <mat-form-field>
+                <input matInput placeholder="Buyer / Seller" formControlName="buyerSeller">
+              </mat-form-field>
+            </div>
+            <div class="col-3">
+              <mat-form-field>
+                <input matInput placeholder="Agent" formControlName="agent">
+              </mat-form-field>
+            </div>
+          </div>
+
+        </form>
+      </div>-->
+    </div>
+  </div>
+</div>

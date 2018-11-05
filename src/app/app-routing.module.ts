@@ -5,11 +5,17 @@ import { AdminHomeComponent } from './admin-home/admin-home.component';
 import { AuthGuardService } from './auth/guards/auth-guard.service';
 import { NotAuthService } from './auth/guards/not-auth.service';
 import { AdminGuardService } from './auth/guards/admin-guard.service';
+import {AddFileComponent} from './add-file/add-file.component';
 
 const appRoutes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: '/admin-login' },
   { path: 'admin-login', component: AdminLogInComponent, canActivate: [NotAuthService] },
-  { path: 'admin-home', component: AdminHomeComponent, canActivate: [AuthGuardService, AdminGuardService] },
+  {
+    path: 'admin-home',
+    component: AdminHomeComponent,
+    canActivate: [AuthGuardService, AdminGuardService]
+  },
+  { path: 'add-file', component: AddFileComponent },
   { path: '**',  redirectTo: ''}
 ];
 

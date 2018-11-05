@@ -1,0 +1,9 @@
+.home-container {
+  margin-top: 20px;
+  background-color: lightgray;
+  padding: 10px;
+}
+
+mat-form-field {
+  width: 100%;
+}

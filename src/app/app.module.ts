@@ -8,20 +8,25 @@ import { AppRoutingModule } from './app-routing.module';
 import { WINDOW_PROVIDERS } from './window.service';
 import { AdminLogInComponent } from './log-in/admin-log-in.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatFormFieldModule, MatInputModule } from '@angular/material';
+import {MatFormFieldModule, MatInputModule, MatStepperModule} from '@angular/material';
 import { ReactiveFormsModule } from '@angular/forms';
 import { AdminHomeComponent } from './admin-home/admin-home.component';
+import { NavComponent } from './nav/nav.component';
+import { AddFileComponent } from './add-file/add-file.component';
 
 
 @NgModule({
   declarations: [
     AppComponent,
     AdminLogInComponent,
-    AdminHomeComponent
+    AdminHomeComponent,
+    NavComponent,
+    AddFileComponent
   ],
   imports: [
     MatInputModule,
     MatFormFieldModule,
+    MatStepperModule,
     BrowserModule,
     HttpClientModule,
     AppRoutingModule,

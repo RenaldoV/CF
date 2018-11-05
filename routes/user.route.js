@@ -49,7 +49,6 @@ userRoutes.route('/login').post((req, res, next) => {
 userRoutes.route('/getRole').post((req, res, next) => {
   let id = req.body._id;
   User.findById(id, 'role', (err, result) => {
-    console.log(result);
     res.send(result);
   })
 });

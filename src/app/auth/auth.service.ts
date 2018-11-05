@@ -25,7 +25,7 @@ export class AuthService {
       .subscribe(res => {
         if (res) {
           // this.saveUser(res.user);
-          console.log(res);
+          //console.log(res);
         }else {
           return res;
         }
@@ -53,7 +53,6 @@ export class AuthService {
   }
   saveUser(user) {
     localStorage.setItem('user', JSON.stringify(user));
-    console.log(this.isAdmin());
   }
   isAuthenticated(): boolean {
     if (localStorage.getItem('user')) {
@@ -80,5 +79,8 @@ export class AuthService {
   }
   destroySession() {
     localStorage.clear();
+  }
+  getName() {
+    return JSON.parse(localStorage.getItem('user')).name;
   }
 }

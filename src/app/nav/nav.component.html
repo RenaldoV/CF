@@ -1,0 +1,11 @@
+<nav class="navbar navbar-expand-sm bg-dark">
+  <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+    <li class="nav-item active">
+      <a class="nav-link"><span>ConveyFeed</span><span>{{showRoute()}}</span></a>
+    </li>
+  </ul>
+  <span class="navbar-text">
+    <i class="fas fa-user-tie"></i> {{ getName() }}
+  </span>
+  <button class="btn btn-sm btn-outline-secondary" type="button" (click)="logout()">Log Out</button>
+</nav>

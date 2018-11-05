@@ -1,0 +1,18 @@
+<app-nav></app-nav>
+<div class="container">
+  <div class="row">
+    <div class="col-lg-8 col-sm-10 offset-lg-2 offset-sm-1 box">
+      <mat-horizontal-stepper [linear]="true" #stepper>
+        <mat-step [stepControl]="fileForm">
+          <ng-template matStepLabel>File Details</ng-template>
+        </mat-step>
+        <mat-step [stepControl]="contactsForm">
+          <ng-template matStepLabel>Add Contacts</ng-template>
+        </mat-step>
+        <mat-step>
+          <ng-template matStepLabel>Confirm</ng-template>
+        </mat-step>
+      </mat-horizontal-stepper>
+    </div>
+  </div>
+</div>
