@@ -4,13 +4,82 @@
     <div class="col-lg-8 col-sm-10 offset-lg-2 offset-sm-1 box">
       <mat-horizontal-stepper [linear]="true" #stepper>
         <mat-step [stepControl]="fileForm">
-          <ng-template matStepLabel>File Details</ng-template>
+          <form [formGroup]="fileForm">
+            <ng-template matStepLabel>File Details</ng-template>
+            <mat-form-field>
+              <input matInput placeholder="File Reference" formControlName="fileRef" required>
+              <mat-error *ngIf="fileRef.hasError('required')">
+                File Reference is required.
+              </mat-error>
+            </mat-form-field>
+            <mat-form-field>
+              <input matInput placeholder="Cause of action" formControlName="action" required>
+              <mat-error *ngIf="action.hasError('required')">
+                Action Type is required.
+              </mat-error>
+            </mat-form-field>
+            <mat-form-field>
+              <input matInput placeholder="Our Reference" formControlName="ourRef" required>
+              <mat-error *ngIf="ourRef.hasError('required')">
+                Our Reference is required.
+              </mat-error>
+            </mat-form-field>
+            <mat-form-field>
+              <mat-select placeholder="Milestone Process" [formControl]="milestoneProc" required>
+                <mat-option>--</mat-option>
+                <mat-option *ngFor="let prop of propTypes" [value]="prop"> <!--TODO: Get real milestone list names from DB-->
+                  {{prop}}
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="milestoneProc.hasError('required')">
+                Milestone Process is required.
+              </mat-error>
+            </mat-form-field>
+            <div>
+              <button class="btn btn-primary btn-sm" matStepperNext>Next</button>
+            </div>
+          </form>
+        </mat-step>
+        <mat-step [stepControl]="propForm">
+          <form [formGroup]="propForm">
+            <ng-template matStepLabel>Property Details</ng-template>
+            <mat-form-field>
+              <input matInput placeholder="Property Type" formControlName="propType" [matAutocomplete]="props" required>
+              <mat-error *ngIf="propType.hasError('required')">
+                Property Type is required.
+              </mat-error>
+              <mat-autocomplete #props="matAutocomplete" (optionSelected)="propTypeSelected($event.option)">
+                <mat-option *ngFor="let type of filteredProps | async" [value]="type">
+                  {{ type }}
+                </mat-option>
+              </mat-autocomplete>
+            </mat-form-field>
+            <mat-form-field>
+              <input matInput placeholder="Deeds Office" formControlName="deedsOffice" required>
+              <mat-error *ngIf="deedsOffice.hasError('required')">
+                Deeds Office is required.
+              </mat-error>
+            </mat-form-field>
+            <mat-form-field>
+              <input matInput placeholder="Erf Number" formControlName="erfNum" required>
+              <mat-error *ngIf="erfNum.hasError('required')">
+                Erf Number is required.
+              </mat-error>
+            </mat-form-field>
+            <mat-form-field>
+              <input type="number" matInput placeholder="Portion Number" formControlName="portionNum" required>
+              <mat-error *ngIf="portionNum.hasError('required')">
+                Portion Number is required.
+              </mat-error>
+            </mat-form-field>
+            <div>
+              <button class="btn btn-primary btn-sm" matStepperNext>Next</button>
+              <button style="margin-right: 5px;" class="btn btn-outline-secondary btn-sm" matStepperPrevious>Back</button>
+            </div>
+          </form>
         </mat-step>
         <mat-step [stepControl]="contactsForm">
           <ng-template matStepLabel>Add Contacts</ng-template>
-        </mat-step>
-        <mat-step>
-          <ng-template matStepLabel>Confirm</ng-template>
         </mat-step>
       </mat-horizontal-stepper>
     </div>

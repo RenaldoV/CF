@@ -8,11 +8,18 @@ import { AppRoutingModule } from './app-routing.module';
 import { WINDOW_PROVIDERS } from './window.service';
 import { AdminLogInComponent } from './log-in/admin-log-in.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import {MatFormFieldModule, MatInputModule, MatStepperModule} from '@angular/material';
+import {
+  MatAutocompleteModule, MatExpansionModule,
+  MatFormFieldModule, MatIconModule,
+  MatInputModule,
+  MatSelectModule,
+  MatStepperModule
+} from '@angular/material';
 import { ReactiveFormsModule } from '@angular/forms';
 import { AdminHomeComponent } from './admin-home/admin-home.component';
 import { NavComponent } from './nav/nav.component';
 import { AddFileComponent } from './add-file/add-file.component';
+import { AdminSetupComponent } from './admin-setup/admin-setup.component';
 
 
 @NgModule({
@@ -21,12 +28,17 @@ import { AddFileComponent } from './add-file/add-file.component';
     AdminLogInComponent,
     AdminHomeComponent,
     NavComponent,
-    AddFileComponent
+    AddFileComponent,
+    AdminSetupComponent
   ],
   imports: [
     MatInputModule,
     MatFormFieldModule,
     MatStepperModule,
+    MatAutocompleteModule,
+    MatSelectModule,
+    MatExpansionModule,
+    MatIconModule,
     BrowserModule,
     HttpClientModule,
     AppRoutingModule,

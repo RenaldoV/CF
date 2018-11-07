@@ -7,3 +7,12 @@
 mat-horizontal-stepper {
   background-color: lightgray;
 }
+
+mat-form-field {
+  width: 100%;
+  margin: 5px;
+}
+
+button {
+  float: right;
+}

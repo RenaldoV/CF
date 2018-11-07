@@ -5,7 +5,8 @@ import { AdminHomeComponent } from './admin-home/admin-home.component';
 import { AuthGuardService } from './auth/guards/auth-guard.service';
 import { NotAuthService } from './auth/guards/not-auth.service';
 import { AdminGuardService } from './auth/guards/admin-guard.service';
-import {AddFileComponent} from './add-file/add-file.component';
+import { AddFileComponent } from './add-file/add-file.component';
+import { AdminSetupComponent } from './admin-setup/admin-setup.component';
 
 const appRoutes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: '/admin-login' },
@@ -16,6 +17,7 @@ const appRoutes: Routes = [
     canActivate: [AuthGuardService, AdminGuardService]
   },
   { path: 'add-file', component: AddFileComponent },
+  { path: 'admin-setup', component: AdminSetupComponent },
   { path: '**',  redirectTo: ''}
 ];
 

@@ -11,7 +11,8 @@ let User = new mongoose.Schema({
       token: String,
       expiry: Date
     },
-    fileIDs: [{type: String, ref: 'files'}]
+    fileIDs: [{type: String, ref: 'files'}],
+    properties: {type: String, ref: 'properties'}
   },
   {
     collection: 'users'

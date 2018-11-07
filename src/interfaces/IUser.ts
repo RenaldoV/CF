@@ -8,7 +8,7 @@ export interface IUser {
   forgotPassword?: {
     token: string;
     expiry: Date;
-  }
+  };
   fileIDs?: [string];
 }
 
