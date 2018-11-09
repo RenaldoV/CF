@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@angular/core';
-import { HttpClient, HttpHeaders } from "@angular/common/http";
-import { Router } from "@angular/router";
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { WINDOW } from '../window.service';
 import { IUser } from '../../interfaces/IUser';
 
@@ -14,7 +14,7 @@ export class AuthService {
     private router: Router,
     @Inject(WINDOW) private window: Window
     ) {
-    this.host = "http://" + window.location.hostname + ':4000/user';
+    this.host = 'http://' + window.location.hostname + ':4000/user';
   }
 
   addUser (user) {
@@ -25,8 +25,8 @@ export class AuthService {
       .subscribe(res => {
         if (res) {
           // this.saveUser(res.user);
-          //console.log(res);
-        }else {
+          // console.log(res);
+        } else {
           return res;
         }
       }, err => {
@@ -82,5 +82,8 @@ export class AuthService {
   }
   getName() {
     return JSON.parse(localStorage.getItem('user')).name;
+  }
+  getID() {
+    return JSON.parse(localStorage.getItem('user'))._id;
   }
 }

@@ -1,0 +1,146 @@
+<app-nav></app-nav>
+<div class="container">
+  <div class="row">
+    <div class="col-lg-8 col-md-10 col-sm-12 offset-md-1 offset-lg-2">
+      <mat-accordion>
+        <mat-expansion-panel hideToggle>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Milestones Setup
+            </mat-panel-title>
+            <mat-panel-description>
+              Add Milestone Lists
+              <i class="fas fa-tasks"></i>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          <div class="row">
+            <div class="col-10 offset-1" style="margin-bottom: 10px;">
+              <form class="MilestoneListForm" [formGroup]="MilestoneListForm">
+                <mat-accordion>
+                  <mat-expansion-panel [expanded]="true" hideToggle class="msListPanel" formArrayName="list"
+                                       *ngFor="let l of list.controls; let i = index">
+                    <mat-expansion-panel-header>
+                      <mat-panel-title>
+                        {{ l.get('title').value ? l.get('title').value : 'List ' + (i + 1) }}
+                      </mat-panel-title>
+                      <mat-panel-description>
+                        {{ getMilestones(i).length }} Milestones
+                        <i class="fas fa-trash-alt float-right deleteBtn"
+                           (click)="removeMilestoneList($event, i)"></i>
+                      </mat-panel-description>
+                    </mat-expansion-panel-header>
+                    <div [formGroupName]="i">
+                      <mat-form-field class="innerFormFields">
+                        <input matInput placeholder="List title" formControlName="title" required>
+                        <mat-error *ngIf="l.get('title').hasError('required')">
+                          List title is required.
+                        </mat-error>
+                      </mat-form-field>
+                      <mat-accordion>
+                        <mat-expansion-panel [expanded]="true" hideToggle class="msPanel" formArrayName="milestones"
+                                           *ngFor="let m of getMilestones(i).controls; let k = index">
+                        <mat-expansion-panel-header>
+                          <mat-panel-title>
+                            {{ m.get('name').value ? m.get('name').value : 'Milestone' }}
+                          </mat-panel-title>
+                          <mat-panel-description>
+                            {{ k + 1 }}
+                            <i class="fas fa-trash-alt float-right deleteBtn" *ngIf="getMilestones(i).length > 1"
+                               (click)="removeMilestone($event, i, k)"></i>
+                          </mat-panel-description>
+                        </mat-expansion-panel-header>
+                        <div class="row" [formGroupName]="k">
+                          <mat-form-field class="innerFormFields col-8">
+                            <input matInput placeholder="Milestone Name" formControlName="name" required>
+                            <mat-error *ngIf="m.get('name').hasError('required')">
+                              Milestone Name is required.
+                            </mat-error>
+                          </mat-form-field>
+                          <mat-form-field class="innerFormFields col-4">
+                            <input matInput type="number" placeholder="Milestone Number" formControlName="number" required>
+                          </mat-form-field>
+                          <mat-form-field class="innerFormFields col-12" appearance="outline">
+                            <mat-label>Notification Message</mat-label>
+                            <textarea matInput
+                                      placeholder="Dear *contact_name* your property *erf_name* has been registered at *deeds_office* please contact me *my_name* for any other queries."
+                                      formControlName="notificationMessage" required rows="4"></textarea>
+                            <mat-error>Notification Message is required.</mat-error>
+                          </mat-form-field>
+                          <div class="col-6 offset-6">
+                            <button
+                              class="btn btn-outline-secondary btn-sm"
+                              [matTooltip]="showPlaceholderText()" tooltipClass="infoTooltip">
+                              <i class="fas fa-info-circle"></i> Placeholder Description
+                            </button>
+                          </div>
+                          <div class="col-12">
+                            <mat-checkbox formControlName="sendEmail">Email to all parties</mat-checkbox>
+                          </div>
+                          <div class="col-12">
+                            <mat-checkbox formControlName="sendSMS">SMS to all parties</mat-checkbox>
+                          </div>
+                        </div>
+                      </mat-expansion-panel>
+                      </mat-accordion>
+                    </div>
+                    <div class="btn-group" role="group" aria-label="action buttons" style="margin-top: 5px;">
+                      <button (click)="addMilestone(i)" class="btn btn-outline-secondary btn-sm" color="primary"
+                               *ngIf="l.get('title').valid && MilestoneListForm.valid"><i class="fas fa-plus"></i> Add Milestone
+                      </button>
+                      <button class="btn btn-primary btn-sm saveButton" color="primary" [disabled]="!MilestoneListForm.valid" (click)="submitMilestones(i)"><i class="far fa-save"></i> Save</button> <!--TODO: implement loading spinner-->
+                    </div>
+                  </mat-expansion-panel>
+                </mat-accordion>
+              </form>
+            </div>
+          </div>
+          <button (click)="addMilestoneList()" *ngIf="MilestoneListForm.valid" class="btn btn-outline-primary btn-xs" color="primary"><i class="fas fa-plus"></i> Add Milestone List</button>
+        </mat-expansion-panel>
+        <mat-expansion-panel hideToggle>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              File Properties
+            </mat-panel-title>
+            <mat-panel-description>
+              Configure File Properties and types.
+              <i class="fas fa-cog"></i>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          <mat-action-row>
+            <button class="btn btn-primary btn-md" color="primary">Save</button>
+          </mat-action-row>
+        </mat-expansion-panel>
+        <mat-expansion-panel hideToggle>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Contacts
+            </mat-panel-title>
+            <mat-panel-description>
+              Manage Contact list
+              <i class="fas fa-id-card-alt"></i>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          <button class="btn btn-outline-primary btn-sm" color="primary"><i class="fas fa-plus"></i> Add Contact</button>
+          <mat-action-row>
+            <button class="btn btn-primary btn-md" color="primary">Save</button>
+          </mat-action-row>
+        </mat-expansion-panel>
+        <mat-expansion-panel hideToggle>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Users
+            </mat-panel-title>
+            <mat-panel-description>
+              Manage Users
+              <i class="fas fa-users"></i>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          <button class="btn btn-outline-primary btn-sm" color="primary"><i class="fas fa-plus"></i> Add User</button>
+          <mat-action-row>
+            <button class="btn btn-primary btn-md" color="primary">Save</button>
+          </mat-action-row>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </div>
+  </div>
+</div>

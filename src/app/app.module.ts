@@ -9,17 +9,17 @@ import { WINDOW_PROVIDERS } from './window.service';
 import { AdminLogInComponent } from './log-in/admin-log-in.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {
-  MatAutocompleteModule, MatExpansionModule,
+  MatAutocompleteModule, MatCardModule, MatCheckboxModule, MatExpansionModule,
   MatFormFieldModule, MatIconModule,
   MatInputModule,
   MatSelectModule,
-  MatStepperModule
+  MatStepperModule, MatTooltipModule
 } from '@angular/material';
 import { ReactiveFormsModule } from '@angular/forms';
-import { AdminHomeComponent } from './admin-home/admin-home.component';
+import { AdminHomeComponent } from './Admin/admin-home/admin-home.component';
 import { NavComponent } from './nav/nav.component';
-import { AddFileComponent } from './add-file/add-file.component';
-import { AdminSetupComponent } from './admin-setup/admin-setup.component';
+import { AddFileComponent } from './Files/add-file/add-file.component';
+import { AdminSetupComponent } from './Admin/admin-setup/admin-setup.component';
 
 
 @NgModule({
@@ -33,12 +33,15 @@ import { AdminSetupComponent } from './admin-setup/admin-setup.component';
   ],
   imports: [
     MatInputModule,
+    MatTooltipModule,
+    MatCheckboxModule,
     MatFormFieldModule,
     MatStepperModule,
     MatAutocompleteModule,
     MatSelectModule,
     MatExpansionModule,
     MatIconModule,
+    MatCardModule,
     BrowserModule,
     HttpClientModule,
     AppRoutingModule,

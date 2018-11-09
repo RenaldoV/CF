@@ -1,0 +1,45 @@
+.container {
+  margin-top: 20px;
+}
+
+.example-headers-align .mat-expansion-panel-header-title,
+.example-headers-align .mat-expansion-panel-header-description {
+  flex-basis: 0;
+}
+
+mat-accordion .mat-expansion-panel-header-description {
+  justify-content: space-between;
+  align-items: center;
+}
+
+.MilestoneListForm {
+  width: 100%;
+  align-content: center;
+}
+
+.msListPanel {
+  margin-bottom: 10px;
+  background-color: #f3f3f3;
+}
+.msListPanel mat-expansion-panel-header {
+  background-color: #e3e3e3;
+}
+
+.msPanel mat-expansion-panel-header {
+  background-color: #c1c1c1;
+}
+
+.deleteBtn {
+  color: red;
+  cursor: pointer;
+}
+
+.innerFormFields {
+  margin-top: 5px;
+}
+
+mat-expansion-panel.msPanel mat-expansion-panel-header.mat-expanded[style] {
+  transition: all 0.5s;
+  height: 48px!important;
+}
+
