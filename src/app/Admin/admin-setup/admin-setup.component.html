@@ -17,7 +17,7 @@
             <div class="col-10 offset-1" style="margin-bottom: 10px;">
               <form class="MilestoneListForm" [formGroup]="MilestoneListForm">
                 <mat-accordion>
-                  <mat-expansion-panel [expanded]="true" hideToggle class="msListPanel" formArrayName="list"
+                  <mat-expansion-panel hideToggle class="msListPanel" formArrayName="list"
                                        *ngFor="let l of list.controls; let i = index">
                     <mat-expansion-panel-header>
                       <mat-panel-title>
@@ -29,7 +29,7 @@
                            (click)="removeMilestoneList($event, i)"></i>
                       </mat-panel-description>
                     </mat-expansion-panel-header>
-                    <div [formGroupName]="i">
+                    <div [formGroupName]="i" (change)="onListChange(i)">
                       <mat-form-field class="innerFormFields">
                         <input matInput placeholder="List title" formControlName="title" required>
                         <mat-error *ngIf="l.get('title').hasError('required')">
@@ -37,7 +37,7 @@
                         </mat-error>
                       </mat-form-field>
                       <mat-accordion>
-                        <mat-expansion-panel [expanded]="true" hideToggle class="msPanel" formArrayName="milestones"
+                        <mat-expansion-panel hideToggle class="msPanel" formArrayName="milestones"
                                            *ngFor="let m of getMilestones(i).controls; let k = index">
                         <mat-expansion-panel-header>
                           <mat-panel-title>
@@ -49,7 +49,7 @@
                                (click)="removeMilestone($event, i, k)"></i>
                           </mat-panel-description>
                         </mat-expansion-panel-header>
-                        <div class="row" [formGroupName]="k">
+                        <div class="row" [formGroupName]="k" (change)="onMilestoneChange(i , k)">
                           <mat-form-field class="innerFormFields col-8">
                             <input matInput placeholder="Milestone Name" formControlName="name" required>
                             <mat-error *ngIf="m.get('name').hasError('required')">
@@ -66,12 +66,30 @@
                                       formControlName="notificationMessage" required rows="4"></textarea>
                             <mat-error>Notification Message is required.</mat-error>
                           </mat-form-field>
-                          <div class="col-6 offset-6">
-                            <button
-                              class="btn btn-outline-secondary btn-sm"
-                              [matTooltip]="showPlaceholderText()" tooltipClass="infoTooltip">
-                              <i class="fas fa-info-circle"></i> Placeholder Description
-                            </button>
+                          <div class="col-12">
+                            <span style="color: lightgray">Insert Placeholders</span>
+                            <div class="btn-group placeholderButtons" role="group" aria-label="action buttons">
+                              <button
+                                class="btn btn-outline-secondary btn-sm"
+                                (click)="insertNoti($event, i, k, ' *contact_name*')">
+                                Contact's Name
+                              </button>
+                              <button
+                                class="btn btn-outline-secondary btn-sm"
+                                (click)="insertNoti($event, i, k, ' *erf_name*')">
+                                Erf Name
+                              </button>
+                              <button
+                                class="btn btn-outline-secondary btn-sm"
+                                (click)="insertNoti($event, i, k, ' *deeds_office*')">
+                                Deeds Office
+                              </button>
+                              <button
+                                class="btn btn-outline-secondary btn-sm"
+                                (click)="insertNoti($event, i, k, ' *my_name*')">
+                                My Name
+                              </button>
+                            </div>
                           </div>
                           <div class="col-12">
                             <mat-checkbox formControlName="sendEmail">Email to all parties</mat-checkbox>
@@ -87,7 +105,10 @@
                       <button (click)="addMilestone(i)" class="btn btn-outline-secondary btn-sm" color="primary"
                                *ngIf="l.get('title').valid && MilestoneListForm.valid"><i class="fas fa-plus"></i> Add Milestone
                       </button>
-                      <button class="btn btn-primary btn-sm saveButton" color="primary" [disabled]="!MilestoneListForm.valid" (click)="submitMilestones(i)"><i class="far fa-save"></i> Save</button> <!--TODO: implement loading spinner-->
+                      <button class="btn btn-primary btn-sm saveButton" color="primary" [disabled]="!MilestoneListForm.valid" (click)="submitMilestones(i)">
+                        <span *ngIf="!(loaderService.isLoading | async)"><i class="far fa-save"></i> Save</span>
+                        <i *ngIf="loaderService.isLoading | async" class="fas fa-spinner fa-spin"></i>
+                      </button> <!--TODO: implement loading spinner-->
                     </div>
                   </mat-expansion-panel>
                 </mat-accordion>

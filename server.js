@@ -18,7 +18,15 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 const port = process.env.PORT || 4000;
-
+app.use((err, req, res, next) => {
+  console.log(err);
+  console.log('error : ;');
+  res.status(err.status || 500);
+  res.render('error', {
+    message: err.message,
+    error: {}
+  })
+});
 app.use('/user', userRoutes);
 app.use(express.static(root));
 app.use(fallback('dist/ConveyFeed/index.html', { root : __dirname}));

@@ -43,3 +43,8 @@ mat-expansion-panel.msPanel mat-expansion-panel-header.mat-expanded[style] {
   height: 48px!important;
 }
 
+.placeholderButtons button.btn.btn-outline-secondary.btn-sm {
+  font-size: 12px!important;
+  padding: .15rem .3rem;
+}
+

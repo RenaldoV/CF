@@ -27,7 +27,6 @@ userRoutes.route('/addUser').post((req, res, next) => {
     })
   });
 });
-
 userRoutes.route('/login').post((req, res, next) => {
   let user = req.body;
   User.findOne({email : user.email}, '_id name surname passwordHash email', (err, usr) => {
@@ -47,17 +46,15 @@ userRoutes.route('/login').post((req, res, next) => {
     }
   });
 });
-
 userRoutes.route('/getRole').post((req, res, next) => {
   let id = req.body._id;
   User.findById(id, 'role', (err, result) => {
     res.send(result);
   })
 });
-
 userRoutes.route('/addList').post((req, res, next) => {
   let list = req.body;
-  const milestones = list.milestones;
+  delete list._id;
   list.milestones = [];
   List.create(list, (err, resList) => {
     if (err) return next(err);
@@ -73,13 +70,14 @@ userRoutes.route('/addList').post((req, res, next) => {
 });
 userRoutes.route('/addMilestones').post((req, res, next) => {
   let milestones = req.body.milestones;
+  milestones.forEach(m => {delete m._id});
   let listID = req.body.listID;
   Milestone.insertMany(milestones, (err, resMs) => {
     if (err) return next(err);
     if (resMs) {
       let mIds = resMs.map((id) => {return id['_id']});
       console.log(mIds);
-      List.findByIdAndUpdate(listID, {$push: {milestones:{$each: mIds}}}, (er, mRes) => {
+      List.findByIdAndUpdate(listID, {$push: {milestones:{$each: mIds}}}, {new: true}).populate('milestones').exec((er, mRes) => {
         res.json(mRes);
       });
     }else {
@@ -87,6 +85,55 @@ userRoutes.route('/addMilestones').post((req, res, next) => {
       res.send(false);
     }
   })
+});
+userRoutes.route('/deleteMilestone').post((req, res, next) => {
+  const id = req.body.id;
+  const listID = req.body.listID;
+  Milestone.findByIdAndRemove(id, (err, result) => {
+    if (err) {
+      console.log(err);
+      res.send(false);
+    }
+    else if (result) {
+      List.findByIdAndUpdate(listID, {$pull: {milestones: id}}, (er, result1) =>{
+        if(er) {
+          console.log(er);
+          res.send(false);
+        }
+        else if(result1) {
+          res.send(true)
+        }else {
+          res.send(false);
+        }
+      });
+    } else {
+      res.send(false);
+    }
+  });
+});
+userRoutes.route('/list').get((req, res, next) => {
+  // get all milestone Lists
+  // TODO: get lists from specific user and not just all lists in DB
+  List.find().populate('milestones').exec((err, lists) => {
+    console.log(err);
+    if (lists) {
+      res.json(lists);
+    }else {
+      res.send(false);
+    }
+  });
+});
+userRoutes.route('/lists/:id').get((req, res, next) => {
+  // get all milestone Lists
+  const id = req.params.id;
+  List.findById(id).populate('milestones').exec((err, list) => {
+    if(err) throw next(err);
+    if (list) {
+      res.json(list);
+    }else {
+      res.send(false);
+    }
+  });
 });
 
 /*TODO: Insert One Milestone*/

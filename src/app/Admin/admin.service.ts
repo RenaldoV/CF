@@ -3,12 +3,14 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Router} from '@angular/router';
 import {WINDOW} from '../window.service';
 import {AuthService} from '../auth/auth.service';
+import {Observable} from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AdminService {
   private host;
+
   constructor(
     private http: HttpClient,
     private router: Router,
@@ -17,52 +19,28 @@ export class AdminService {
   ) {
     this.host = 'http://' + window.location.hostname + ':4000/user';
   }
+
   createMilestones(milestones, listID) {
     const headers = new HttpHeaders();
     headers.set('Content-Type', 'application/json');
-    this.http.post<any>(`${this.host}/addMilestones`, {milestones: milestones, listID: listID})
-      .subscribe(res => {
-        if (res) {
-          console.log(res);
-        } else {
-          return res;
-        }
-      }, err => {
-        console.log(err);
-        return false;
-      });
+    return this.http.post<any>(`${this.host}/addMilestones`, {milestones: milestones, listID: listID});
   }
-  createList(list) {
-    if (list.updatedBy === 'new') { // new list save to db
-      list.updatedBy = this.auth.getID();
-      list.milestones.forEach(m => {
-        m.updatedBy = list.updatedBy;
-      });
+
+  createNewList(list) {
       const headers = new HttpHeaders();
       headers.set('Content-Type', 'application/json');
-      this.http.post<any>(`${this.host}/addList`, list)
-      .subscribe(res => {
-        if (res) {
-          this.createMilestones(list.milestones, res._id);
+      return this.http.post<any>(`${this.host}/addList`, list);
+  }
 
-        } else {
-          return res;
-        }
-      }, err => {
-        console.log(err);
-        return false;
-      });
-    } else if (list.updatedBy === 'updated') {
-
-    } else {
-
-    }
-   /* lists.forEach(l => {
-      if (l.updatedBy === 'new') {
-        l.updatedBy = this.auth.getID();
-
-      }
-    });*/
-
+  getAllMilestoneLists(): Observable<any> {
+    const url = `${this.host}/list`;
+    return this.http.get(url);
+  }
+  getMilestoneList(id): Observable<any> {
+    const url = `${this.host}/lists/` + id;
+    return this.http.get(url);
+  }
+  deleteMilestone(id, listID) {
+    return this.http.post<any>(`${this.host}/deleteMilestone`, {id: id, listID: listID});
   }
 }

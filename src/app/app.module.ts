@@ -20,6 +20,8 @@ import { AdminHomeComponent } from './Admin/admin-home/admin-home.component';
 import { NavComponent } from './nav/nav.component';
 import { AddFileComponent } from './Files/add-file/add-file.component';
 import { AdminSetupComponent } from './Admin/admin-setup/admin-setup.component';
+import {LoaderModule} from './Loader';
+
 
 
 @NgModule({
@@ -46,7 +48,8 @@ import { AdminSetupComponent } from './Admin/admin-setup/admin-setup.component';
     HttpClientModule,
     AppRoutingModule,
     BrowserAnimationsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    LoaderModule
   ],
   providers: [
     AuthService,

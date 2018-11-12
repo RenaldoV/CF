@@ -9,7 +9,7 @@ const Milestone = new Schema({
   notificationMessage: String,
   sendEmail: Boolean,
   sendSMS: Boolean,
-  updatedBy: {type: String, ref: 'users'}
+  updatedBy: {type: Schema.Types.ObjectId, ref: 'User'}
 },
 {
   collection: 'milestones',
