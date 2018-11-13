@@ -172,14 +172,38 @@ export class AdminSetupComponent implements OnInit {
           }, err => {
             console.log(err);
           });
-      } else if (list.updatedBy === 'updated') {
-        list.updatedBy = 'me';
+      } else if (list.updatedBy === 'updated') { // TODO: update list
+        list.updatedBy = this.auth.getID();
         list.milestones.forEach((m, k) => {
-          /*if (m.updatedBy === 'updated') {
+          if (m.updatedBy === 'updated') { // existing milestone needs to be updated
             m.updatedBy = list.updatedBy;
-          }*/
+            this.adminService.updateMilestone(m)
+              .subscribe(res => {
+                if (res) {
+                  console.log('update successful');
+                  this.getMilestones(i).at(k).patchValue(m);
+                } else {
+                  alert('Oops, something went wrong');
+                }
+              }, err => {
+                console.log(err);
+              });
+          } else if (m.updatedBy === 'new') { // new milestone needs to be pushed
+            m.updatedBy = list.updatedBy;
+            this.adminService.createMilestone(m, list._id)
+              .subscribe(res => {
+                if (res) {
+                  console.log('create successful'); // TODO: patch value of new Milestone
+                } else {
+                  alert('Oops, something went wrong');
+                }
+              }, err => {
+                console.log(err);
+              });
+          }
         });
-        console.log(list);
+        this.list.at(i).patchValue(list);
+        console.log(this.list.at(i).value);
       }
     }
   }

@@ -25,7 +25,11 @@ export class AdminService {
     headers.set('Content-Type', 'application/json');
     return this.http.post<any>(`${this.host}/addMilestones`, {milestones: milestones, listID: listID});
   }
-
+  createMilestone(m, listID) {
+    const headers = new HttpHeaders();
+    headers.set('Content-Type', 'application/json');
+    return this.http.post<any>(`${this.host}/addMilestone`, {m: m, listID: listID});
+  }
   createNewList(list) {
       const headers = new HttpHeaders();
       headers.set('Content-Type', 'application/json');
@@ -42,5 +46,9 @@ export class AdminService {
   }
   deleteMilestone(id, listID) {
     return this.http.post<any>(`${this.host}/deleteMilestone`, {id: id, listID: listID});
+  }
+  updateMilestone(m) {
+    console.log('Updating milestone to :' + m);
+    return this.http.post<Boolean>(`${this.host}/updateMilestone`, m);
   }
 }

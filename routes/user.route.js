@@ -86,6 +86,36 @@ userRoutes.route('/addMilestones').post((req, res, next) => {
     }
   })
 });
+userRoutes.route('/addMilestone').post((req, res, next) => {
+  let m = req.body.m;
+  delete m._id;
+  let listID = req.body.listID;
+  Milestone.create(m, (err, resM) => {
+    if (err) {
+      console.log(err);
+      res.send(false);
+    }
+    if (resM) {
+      let mId = resM._id;
+      console.log(mId);
+      List.findByIdAndUpdate(listID, {$push: {milestones: mId}}, {new: true}).populate('milestones').exec((er, mRes) => {
+        if (er) {
+          console.log(er);
+          res.send(false);
+        }else if(mRes) {
+          console.log('new list: \n' + mRes);
+          res.json(mRes);
+        }else {
+          console.log('unsuccessful creation: \n' + result);
+          res.send(false);
+        }
+      });
+    }else {
+      console.log('unsuccessful creation: \n' + result);
+      res.send(false);
+    }
+  })
+});
 userRoutes.route('/deleteMilestone').post((req, res, next) => {
   const id = req.body.id;
   const listID = req.body.listID;
@@ -106,6 +136,21 @@ userRoutes.route('/deleteMilestone').post((req, res, next) => {
           res.send(false);
         }
       });
+    } else {
+      res.send(false);
+    }
+  });
+});
+userRoutes.route('/updateMilestone').post((req, res, next) => {
+  const m = req.body;
+  Milestone.findByIdAndUpdate(m._id, m, (err, result) => {
+    if (err) {
+      console.log(err);
+      res.send(false);
+    }
+    else if (result) {
+      console.log(result);
+      res.send(true);
     } else {
       res.send(false);
     }
