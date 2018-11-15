@@ -71,31 +71,33 @@
                             <div class="btn-group placeholderButtons" role="group" aria-label="action buttons">
                               <button
                                 class="btn btn-outline-secondary btn-sm"
-                                (click)="insertNoti($event, i, k, ' *contact_name*')">
+                                (click)="insertNoti($event, i, k, ' *contact_name*'); onMilestoneChange(i,k); onListChange(i)">
                                 Contact's Name
                               </button>
                               <button
                                 class="btn btn-outline-secondary btn-sm"
-                                (click)="insertNoti($event, i, k, ' *erf_name*')">
+                                (click)="insertNoti($event, i, k, ' *erf_name*'); onMilestoneChange(i,k); onListChange(i)">
                                 Erf Name
                               </button>
                               <button
                                 class="btn btn-outline-secondary btn-sm"
-                                (click)="insertNoti($event, i, k, ' *deeds_office*')">
+                                (click)="insertNoti($event, i, k, ' *deeds_office*'); onMilestoneChange(i,k); onListChange(i)">
                                 Deeds Office
                               </button>
                               <button
                                 class="btn btn-outline-secondary btn-sm"
-                                (click)="insertNoti($event, i, k, ' *my_name*')">
+                                (click)="insertNoti($event, i, k, ' *my_name*'); onMilestoneChange(i,k); onListChange(i)">
                                 My Name
                               </button>
                             </div>
                           </div>
                           <div class="col-12">
-                            <mat-checkbox formControlName="sendEmail">Email to all parties</mat-checkbox>
+                            <mat-checkbox (change)="onMilestoneChange(i, k); onListChange(i)" formControlName="sendEmail">
+                              Email to all parties</mat-checkbox>
                           </div>
                           <div class="col-12">
-                            <mat-checkbox formControlName="sendSMS">SMS to all parties</mat-checkbox>
+                            <mat-checkbox (change)="onMilestoneChange(i, k); onListChange(i)" formControlName="sendSMS">
+                              SMS to all parties</mat-checkbox>
                           </div>
                         </div>
                       </mat-expansion-panel>
@@ -108,14 +110,16 @@
                       <button class="btn btn-primary btn-sm saveButton" color="primary" [disabled]="!MilestoneListForm.valid" (click)="submitMilestones(i)">
                         <span *ngIf="!(loaderService.isLoading | async)"><i class="far fa-save"></i> Save</span>
                         <i *ngIf="loaderService.isLoading | async" class="fas fa-spinner fa-spin"></i>
-                      </button> <!--TODO: implement loading spinner-->
+                      </button>
                     </div>
                   </mat-expansion-panel>
                 </mat-accordion>
               </form>
             </div>
           </div>
-          <button (click)="addMilestoneList()" *ngIf="MilestoneListForm.valid" class="btn btn-outline-primary btn-xs" color="primary"><i class="fas fa-plus"></i> Add Milestone List</button>
+          <button (click)="addMilestoneList()" *ngIf="MilestoneListForm.valid" class="btn btn-outline-primary btn-xs" color="primary">
+            <i class="fas fa-plus"></i> Add Milestone List
+          </button>
         </mat-expansion-panel>
         <mat-expansion-panel hideToggle>
           <mat-expansion-panel-header>
@@ -127,8 +131,121 @@
               <i class="fas fa-cog"></i>
             </mat-panel-description>
           </mat-expansion-panel-header>
+          <div class="row">
+            <div class="col-10 offset-1" style="margin-bottom: 10px;">
+              <form class="PropertiesForm" [formGroup]="PropertiesForm">
+                <mat-accordion>
+                  <mat-expansion-panel hideToggle class="msListPanel">
+                    <mat-expansion-panel-header>
+                      <mat-panel-title>
+                        Property Types
+                      </mat-panel-title>
+                      <mat-panel-description>
+                        Manage Property Types
+                        <i class="fas fa-home float-right"></i>
+                      </mat-panel-description>
+                    </mat-expansion-panel-header>
+                    <div class="propertiesPanelBody">
+                      <mat-accordion>
+                        <mat-expansion-panel class="msPanel" hideToggle *ngFor="let p of propertyTypes.controls; let i = index" formArrayName="propertyTypes">
+                          <mat-expansion-panel-header>
+                            <mat-panel-description>
+                              {{p.get('name').value ? p.get('name').value : 'Property Type ' + (i+1)}}
+                              <i class="fas fa-trash-alt float-right deleteBtn" (click)="removePropertyType($event, i)"></i>
+                            </mat-panel-description>
+                          </mat-expansion-panel-header>
+                          <div [formGroupName]="i">
+                            <mat-form-field class="innerFormFields">
+                              <input (change)="onPropTypeChange(i)" matInput placeholder="Property Type" formControlName="name" required>
+                              <mat-error>
+                                Property Type is required.
+                              </mat-error>
+                            </mat-form-field>
+                          </div>
+                        </mat-expansion-panel>
+                      </mat-accordion>
+                    </div>
+                    <button *ngIf="propertyTypes.valid" (click)="addPropertyType()" class="btn btn-outline-secondary btn-sm" color="primary" style="margin-top: 5px;">
+                      <i class="fas fa-plus"></i> Add Property Type
+                    </button>
+                  </mat-expansion-panel>
+                  <mat-expansion-panel hideToggle class="msListPanel">
+                    <mat-expansion-panel-header>
+                      <mat-panel-title>
+                        Cause of Action Types
+                      </mat-panel-title>
+                      <mat-panel-description>
+                        Manage Action Types
+                        <i class="fas fa-exclamation"></i>
+                      </mat-panel-description>
+                    </mat-expansion-panel-header>
+                    <div class="propertiesPanelBody">
+                      <mat-accordion>
+                        <mat-expansion-panel class="msPanel" hideToggle *ngFor="let at of actionTypes.controls; let i = index" formArrayName="actionTypes">
+                          <mat-expansion-panel-header>
+                            <mat-panel-description>
+                              {{at.get('name').value ? at.get('name').value : 'Action Type ' + (i+1)}}
+                              <i class="fas fa-trash-alt float-right deleteBtn" (click)="removeActionType($event, i)"></i>
+                            </mat-panel-description>
+                          </mat-expansion-panel-header>
+                          <div [formGroupName]="i">
+                            <mat-form-field class="innerFormFields">
+                              <input (change)="onActionTypeChange(i)" matInput placeholder="Action type" formControlName="name" required>
+                              <mat-error>
+                                Action Type is required.
+                              </mat-error>
+                            </mat-form-field>
+                          </div>
+                        </mat-expansion-panel>
+                      </mat-accordion>
+                    </div>
+                    <button *ngIf="actionTypes.valid" (click)="addActionType()" class="btn btn-outline-secondary btn-sm" color="primary" style="margin-top: 5px;">
+                      <i class="fas fa-plus"></i> Add Action Type
+                    </button>
+                  </mat-expansion-panel>
+                  <mat-expansion-panel hideToggle class="msListPanel">
+                    <mat-expansion-panel-header>
+                      <mat-panel-title>
+                        Deeds Offices
+                      </mat-panel-title>
+                      <mat-panel-description>
+                        Manage Deeds Offices
+                        <i class="fas fa-building"></i>
+                      </mat-panel-description>
+                    </mat-expansion-panel-header>
+                    <div class="propertiesPanelBody">
+                      <mat-accordion>
+                        <mat-expansion-panel class="msPanel" hideToggle *ngFor="let d of deedsOffices.controls; let i = index" formArrayName="deedsOffices">
+                          <mat-expansion-panel-header>
+                            <mat-panel-description>
+                              {{d.get('name').value ? d.get('name').value : 'Deeds Office ' + (i+1)}}
+                              <i class="fas fa-trash-alt float-right deleteBtn" (click)="removeDeedsOffice($event, i)"></i>
+                            </mat-panel-description>
+                          </mat-expansion-panel-header>
+                          <div [formGroupName]="i">
+                            <mat-form-field class="innerFormFields">
+                              <input (change)="onDeedsOffChange(i)" matInput placeholder="Deeds Office" formControlName="name" required>
+                              <mat-error>
+                                Deeds Office is required.
+                              </mat-error>
+                            </mat-form-field>
+                          </div>
+                        </mat-expansion-panel>
+                      </mat-accordion>
+                    </div>
+                    <button *ngIf="deedsOffices.valid" (click)="addDeedsOffice()" class="btn btn-outline-secondary btn-sm" color="primary" style="margin-top: 5px;">
+                      <i class="fas fa-plus"></i> Add Deeds Office
+                    </button>
+                  </mat-expansion-panel>
+                </mat-accordion>
+              </form>
+            </div>
+          </div>
           <mat-action-row>
-            <button class="btn btn-primary btn-md" color="primary">Save</button>
+            <button (click)="submitProperties()" class="btn btn-primary btn-md" color="primary">
+              <span *ngIf="!(loaderService.isLoading | async)"><i class="far fa-save"></i> Save</span>
+              <i *ngIf="loaderService.isLoading | async" class="fas fa-spinner fa-spin"></i>
+            </button>
           </mat-action-row>
         </mat-expansion-panel>
         <mat-expansion-panel hideToggle>

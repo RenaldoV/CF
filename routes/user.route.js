@@ -4,6 +4,7 @@ const userRoutes = express.Router();
 const User = require('../models/user');
 const List = require('../models/milestoneList');
 const Milestone = require('../models/milestone');
+const Properties = require('../models/properties');
 const bcrypt = require('bcrypt');
 
 userRoutes.route('/addUser').post((req, res, next) => {
@@ -180,7 +181,123 @@ userRoutes.route('/lists/:id').get((req, res, next) => {
     }
   });
 });
-
-/*TODO: Insert One Milestone*/
+userRoutes.route('/deleteList').post((req, res, next) => {
+  const id = req.body._id;
+  List.findByIdAndRemove(id, (err, result) => {
+    if (err) {
+      console.log(err);
+      res.send(false);
+    }
+    else if (result) {
+      Milestone.deleteMany({_id: {$in: result.milestones}}, (er, result1) =>{
+        if(er) {
+          console.log(er);
+          res.send(false);
+        }
+        else if(result1) {
+          res.send(true)
+        }else {
+          res.send(false);
+        }
+      });
+    } else {
+      res.send(false);
+    }
+  });
+});
+userRoutes.route('/updateList').post((req, res, next) => {
+  const list = req.body;
+  List.findByIdAndUpdate(list._id, list, {new: true}).populate('milestones').exec((err, result) => {
+    if (err) {
+      console.log(err);
+      res.send(false);
+    }
+    else if (result) {
+      console.log(result);
+      res.send(result);
+    } else {
+      res.send(false);
+    }
+  });
+});
+userRoutes.route('/addProperties').post((req, res, next) => {
+  const prop = req.body.properties;
+  const uid = req.body.uid;
+  Properties.create(prop, (err, resP) => {
+    if(err) {
+      console.log(err);
+      res.send(false);
+    }else if(resP) {
+      User.findByIdAndUpdate(uid, {properties: resP._id}, (er, resU) => {
+        if(er) {
+          console.log(er);
+          res.send(false);
+        }else if(resU) {
+          res.send(resP);
+        }
+      });
+    }
+  });
+});
+userRoutes.route('/properties/:id').get((req, res, next) => {
+  // get user's properties
+  const id = req.params.id;
+  User.findById(id).populate('properties').exec((err, user) => {
+    if(err) {
+      console.log(err);
+      res.send(false);
+    }
+    if (user) {
+      res.json(user.properties);
+    }else {
+      res.send(false);
+    }
+  });
+});
+userRoutes.route('/hasProperties/:id').get((req, res, next) => {
+  // get user's properties
+  const id = req.params.id;
+  User.findById(id, 'properties', (err, user) => {
+    if(err) {
+      console.log(err);
+      res.send(false);
+    }
+    console.log(user.properties);
+    if (user.properties) {
+      res.json(true);
+    }else {
+      res.send(false);
+    }
+  });
+});
+userRoutes.route('/updateProperties').post((req, res, next) => {
+  const prop = req.body.properties;
+  const uid = req.body.uid;
+  User.findById(uid, 'properties', (err, user) => {
+    if(err) {
+      console.log(err);
+      res.send(false);
+    }
+    if (user) {
+      Properties.findByIdAndUpdate(user.properties, {
+        propertyTypes: prop.propertyTypes,
+        deedsOffices: prop.deedsOffices,
+        actionTypes: prop.actionTypes
+      }, {new: true}, (er, pRes) => {
+        if(er) {
+          console.log(er);
+          res.send(false);
+        }
+        if(pRes) {
+          res.send(pRes);
+        }else {
+          res.send(false);
+        }
+      })
+    }else {
+      res.send(false);
+    }
+  });
+});
 
 module.exports = userRoutes;

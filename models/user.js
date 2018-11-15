@@ -13,7 +13,7 @@ let User = new mongoose.Schema({
     },
     fileIDs: [{type: Schema.Types.ObjectId, ref: 'files'}],
     milestoneLists: [{type: Schema.Types.ObjectId, ref: 'milestoneLists'}],
-    properties: {type: Schema.Types.ObjectId, ref: 'properties'}
+    properties: {type: Schema.Types.ObjectId, ref: 'Properties'}
   },
   {
     collection: 'users'

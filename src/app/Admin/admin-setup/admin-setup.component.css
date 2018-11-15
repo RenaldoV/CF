@@ -32,6 +32,7 @@ mat-accordion .mat-expansion-panel-header-description {
 .deleteBtn {
   color: red;
   cursor: pointer;
+  z-index: 100;
 }
 
 .innerFormFields {
@@ -46,5 +47,9 @@ mat-expansion-panel.msPanel mat-expansion-panel-header.mat-expanded[style] {
 .placeholderButtons button.btn.btn-outline-secondary.btn-sm {
   font-size: 12px!important;
   padding: .15rem .3rem;
+}
+
+.propertiesPanelBody {
+  padding-top: 10px;
 }
 

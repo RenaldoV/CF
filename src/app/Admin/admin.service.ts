@@ -30,12 +30,6 @@ export class AdminService {
     headers.set('Content-Type', 'application/json');
     return this.http.post<any>(`${this.host}/addMilestone`, {m: m, listID: listID});
   }
-  createNewList(list) {
-      const headers = new HttpHeaders();
-      headers.set('Content-Type', 'application/json');
-      return this.http.post<any>(`${this.host}/addList`, list);
-  }
-
   getAllMilestoneLists(): Observable<any> {
     const url = `${this.host}/list`;
     return this.http.get(url);
@@ -50,5 +44,41 @@ export class AdminService {
   updateMilestone(m) {
     console.log('Updating milestone to :' + m);
     return this.http.post<Boolean>(`${this.host}/updateMilestone`, m);
+  }
+  createNewList(list) {
+      const headers = new HttpHeaders();
+      headers.set('Content-Type', 'application/json');
+      return this.http.post<any>(`${this.host}/addList`, list);
+  }
+  updateList(list) {
+    delete list.milestones;
+    const headers = new HttpHeaders();
+    headers.set('Content-Type', 'application/json');
+    return this.http.post<any>(`${this.host}/updateList`, list);
+  }
+  deleteList(id) {
+    const headers = new HttpHeaders();
+    headers.set('Content-Type', 'application/json');
+    return this.http.post<any>(`${this.host}/deleteList`, {_id: id});
+  }
+  userHasProperties() {
+    const uid = this.auth.getID();
+    const url = `${this.host}/hasProperties/` + uid;
+    return this.http.get(url);
+  }
+  createProperties(p, uid) {
+    const headers = new HttpHeaders();
+    headers.set('Content-Type', 'application/json');
+    return this.http.post<any>(`${this.host}/addProperties`, {properties: p, uid: uid});
+  }
+  getProperties() {
+    const uid = this.auth.getID();
+    const url = `${this.host}/properties/` + uid;
+    return this.http.get(url);
+  }
+  updateProperties(p) {
+    const headers = new HttpHeaders();
+    headers.set('Content-Type', 'application/json');
+    return this.http.post<any>(`${this.host}/updateProperties`, {properties: p, uid: this.auth.getID()});
   }
 }
