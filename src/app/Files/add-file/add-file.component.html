@@ -13,10 +13,15 @@
               </mat-error>
             </mat-form-field>
             <mat-form-field>
-              <input matInput placeholder="Cause of action" formControlName="action" required>
+              <input matInput placeholder="Cause of action" formControlName="action" [matAutocomplete]="actions" required>
               <mat-error *ngIf="action.hasError('required')">
                 Action Type is required.
               </mat-error>
+              <mat-autocomplete #actions="matAutocomplete" (optionSelected)="actionTypeSelected($event.option)">
+                <mat-option *ngFor="let action of filteredActions | async" [value]="action">
+                  {{ action }}
+                </mat-option>
+              </mat-autocomplete>
             </mat-form-field>
             <mat-form-field>
               <input matInput placeholder="Our Reference" formControlName="ourRef" required>
@@ -27,8 +32,8 @@
             <mat-form-field>
               <mat-select placeholder="Milestone Process" [formControl]="milestoneProc" required>
                 <mat-option>--</mat-option>
-                <mat-option *ngFor="let prop of propTypes" [value]="prop"> <!--TODO: Get real milestone list names from DB-->
-                  {{prop}}
+                <mat-option *ngFor="let ml of milestonesLists" [value]="ml">
+                  {{ml}}
                 </mat-option>
               </mat-select>
               <mat-error *ngIf="milestoneProc.hasError('required')">
@@ -55,10 +60,15 @@
               </mat-autocomplete>
             </mat-form-field>
             <mat-form-field>
-              <input matInput placeholder="Deeds Office" formControlName="deedsOffice" required>
+              <input matInput placeholder="Deeds Office" formControlName="deedsOffice" [matAutocomplete]="deed" required>
               <mat-error *ngIf="deedsOffice.hasError('required')">
                 Deeds Office is required.
               </mat-error>
+              <mat-autocomplete #deed="matAutocomplete" (optionSelected)="deedsSelected($event.option)">
+                <mat-option *ngFor="let d of filteredDeeds | async" [value]="d">
+                  {{ d }}
+                </mat-option>
+              </mat-autocomplete>
             </mat-form-field>
             <mat-form-field>
               <input matInput placeholder="Erf Number" formControlName="erfNum" required>

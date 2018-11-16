@@ -71,7 +71,7 @@ export class AdminService {
     headers.set('Content-Type', 'application/json');
     return this.http.post<any>(`${this.host}/addProperties`, {properties: p, uid: uid});
   }
-  getProperties() {
+  getProperties(): Observable<any> {
     const uid = this.auth.getID();
     const url = `${this.host}/properties/` + uid;
     return this.http.get(url);
