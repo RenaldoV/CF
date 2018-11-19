@@ -11,7 +11,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {
   MatAutocompleteModule, MatCardModule, MatCheckboxModule, MatExpansionModule,
   MatFormFieldModule, MatIconModule,
-  MatInputModule,
+  MatInputModule, MatRadioModule,
   MatSelectModule,
   MatStepperModule, MatTooltipModule
 } from '@angular/material';
@@ -41,6 +41,7 @@ import {LoaderModule} from './Loader';
     MatStepperModule,
     MatAutocompleteModule,
     MatSelectModule,
+    MatRadioModule,
     MatExpansionModule,
     MatIconModule,
     MatCardModule,

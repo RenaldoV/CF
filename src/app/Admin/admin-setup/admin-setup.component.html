@@ -258,10 +258,75 @@
               <i class="fas fa-id-card-alt"></i>
             </mat-panel-description>
           </mat-expansion-panel-header>
-          <button class="btn btn-outline-primary btn-sm" color="primary"><i class="fas fa-plus"></i> Add Contact</button>
-          <mat-action-row>
-            <button class="btn btn-primary btn-md" color="primary">Save</button>
-          </mat-action-row>
+          <div class="row">
+            <div class="col-10 offset-1" style="margin-bottom: 10px;">
+              <form class="ContactsForm" [formGroup]="ContactsForm">
+                <mat-accordion>
+                  <mat-expansion-panel hideToggle class="msListPanel" *ngFor="let c of contacts.controls; let i = index" formArrayName="contacts">
+                    <mat-expansion-panel-header>
+                      <mat-panel-description>
+                        {{c.get('name').value ? c.get('name').value : 'Contact ' + (i+1)}}
+                        <i class="fas fa-address-card"></i>
+                      </mat-panel-description>
+                    </mat-expansion-panel-header>
+                    <div [formGroupName]="i">
+                      <mat-form-field class="innerFormFields">
+                        <input matInput placeholder="Name" formControlName="name" required>
+                        <mat-error>
+                          Contact name is required.
+                        </mat-error>
+                      </mat-form-field>
+                      <br>
+                      <mat-form-field class="innerFormFields">
+                        <input matInput placeholder="Cell number" formControlName="cell" required>
+                        <mat-error>
+                          Cell number is required.
+                        </mat-error>
+                      </mat-form-field>
+                      <br>
+                      <mat-form-field class="innerFormFields">
+                        <input type="email" matInput placeholder="Email address" formControlName="email" required>
+                        <mat-error *ngIf="c.get('email').hasError('required')">
+                          Email address is required.
+                        </mat-error>
+                        <mat-error *ngIf="c.get('email').hasError('email')">
+                          Email must be a valid email address.
+                        </mat-error>
+                      </mat-form-field>
+                      <p style="color: gray;">Contact Type</p>
+                      <mat-radio-group class="example-radio-group" formControlName="type">
+                        <mat-radio-button value="Buyer">
+                          Buyer
+                        </mat-radio-button>
+                        <br>
+                        <mat-radio-button value="Seller">
+                          Seller
+                        </mat-radio-button>
+                        <br>
+                        <mat-radio-button value="Agent">
+                          Agent
+                        </mat-radio-button>
+                        <br>
+                      </mat-radio-group>
+                      <mat-error *ngIf="c.get('type').hasError('required') && !c.pristine">
+                        Contact type is required.
+                      </mat-error>
+                      <br>
+                      <div class="btn-group" role="group" aria-label="action buttons" style="margin-top: 5px;">
+                        <button class="btn btn-primary btn-sm saveButton" color="primary" [disabled]="!ContactsForm.valid" (click)="submitContact(i)">
+                          <span *ngIf="!(loaderService.isLoading | async)"><i class="far fa-save"></i> Save</span>
+                          <i *ngIf="loaderService.isLoading | async" class="fas fa-spinner fa-spin"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </mat-expansion-panel>
+                </mat-accordion>
+              </form>
+            </div>
+          </div>
+          <button *ngIf="ContactsForm.valid" class="btn btn-outline-primary btn-sm" color="primary" (click)="addContact()">
+            <i class="fas fa-plus"></i> Add Contact
+          </button>
         </mat-expansion-panel>
         <mat-expansion-panel hideToggle>
           <mat-expansion-panel-header>

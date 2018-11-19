@@ -12,6 +12,7 @@ import {AuthService} from '../../auth/auth.service';
 export class AdminSetupComponent implements OnInit {
   MilestoneListForm: FormGroup;
   PropertiesForm: FormGroup;
+  ContactsForm: FormGroup;
   constructor(
     private fb: FormBuilder,
     private adminService: AdminService,
@@ -22,6 +23,7 @@ export class AdminSetupComponent implements OnInit {
     this.getAllLists();
     this.createPropertiesForm();
     this.getProperties();
+    this.createContactsForm();
   }
 
   ngOnInit() {}
@@ -420,4 +422,29 @@ export class AdminSetupComponent implements OnInit {
       });
   }
   // ================== FILE PROPERTIES FUNCTIONS ========================
+  // ================== CONTACTS FUNCTIONS ===============================
+  createContactsForm() {
+    this.ContactsForm = this.fb.group({
+      contacts: this.fb.array([])
+    });
+  }
+  get contacts(): FormArray {
+    return this.ContactsForm.get('contacts') as FormArray;
+  }
+  addContact(existing?) {
+    const ct = this.fb.group({
+      name: ['', Validators.required],
+      cell: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      updatedBy: [existing ? 'existing' : 'new'],
+      type: ['', Validators.required]
+    });
+    const arrayControl = <FormArray>this.contacts;
+    arrayControl.push(ct);
+  }
+  submitContact(i) {
+    console.log(this.contacts.at(i).value);
+  }
+
+  // ================== CONTACTS FUNCTIONS ===============================
 }
