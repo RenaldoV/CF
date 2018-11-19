@@ -266,10 +266,10 @@
                     <mat-expansion-panel-header>
                       <mat-panel-description>
                         {{c.get('name').value ? c.get('name').value : 'Contact ' + (i+1)}}
-                        <i class="fas fa-address-card"></i>
+                        <i class="fas fa-trash-alt float-right deleteBtn" (click)="removeContact($event, i)"></i>
                       </mat-panel-description>
                     </mat-expansion-panel-header>
-                    <div [formGroupName]="i">
+                    <div [formGroupName]="i" (change)="onContactChange(i)">
                       <mat-form-field class="innerFormFields">
                         <input matInput placeholder="Name" formControlName="name" required>
                         <mat-error>
@@ -294,7 +294,7 @@
                         </mat-error>
                       </mat-form-field>
                       <p style="color: gray;">Contact Type</p>
-                      <mat-radio-group class="example-radio-group" formControlName="type">
+                      <mat-radio-group (change)="onContactChange(i)" class="example-radio-group" formControlName="type">
                         <mat-radio-button value="Buyer">
                           Buyer
                         </mat-radio-button>
@@ -313,7 +313,7 @@
                       </mat-error>
                       <br>
                       <div class="btn-group" role="group" aria-label="action buttons" style="margin-top: 5px;">
-                        <button class="btn btn-primary btn-sm saveButton" color="primary" [disabled]="!ContactsForm.valid" (click)="submitContact(i)">
+                        <button class="btn btn-primary btn-sm saveButton" color="primary" [disabled]="!contacts.at(i).valid" (click)="submitContact(i)">
                           <span *ngIf="!(loaderService.isLoading | async)"><i class="far fa-save"></i> Save</span>
                           <i *ngIf="loaderService.isLoading | async" class="fas fa-spinner fa-spin"></i>
                         </button>

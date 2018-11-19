@@ -59,7 +59,7 @@ export class AdminService {
   deleteList(id) {
     const headers = new HttpHeaders();
     headers.set('Content-Type', 'application/json');
-    return this.http.post<any>(`${this.host}/deleteList`, {_id: id});
+    return this.http.post<any>(`${this.host}/deleteList`, {lid: id, uid: this.auth.getID()});
   }
   userHasProperties() {
     const uid = this.auth.getID();
@@ -80,5 +80,20 @@ export class AdminService {
     const headers = new HttpHeaders();
     headers.set('Content-Type', 'application/json');
     return this.http.post<any>(`${this.host}/updateProperties`, {properties: p, uid: this.auth.getID()});
+  }
+  createContact(ct) {
+    const headers = new HttpHeaders();
+    headers.set('Content-Type', 'application/json');
+    return this.http.post<any>(`${this.host}/addContact`, {contact: ct, uid: this.auth.getID()});
+  }
+  getContacts(): Observable<any> {
+    const uid = this.auth.getID();
+    const url = `${this.host}/contacts/` + uid;
+    return this.http.get(url);
+  }
+  deleteContact(id) {
+    const headers = new HttpHeaders();
+    headers.set('Content-Type', 'application/json');
+    return this.http.post<any>(`${this.host}/deleteContact`, {cid: id, uid: this.auth.getID()});
   }
 }

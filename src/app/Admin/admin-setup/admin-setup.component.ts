@@ -3,6 +3,7 @@ import {FormArray, FormBuilder, FormControl, FormGroup, Validators} from '@angul
 import {AdminService} from '../admin.service';
 import {LoaderService} from '../../Loader';
 import {AuthService} from '../../auth/auth.service';
+import {computeStyle} from '@angular/animations/browser/src/util';
 
 @Component({
   selector: 'app-admin-setup',
@@ -24,6 +25,7 @@ export class AdminSetupComponent implements OnInit {
     this.createPropertiesForm();
     this.getProperties();
     this.createContactsForm();
+    this.getContacts();
   }
 
   ngOnInit() {}
@@ -67,12 +69,15 @@ export class AdminSetupComponent implements OnInit {
     e.preventDefault();
     if (confirm('Are you sure you want to delete this list and all milestones associated with it?')) {
       const list = this.list.at(i);
-      if (list.value.updatedBy !== 'new') {
-        console.log('deleting existing list ');
+      const control = <FormArray>this.list;
+      if (list.value.updatedBy === 'new') {
+        console.log('deleting non existing list');
+        control.removeAt(i);
+      } else {
         this.adminService.deleteList(list.value._id)
           .subscribe(res => {
             if (res) {
-              const control = <FormArray>this.list;
+              console.log('deleting existing list ');
               control.removeAt(i);
             } else {
               alert('Oops! Something went wrong.');
@@ -80,13 +85,9 @@ export class AdminSetupComponent implements OnInit {
           }, err => {
             console.log(err);
           });
-      } else {
-        console.log('deleting non existing list');
-        const control = <FormArray>this.list;
-        control.removeAt(i);
       }
     }
-  } // TODO: Deleting list doesn't remove from user DB
+  }
   removeMilestone (e, i, k) { // remove result from form array
     e.preventDefault();
     if (confirm('Are you sure you want to delete this milestone?')) {
@@ -233,7 +234,6 @@ export class AdminSetupComponent implements OnInit {
     }
   }
   // ================== MILESTONE FUNCTIONS ==============================
-
   // ================== FILE PROPERTIES FUNCTIONS ========================
   createPropertiesForm() {
     this.PropertiesForm = this.fb.group({
@@ -359,9 +359,6 @@ export class AdminSetupComponent implements OnInit {
         console.log(err);
       });
   }
-  userHasProperties() {
-
-  }
   onPropTypeChange(i) {
     const prop = this.propertyTypes.at(i);
     if (prop.value.updatedBy === 'existing') {
@@ -431,8 +428,31 @@ export class AdminSetupComponent implements OnInit {
   get contacts(): FormArray {
     return this.ContactsForm.get('contacts') as FormArray;
   }
+  getContacts() {
+    this.adminService.getContacts()
+      .subscribe(res => {
+        if (res) {
+          this.patchContacts(res);
+          console.log(this.ContactsForm.value);
+        }
+      }, err => {
+        console.log(err);
+      });
+  }
+  patchContacts(cts) {
+    cts.forEach((ct, i) => {
+      if (!this.contacts.at(i)) {
+        this.addContact(true);
+        this.contacts.at(i).patchValue(ct);
+      } else {
+        ct.updatedBy = 'existing';
+        this.contacts.at(i).patchValue(ct);
+      }
+    });
+  }
   addContact(existing?) {
     const ct = this.fb.group({
+      _id: [''],
       name: ['', Validators.required],
       cell: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
@@ -442,9 +462,55 @@ export class AdminSetupComponent implements OnInit {
     const arrayControl = <FormArray>this.contacts;
     arrayControl.push(ct);
   }
-  submitContact(i) {
-    console.log(this.contacts.at(i).value);
+  removeContact(e, i) {
+    e.preventDefault();
+    const ct = this.contacts.at(i);
+    if (confirm('Are you sure you want to delete ' +
+      (ct.get('name').value ? ct.get('name').value : 'this contact') + ' from your contact list?')) {
+      const control = <FormArray>this.contacts;
+      if (ct.value.updatedBy === 'new') {
+        control.removeAt(i);
+        console.log('deleting non existing contact');
+      } else {
+        this.adminService.deleteContact(ct.value._id)
+          .subscribe(res => {
+            if (res) {
+              console.log('deleting existing contact');
+              control.removeAt(i);
+            }
+          }, err => {
+            console.log(err);
+          });
+      }
+    }
   }
+  onContactChange(i) {
+    const ct = this.contacts.at(i);
+    if (ct.value.updatedBy === 'existing') {
+      console.log('setting contact as updated');
+      ct.get('updatedBy').setValue('updated');
+    }
+  }
+  submitContact(i) {
+    const ct = this.contacts.at(i);
+    if (ct.value.updatedBy === 'new') {
+      const newContact = ct.value;
+      delete newContact.updatedBy;
+      delete newContact._id;
+      this.adminService.createContact(newContact)
+        .subscribe(res => {
+          if (res) {
+            ct.patchValue(res);
+          }
+        }, err => {
+          console.log(err);
+        });
+    }/* else if (ct.value.updatedBy === 'updated') {
 
+    }*/
+    // console.log(this.contacts.at(i).value);
+  }
+  // TODO: Update contacts
+  // TODO: Test al deletes
   // ================== CONTACTS FUNCTIONS ===============================
 }

@@ -5,8 +5,10 @@ const User = require('../models/user');
 const List = require('../models/milestoneList');
 const Milestone = require('../models/milestone');
 const Properties = require('../models/properties');
+const Contact = require('../models/contact');
 const bcrypt = require('bcrypt');
 
+// ============================ ADMIN ROUTES ===========================
 userRoutes.route('/addUser').post((req, res, next) => {
   let user = req.body;
   let saltRounds = 10;
@@ -53,6 +55,8 @@ userRoutes.route('/getRole').post((req, res, next) => {
     res.send(result);
   })
 });
+// ============================ ADMIN ROUTES ===========================
+// ============================ MILESTONE LIST ROUTES  =================
 userRoutes.route('/addList').post((req, res, next) => {
   let list = req.body;
   delete list._id;
@@ -61,12 +65,12 @@ userRoutes.route('/addList').post((req, res, next) => {
     if (err) return next(err);
     if (resList) {
       User.findByIdAndUpdate(resList.updatedBy, {$push: {milestoneLists: resList._id}}, (er, userRes) => {
-        res.json(resList);
-      });
-    }else {
-      console.log('unsuccessful creation: \n' + result);
-      res.send(false);
-    }
+      res.json(resList);
+    });
+  }else {
+    console.log('unsuccessful creation: \n' + result);
+    res.send(false);
+  }
   })
 });
 userRoutes.route('/addMilestones').post((req, res, next) => {
@@ -182,7 +186,8 @@ userRoutes.route('/lists/:id').get((req, res, next) => {
   });
 });
 userRoutes.route('/deleteList').post((req, res, next) => {
-  const id = req.body._id;
+  const id = req.body.lid;
+  const uid = req.body.uid;
   List.findByIdAndRemove(id, (err, result) => {
     if (err) {
       console.log(err);
@@ -195,7 +200,16 @@ userRoutes.route('/deleteList').post((req, res, next) => {
           res.send(false);
         }
         else if(result1) {
-          res.send(true)
+          User.findByIdAndUpdate(uid, {$pull: {milestoneLists: id}}, (e, result2) => {
+            if (e) {
+              console.log(e);
+              res.send(false);
+            } else if (result2) {
+              res.send(true);
+            } else {
+              res.send(false);
+            }
+          });
         }else {
           res.send(false);
         }
@@ -220,6 +234,8 @@ userRoutes.route('/updateList').post((req, res, next) => {
     }
   });
 });
+// ============================ MILESTONE LIST ROUTES  =================
+// ============================ ADMIN PROPERTIES ROUTES  ===============
 userRoutes.route('/addProperties').post((req, res, next) => {
   const prop = req.body.properties;
   const uid = req.body.uid;
@@ -299,5 +315,83 @@ userRoutes.route('/updateProperties').post((req, res, next) => {
     }
   });
 });
+// ============================ ADMIN PROPERTIES ROUTES  ===============
+// ============================ CONTACTS ROUTES  =======================
+userRoutes.route('/addContact').post((req, res, next) => {
+  let contact = req.body.contact;
+  let uid = req.body.uid;
+  contact.passwordHash = Math.random().toString(36).substring(10);
+  // console.log(contact.passwordHash);
+  let saltRounds = 10;
+  bcrypt.hash(contact.passwordHash, saltRounds, (err, hash) => {
+    // Store hash in your password DB.
+    if (err) {
+      console.log(err);
+      res.send(false);
+    }
+    contact.passwordHash = hash;
+    Contact.create(contact, (er, ct) => {
+      if (er) {
+        console.log(er);
+        res.send(false);
+      }
+      if (ct) {
+        User.findByIdAndUpdate(uid, {$push: {contacts: ct._id}}, (e, usr) => {
+          if (e) {
+            console.log(e);
+            res.send(false);
+          }
+          if (usr) {
+            /*console.log('successful creation: \n' + ct);*/
+            res.json(ct);
+          }
+        });
+      } else {
+        console.log('unsuccessful creation: \n' + result);
+        res.send(false);
+      }
+    })
+  });
+});
+userRoutes.route('/contacts/:id').get((req, res, next) => {
+  // get user's contacts
+  const id = req.params.id;
+  User.findById(id, 'contacts').populate('contacts').exec((err, user) => {
+    if(err) {
+      console.log(err);
+      res.send(false);
+    }
+    if (user) {
+      res.json(user.contacts);
+    }else {
+      res.send(false);
+    }
+  });
+});
+userRoutes.route('/deleteContact').post((req, res, next) => {
+  const cid = req.body.cid;
+  const uid = req.body.uid;
+  Contact.findByIdAndRemove(cid, (err, result) => {
+    if (err) {
+      console.log(err);
+      res.send(false);
+    }
+    else if (result) {
+      User.findByIdAndUpdate(uid, {$pull: {contacts: cid}}, (er, result1) => {
+        if (er) {
+          console.log(er);
+          res.send(false);
+        } else if (result1) {
+          res.send(true);
+        } else {
+          res.send(false);
+        }
+      });
+    } else {
+      res.send(false);
+    }
+  });
+});
+// ============================ CONTACTS ROUTES  =======================
 
 module.exports = userRoutes;
