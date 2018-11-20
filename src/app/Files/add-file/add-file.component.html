@@ -2,7 +2,8 @@
 <div class="container">
   <div class="row">
     <div class="col-lg-8 col-sm-10 offset-lg-2 offset-sm-1 box">
-      <mat-horizontal-stepper [linear]="true" #stepper>
+      <mat-horizontal-stepper #stepper>
+        <!--[linear]="true"-->
         <mat-step [stepControl]="fileForm">
           <form [formGroup]="fileForm">
             <ng-template matStepLabel>File Details</ng-template>
@@ -88,8 +89,46 @@
             </div>
           </form>
         </mat-step>
-        <mat-step [stepControl]="contactsForm">
+        <mat-step>
           <ng-template matStepLabel>Add Contacts</ng-template>
+          <div class="row contactsRow">
+            <div class="col-6 fileCol dropBox">
+              <div class="contactHeaders">
+                <h5>File Contacts</h5>
+              </div>
+              <div
+                cdkDropList
+                #fileContactListElement="cdkDropList"
+                [cdkDropListData]="fileContactsList"
+                [cdkDropListConnectedTo]="[myContactsElement]"
+                class="example-list"
+                (cdkDropListDropped)="drop($event)">
+                <div class="hint" *ngIf="fileContactsList.length === 0" style="color: gray">Drag and drop contacts here to add them to the file</div>
+                <div class="example-box" *ngFor="let ct of fileContactsList" cdkDrag>{{ct?.name}}</div>
+              </div>
+            </div>
+            <div class="col-6 contactsCol dropBox">
+              <div class="contactHeaders">
+                <h5>My Contacts</h5>
+                <mat-form-field>
+                  <input matInput placeholder="Search My Contacts"
+                         (keyup)="searchTerm$.next($event.target.value)">
+                  <span matPrefix><i class="fas fa-search"></i>&nbsp;</span>
+                </mat-form-field>
+              </div>
+              <div
+                cdkDropList
+                #myContactsElement="cdkDropList"
+                [cdkDropListData]="filteredContacts"
+                [cdkDropListConnectedTo]="[fileContactListElement]"
+                class="example-list"
+                (cdkDropListDropped)="drop($event)">
+                <div class="example-box" *ngFor="let ct of filteredContacts" cdkDrag>
+                  {{ct?.name}}
+                </div>
+              </div>
+            </div>
+          </div>
         </mat-step>
       </mat-horizontal-stepper>
     </div>

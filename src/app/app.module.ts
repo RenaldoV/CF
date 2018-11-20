@@ -9,10 +9,11 @@ import { WINDOW_PROVIDERS } from './window.service';
 import { AdminLogInComponent } from './log-in/admin-log-in.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {
+  MAT_SNACK_BAR_DEFAULT_OPTIONS,
   MatAutocompleteModule, MatCardModule, MatCheckboxModule, MatExpansionModule,
   MatFormFieldModule, MatIconModule,
   MatInputModule, MatRadioModule,
-  MatSelectModule,
+  MatSelectModule, MatSnackBarModule,
   MatStepperModule, MatTooltipModule
 } from '@angular/material';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -21,6 +22,7 @@ import { NavComponent } from './nav/nav.component';
 import { AddFileComponent } from './Files/add-file/add-file.component';
 import { AdminSetupComponent } from './Admin/admin-setup/admin-setup.component';
 import {LoaderModule} from './Loader';
+import {DragDropModule} from '@angular/cdk/drag-drop';
 
 
 
@@ -42,9 +44,11 @@ import {LoaderModule} from './Loader';
     MatAutocompleteModule,
     MatSelectModule,
     MatRadioModule,
+    MatSnackBarModule,
     MatExpansionModule,
     MatIconModule,
     MatCardModule,
+    DragDropModule,
     BrowserModule,
     HttpClientModule,
     AppRoutingModule,
@@ -54,7 +58,8 @@ import {LoaderModule} from './Loader';
   ],
   providers: [
     AuthService,
-    WINDOW_PROVIDERS
+    WINDOW_PROVIDERS,
+    {provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue:  {duration: 3000}}
   ],
   bootstrap: [AppComponent]
 })

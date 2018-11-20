@@ -392,6 +392,47 @@ userRoutes.route('/deleteContact').post((req, res, next) => {
     }
   });
 });
+userRoutes.route('/updateContact').post((req, res, next) => {
+  const ct = req.body;
+  Contact.findByIdAndUpdate(ct._id, ct, {new: true}, (er, ctRes) => {
+        if(er) {
+          console.log(er);
+          res.send(false);
+        }
+        if(ctRes) {
+          res.send(ctRes);
+        }else {
+          res.send(false);
+        }
+      })
+});
+userRoutes.route('/contacts/:uid/:search').get((req, res, next) => {
+  // get user's contacts
+  const uid = req.params.uid;
+  const searchTerm = req.params.search;
+
+  User.findById(uid, 'contacts').populate('contacts', 'name email cell type').exec((err, user) => {
+    if(err) {
+      console.log(err);
+      res.send(false);
+    }
+    if (user) {
+      res.send(find(user.contacts, searchTerm));
+    }else {
+      res.send(false);
+    }
+  });
+});
 // ============================ CONTACTS ROUTES  =======================
 
 module.exports = userRoutes;
+
+function find(items, text) {
+  text = text.toLowerCase();
+  text = text.split(' ');
+  return items.filter((item) => {
+    return text.every((el) => {
+      return item.name.toLowerCase().indexOf(el) > -1 || item.cell.indexOf(el) > -1 || item.email.toLowerCase().indexOf(el) > -1 || item.type.toLowerCase().indexOf(el) > -1;
+    });
+  });
+}

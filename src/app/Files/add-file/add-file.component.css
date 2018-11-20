@@ -2,6 +2,7 @@
   background-color: lightgray;
   border-radius: 5px;
   margin-top: 20px;
+  min-height: 400px;
 }
 
 mat-horizontal-stepper {
@@ -15,4 +16,66 @@ mat-form-field {
 
 button {
   float: right;
+}
+
+
+/* ========Drag Drop Styles===========*/
+.hint {
+  padding: 10px;
+}
+.contactHeaders {
+  min-height: 100px;
+  max-height: 200px;
+}
+.dropBox {
+  max-width: 100%;
+  display: inline-block;
+  vertical-align: top;
+}
+.example-list {
+  border: solid 1px #ccc;
+  min-height: 60px;
+  background: #efefef;
+  border-radius: 4px;
+  overflow: hidden;
+  display: block;
+  min-height: 100px;
+}
+
+.example-box {
+  padding: 20px 10px;
+  border-bottom: solid 1px #ccc;
+  color: rgba(0, 0, 0, 0.87);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  cursor: move;
+  background: white;
+  font-size: 14px;
+}
+
+.cdk-drag-preview {
+  box-sizing: border-box;
+  border-radius: 4px;
+  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+  0 8px 10px 1px rgba(0, 0, 0, 0.14),
+  0 3px 14px 2px rgba(0, 0, 0, 0.12);
+}
+
+.cdk-drag-placeholder {
+  opacity: 0;
+}
+
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.example-box:last-child {
+  border: none;
+}
+
+.example-list.cdk-drop-list-dragging .example-box:not(.cdk-drag-placeholder) {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }

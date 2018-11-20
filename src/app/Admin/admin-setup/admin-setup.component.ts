@@ -4,6 +4,7 @@ import {AdminService} from '../admin.service';
 import {LoaderService} from '../../Loader';
 import {AuthService} from '../../auth/auth.service';
 import {computeStyle} from '@angular/animations/browser/src/util';
+import {MatSnackBar} from '@angular/material';
 
 @Component({
   selector: 'app-admin-setup',
@@ -18,7 +19,8 @@ export class AdminSetupComponent implements OnInit {
     private fb: FormBuilder,
     private adminService: AdminService,
     private auth: AuthService,
-    public loaderService: LoaderService
+    public loaderService: LoaderService,
+    private matSnack: MatSnackBar
   ) {
     this.createMilestoneListForm();
     this.getAllLists();
@@ -71,18 +73,25 @@ export class AdminSetupComponent implements OnInit {
       const list = this.list.at(i);
       const control = <FormArray>this.list;
       if (list.value.updatedBy === 'new') {
-        console.log('deleting non existing list');
+        this.matSnack.open('List removed successfully');
         control.removeAt(i);
       } else {
         this.adminService.deleteList(list.value._id)
           .subscribe(res => {
             if (res) {
-              console.log('deleting existing list ');
+              this.matSnack.open('List removed successfully');
               control.removeAt(i);
             } else {
-              alert('Oops! Something went wrong.');
+              const sb = this.matSnack.open('Delete unsuccessful', 'retry');
+              sb.onAction().subscribe(() => {
+                this.removeMilestoneList(e, i);
+              });
             }
           }, err => {
+            const sb = this.matSnack.open('Delete unsuccessful', 'retry');
+            sb.onAction().subscribe(() => {
+              this.removeMilestoneList(e, i);
+            });
             console.log(err);
           });
       }
@@ -93,22 +102,29 @@ export class AdminSetupComponent implements OnInit {
     if (confirm('Are you sure you want to delete this milestone?')) {
       const milestone = this.getMilestones(i).at(k);
       if (milestone.value.updatedBy !== 'new') {
-        console.log('deleting existing milestone ');
         this.adminService.deleteMilestone(milestone.value._id, this.list.at(i).get('_id').value)
           .subscribe(res => {
             if (res) {
               const control = <FormArray>this.getMilestones(i);
               control.removeAt(k);
+              this.matSnack.open('Milestone removed successfully');
             } else {
-              alert('Oops! Something went wrong.');
+              const sb = this.matSnack.open('Delete unsuccessful', 'retry');
+              sb.onAction().subscribe(() => {
+                this.removeMilestone(e, i, k);
+              });
             }
           }, err => {
+            const sb = this.matSnack.open('Delete unsuccessful', 'retry');
+            sb.onAction().subscribe(() => {
+              this.removeMilestone(e, i, k);
+            });
             console.log(err);
           });
       } else {
-        console.log('deleting non existing milestone');
         const control = <FormArray>this.getMilestones(i);
         control.removeAt(k);
+        this.matSnack.open('Milestone removed successfully');
       }
     }
   }
@@ -178,18 +194,31 @@ export class AdminSetupComponent implements OnInit {
                   if (l) {
                     // if milestones added successfully return the list.
                     this.list.at(i).patchValue(l);
-                    console.log(l);
-                    console.log('insert Success');
+                    this.matSnack.open('Milestones saved successfully');
                   } else {
-                    return res;
+                    const sb = this.matSnack.open('Save unsuccessful', 'retry');
+                    sb.onAction().subscribe(() => {
+                      this.submitMilestones(i);
+                    });
                   }
                 }, err => {
+                  const sb = this.matSnack.open('Save unsuccessful', 'retry');
+                  sb.onAction().subscribe(() => {
+                    this.submitMilestones(i);
+                  });
                   console.log(err);
                 });
             } else {
-              return res;
+              const sb = this.matSnack.open('Save unsuccessful', 'retry');
+              sb.onAction().subscribe(() => {
+                this.submitMilestones(i);
+              });
             }
           }, err => {
+            const sb = this.matSnack.open('Save unsuccessful', 'retry');
+            sb.onAction().subscribe(() => {
+              this.submitMilestones(i);
+            });
             console.log(err);
           });
       } else if (list.updatedBy === 'updated') {
@@ -224,9 +253,13 @@ export class AdminSetupComponent implements OnInit {
         });
         this.adminService.updateList(list)
           .subscribe(res => {
-            console.log(res);
+            this.matSnack.open('List saved successfully');
             this.list.at(i).patchValue(list);
           }, err => {
+            const sb = this.matSnack.open('Save unsuccessful', 'retry');
+            sb.onAction().subscribe(() => {
+              this.submitMilestones(i);
+            });
             console.log(err);
           });
         this.list.at(i).patchValue(list);
@@ -282,10 +315,7 @@ export class AdminSetupComponent implements OnInit {
       const control = <FormArray>this.propertyTypes;
       control.removeAt(i);
       if (pt.value.updatedBy !== 'new') {
-        console.log('deleting existing property type');
         this.submitProperties();
-      } else {
-        console.log('deleting non existing property type');
       }
     }
   }
@@ -296,10 +326,7 @@ export class AdminSetupComponent implements OnInit {
       const control = <FormArray>this.actionTypes;
       control.removeAt(i);
       if (at.value.updatedBy !== 'new') {
-        console.log('deleting existing action type');
         this.submitProperties();
-      } else {
-        console.log('deleting non existing action type');
       }
     }
   }
@@ -310,10 +337,7 @@ export class AdminSetupComponent implements OnInit {
       const control = <FormArray>this.deedsOffices;
       control.removeAt(i);
       if (d.value.updatedBy !== 'new') {
-        console.log('deleting existing deeds office');
         this.submitProperties();
-      } else {
-        console.log('deleting non existing deeds office');
       }
     }
   }
@@ -384,7 +408,6 @@ export class AdminSetupComponent implements OnInit {
     this.adminService.userHasProperties()
       .subscribe((p) => {
         const hasProperties = p;
-        console.log('has properties: ' + hasProperties);
         const propertyTypes = [];
         const actionTypes = [];
         const deedsOffices = [];
@@ -396,21 +419,38 @@ export class AdminSetupComponent implements OnInit {
         if (!hasProperties) { // if user doensn't already have properties assigned create new properties
           this.adminService.createProperties(body, this.auth.getID())
             .subscribe((res) => {
-              this.patchProperties(res);
-              // console.log(this.PropertiesForm.value);
+              if (res) {
+                this.matSnack.open('Properties saved successfully');
+                this.patchProperties(res);
+              } else {
+                const sb = this.matSnack.open('Save unsuccessful', 'retry');
+                sb.onAction().subscribe(() => {
+                  this.submitProperties();
+                });
+              }
             }, err => {
+              const sb = this.matSnack.open('Save unsuccessful', 'retry');
+              sb.onAction().subscribe(() => {
+                this.submitProperties();
+              });
               console.log(err);
             });
         } else { // else update existing properties
-          console.log('updating properties');
-          // console.log(body);
           this.adminService.updateProperties(body)
             .subscribe(res => {
               if (res) {
-                this.patchProperties(res);
-                // console.log(this.PropertiesForm.value);
+                this.matSnack.open('Properties saved successfully');
+              } else {
+                const sb = this.matSnack.open('Save unsuccessful', 'retry');
+                sb.onAction().subscribe(() => {
+                  this.submitProperties();
+                });
               }
             }, err => {
+              const sb = this.matSnack.open('Save unsuccessful', 'retry');
+              sb.onAction().subscribe(() => {
+                this.submitProperties();
+              });
               console.log(err);
             });
         }
@@ -433,7 +473,6 @@ export class AdminSetupComponent implements OnInit {
       .subscribe(res => {
         if (res) {
           this.patchContacts(res);
-          console.log(this.ContactsForm.value);
         }
       }, err => {
         console.log(err);
@@ -470,15 +509,24 @@ export class AdminSetupComponent implements OnInit {
       const control = <FormArray>this.contacts;
       if (ct.value.updatedBy === 'new') {
         control.removeAt(i);
-        console.log('deleting non existing contact');
+        this.matSnack.open('Contact removed successfully');
       } else {
         this.adminService.deleteContact(ct.value._id)
           .subscribe(res => {
             if (res) {
-              console.log('deleting existing contact');
+              this.matSnack.open('Contact removed successfully');
               control.removeAt(i);
+            } else {
+              const sb = this.matSnack.open('Contact not removed successful', 'retry');
+              sb.onAction().subscribe(() => {
+                this.removeContact(e, i);
+              });
             }
           }, err => {
+            const sb = this.matSnack.open('Contact not removed successful', 'retry');
+            sb.onAction().subscribe(() => {
+              this.removeContact(e, i);
+            });
             console.log(err);
           });
       }
@@ -500,17 +548,43 @@ export class AdminSetupComponent implements OnInit {
       this.adminService.createContact(newContact)
         .subscribe(res => {
           if (res) {
+            this.matSnack.open('Contact created successfully');
             ct.patchValue(res);
+          } else {
+            const sb = this.matSnack.open('Contact not created successful', 'retry');
+            sb.onAction().subscribe(() => {
+              this.submitContact(i);
+            });
           }
         }, err => {
+          const sb = this.matSnack.open('Contact not created successful', 'retry');
+          sb.onAction().subscribe(() => {
+            this.submitContact(i);
+          });
           console.log(err);
         });
-    }/* else if (ct.value.updatedBy === 'updated') {
-
-    }*/
+    } else if (ct.value.updatedBy === 'updated') {
+      const newContact = ct.value;
+      delete newContact.updatedBy;
+      this.adminService.updateContact(newContact)
+        .subscribe(res => {
+          if (res) {
+            this.contacts.at(i).patchValue(res);
+            this.matSnack.open('Update successful');
+          } else {
+            const sb = this.matSnack.open('Update unsuccessful', 'retry');
+            sb.onAction().subscribe(() => {
+              this.submitContact(i);
+            });
+          }
+        }, err => {
+          const sb = this.matSnack.open('Update unsuccessful', 'retry');
+          sb.onAction().subscribe(() => {
+            this.submitContact(i);
+          });
+          console.log(err);
+        });
+    }
     // console.log(this.contacts.at(i).value);
   }
-  // TODO: Update contacts
-  // TODO: Test al deletes
-  // ================== CONTACTS FUNCTIONS ===============================
 }

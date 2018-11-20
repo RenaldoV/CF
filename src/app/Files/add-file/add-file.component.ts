@@ -1,9 +1,10 @@
 import {Component, OnChanges, OnInit} from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Observable } from 'rxjs';
+import {Observable, Subject} from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { AuthService } from '../../auth/auth.service';
-import {AdminService} from '../../Admin/admin.service';
+import { AdminService } from '../../Admin/admin.service';
+import { CdkDragDrop , moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-add-file',
@@ -21,6 +22,9 @@ export class AddFileComponent implements OnInit {
   deedsOffices: String[] = [];
   filteredDeeds: Observable<any[]>;
   milestonesLists: String[] = [];
+  filteredContacts: any[] = [];
+  fileContactsList: any[] = [];
+  searchTerm$ = new Subject<string>();
   constructor(
     private fb: FormBuilder,
     private auth: AuthService,
@@ -63,6 +67,14 @@ export class AddFileComponent implements OnInit {
       }, err => {
         console.log(err);
       });
+    this.adminService.searchContacts(this.searchTerm$)
+      .subscribe(res => {
+        this.filteredContacts = res.filter(ct => {
+          this.fileContactsList.map(c => c.name).indexOf(ct.name) > -1;
+        });
+      });
+    // TODO: post contacts with unique email address
+    // TODO: Only add contacts to filtered array if they are not present in the File Contacts array
   }
   ngOnInit() {}
   // ======= File Form functions ===============
@@ -161,5 +173,16 @@ export class AddFileComponent implements OnInit {
     return this.propForm.get('propType');
   }
   // ======= Property Form functions ===============
+  // ======= Contacts Form functions ===============
+  drop(event: CdkDragDrop<string[]>) {
+      if (event.previousContainer === event.container) {
+        moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+      } else {
+        transferArrayItem(event.previousContainer.data,
+          event.container.data,
+          event.previousIndex,
+          event.currentIndex);
+      }
+    }
 
 }

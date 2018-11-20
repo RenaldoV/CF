@@ -4,6 +4,7 @@ import {Router} from '@angular/router';
 import {WINDOW} from '../window.service';
 import {AuthService} from '../auth/auth.service';
 import {Observable} from 'rxjs';
+import { map, debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -42,7 +43,6 @@ export class AdminService {
     return this.http.post<any>(`${this.host}/deleteMilestone`, {id: id, listID: listID});
   }
   updateMilestone(m) {
-    console.log('Updating milestone to :' + m);
     return this.http.post<Boolean>(`${this.host}/updateMilestone`, m);
   }
   createNewList(list) {
@@ -95,5 +95,23 @@ export class AdminService {
     const headers = new HttpHeaders();
     headers.set('Content-Type', 'application/json');
     return this.http.post<any>(`${this.host}/deleteContact`, {cid: id, uid: this.auth.getID()});
+  }
+  updateContact(ct) {
+    const headers = new HttpHeaders();
+    headers.set('Content-Type', 'application/json');
+    return this.http.post<any>(`${this.host}/updateContact`, ct);
+  }
+  searchContacts(terms: Observable<string>)  {
+    return terms
+      .pipe(
+        debounceTime(600),
+        distinctUntilChanged(),
+        switchMap(term => this.searchEntries(term))
+      );
+  }
+  searchEntries(term): Observable<any[]> {
+    const uid = this.auth.getID();
+    const url = `${this.host}/contacts/` + uid + '/' + term;
+    return this.http.get<any[]>(url);
   }
 }
