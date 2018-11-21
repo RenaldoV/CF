@@ -271,7 +271,7 @@
                     </mat-expansion-panel-header>
                     <div [formGroupName]="i" (change)="onContactChange(i)">
                       <mat-form-field class="innerFormFields">
-                        <input matInput placeholder="Name" formControlName="name" required>
+                        <input matInput placeholder="Name and Surname" formControlName="name" required>
                         <mat-error>
                           Contact name is required.
                         </mat-error>
@@ -308,7 +308,7 @@
                         </mat-radio-button>
                         <br>
                       </mat-radio-group>
-                      <mat-error *ngIf="c.get('type').hasError('required') && !c.pristine">
+                      <mat-error *ngIf="c.get('type').hasError('required') && !c.get('type').pristine">
                         Contact type is required.
                       </mat-error>
                       <br>

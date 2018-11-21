@@ -500,7 +500,7 @@ export class AdminSetupComponent implements OnInit {
     });
     const arrayControl = <FormArray>this.contacts;
     arrayControl.push(ct);
-  }
+  } // TODO: Add unique email validation
   removeContact(e, i) {
     e.preventDefault();
     const ct = this.contacts.at(i);

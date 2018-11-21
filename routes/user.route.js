@@ -423,6 +423,28 @@ userRoutes.route('/contacts/:uid/:search').get((req, res, next) => {
     }
   });
 });
+userRoutes.route('/contact/:email/:uid').get((req, res, next) => {
+  // get user's contacts
+  const uid = req.params.uid;
+  const email = req.params.email;
+
+  User.findById(uid, 'contacts').populate('contacts', 'name email cell type').exec((err, user) => {
+    if(err) {
+      console.log(err);
+      res.send(false);
+    }
+    if (user) {
+      let userExists = false;
+      user.contacts.forEach(ct => {
+        if (ct.email === email)
+          userExists = true;
+      });
+      res.send(userExists);
+    }else {
+      res.send(false);
+    }
+  });
+});
 // ============================ CONTACTS ROUTES  =======================
 
 module.exports = userRoutes;

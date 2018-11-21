@@ -91,6 +91,10 @@ export class AdminService {
     const url = `${this.host}/contacts/` + uid;
     return this.http.get(url);
   }
+  getContactByEmail(email): Observable<any> {
+    const url = `${this.host}/contact/` + email + '/' + this.auth.getID();
+    return this.http.get(url);
+  }
   deleteContact(id) {
     const headers = new HttpHeaders();
     headers.set('Content-Type', 'application/json');

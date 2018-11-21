@@ -193,7 +193,14 @@ export class AddFileComponent implements OnInit {
     const dialConfig = new MatDialogConfig();
     dialConfig.disableClose = true;
     dialConfig.autoFocus = true;
-    this.dialog.open(AddContactDialogComponent, dialConfig);
+    dialConfig.minWidth = 300;
+    const dialogRef = this.dialog.open(AddContactDialogComponent, dialConfig);
+    dialogRef.afterClosed().subscribe(res => {
+      if (res) {
+        this.fileContactsList.push(res);
+      }
+    });
   }
+  // TODO: post file to database
 
 }

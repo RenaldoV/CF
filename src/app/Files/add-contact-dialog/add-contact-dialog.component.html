@@ -1,16 +1,61 @@
 <h2 mat-dialog-title>Add New Contact</h2>
 
-<mat-dialog-content [formGroup]="form">
-
-  <mat-form-field>
-    <input matInput
-           placeholder="Course Description"
-           formControlName="description">
-  </mat-form-field>
-
+<mat-dialog-content [formGroup]="contactForm">
+  <div style="margin-bottom: 10px;">
+    <mat-form-field class="innerFormFields">
+      <input matInput placeholder="Name and Surname" formControlName="name" required>
+      <mat-error>
+        Contact name is required.
+      </mat-error>
+    </mat-form-field>
+    <br>
+    <mat-form-field class="innerFormFields">
+      <input matInput placeholder="Cell number" formControlName="cell" required>
+      <mat-error *ngIf="cell.hasError('required')">
+        Cell number is required.
+      </mat-error>
+      <mat-error *ngIf="cell.hasError('invalidCell')">
+        Cell number is invalid.
+      </mat-error>
+    </mat-form-field>
+    <br>
+    <mat-form-field class="innerFormFields">
+      <input type="email" matInput placeholder="Email address" formControlName="email" required>
+      <mat-error *ngIf="email.hasError('required')">
+        Email address is required.
+      </mat-error>
+      <mat-error *ngIf="email.hasError('invalidEmail')">
+        Email must be a valid email address.
+      </mat-error>
+      <mat-error *ngIf="email.hasError('emailNotUnique')">
+        You already have a contact with this email.
+      </mat-error>
+    </mat-form-field>
+    <p style="color: gray;">Contact Type</p>
+    <mat-radio-group class="example-radio-group" formControlName="type">
+      <mat-radio-button value="Buyer">
+        Buyer
+      </mat-radio-button>
+      <br>
+      <mat-radio-button value="Seller">
+        Seller
+      </mat-radio-button>
+      <br>
+      <mat-radio-button value="Agent">
+        Agent
+      </mat-radio-button>
+      <br>
+    </mat-radio-group>
+    <mat-error *ngIf="type.hasError('required') && !type.pristine">
+      Contact type is required.
+    </mat-error>
+  </div>
 </mat-dialog-content>
 
 <mat-dialog-actions>
-  <button class="btn btn-outline-secondary btn-sm"(click)="close()">Close</button>
-  <button class="btn btn-primary btn-sm"(click)="save()">Save</button>
+  <button class="btn btn-outline-secondary btn-sm closeBtn"(click)="close()">Close</button>
+  <button [disabled]="contactForm.invalid || (loaderService.isLoading | async)" class="btn btn-primary btn-sm" (click)="submitContact()">
+    <span *ngIf="!(loaderService.isLoading | async)"><i class="far fa-save"></i> Add Contact</span>
+    <i *ngIf="loaderService.isLoading | async" class="fas fa-spinner fa-spin"></i>
+  </button>
 </mat-dialog-actions>
