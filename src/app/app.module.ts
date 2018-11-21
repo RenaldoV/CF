@@ -10,7 +10,7 @@ import { AdminLogInComponent } from './log-in/admin-log-in.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {
   MAT_SNACK_BAR_DEFAULT_OPTIONS,
-  MatAutocompleteModule, MatCardModule, MatCheckboxModule, MatExpansionModule,
+  MatAutocompleteModule, MatCardModule, MatCheckboxModule, MatDialogModule, MatExpansionModule,
   MatFormFieldModule, MatIconModule,
   MatInputModule, MatRadioModule,
   MatSelectModule, MatSnackBarModule,
@@ -23,6 +23,7 @@ import { AddFileComponent } from './Files/add-file/add-file.component';
 import { AdminSetupComponent } from './Admin/admin-setup/admin-setup.component';
 import {LoaderModule} from './Loader';
 import {DragDropModule} from '@angular/cdk/drag-drop';
+import { AddContactDialogComponent } from './Files/add-contact-dialog/add-contact-dialog.component';
 
 
 
@@ -33,7 +34,8 @@ import {DragDropModule} from '@angular/cdk/drag-drop';
     AdminHomeComponent,
     NavComponent,
     AddFileComponent,
-    AdminSetupComponent
+    AdminSetupComponent,
+    AddContactDialogComponent
   ],
   imports: [
     MatInputModule,
@@ -45,6 +47,7 @@ import {DragDropModule} from '@angular/cdk/drag-drop';
     MatSelectModule,
     MatRadioModule,
     MatSnackBarModule,
+    MatDialogModule,
     MatExpansionModule,
     MatIconModule,
     MatCardModule,
@@ -61,6 +64,7 @@ import {DragDropModule} from '@angular/cdk/drag-drop';
     WINDOW_PROVIDERS,
     {provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue:  {duration: 3000}}
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  entryComponents: [AddContactDialogComponent]
 })
 export class AppModule { }

@@ -5,6 +5,8 @@ import { map, startWith } from 'rxjs/operators';
 import { AuthService } from '../../auth/auth.service';
 import { AdminService } from '../../Admin/admin.service';
 import { CdkDragDrop , moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import {MatDialog, MatDialogConfig} from '@angular/material';
+import {AddContactDialogComponent} from '../add-contact-dialog/add-contact-dialog.component';
 
 @Component({
   selector: 'app-add-file',
@@ -28,7 +30,8 @@ export class AddFileComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private auth: AuthService,
-    private adminService: AdminService
+    private adminService: AdminService,
+    private dialog: MatDialog
   ) {
     this.createFileForm();
     this.createPropertyForm();
@@ -177,14 +180,20 @@ export class AddFileComponent implements OnInit {
   // ======= Property Form functions ===============
   // ======= Contacts Form functions ===============
   drop(event: CdkDragDrop<string[]>) {
-      if (event.previousContainer === event.container) {
-        moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
-      } else {
-        transferArrayItem(event.previousContainer.data,
-          event.container.data,
-          event.previousIndex,
-          event.currentIndex);
-      }
+    if (event.previousContainer === event.container) {
+      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+    } else {
+      transferArrayItem(event.previousContainer.data,
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex);
     }
+  }
+  createNewContactDialog() {
+    const dialConfig = new MatDialogConfig();
+    dialConfig.disableClose = true;
+    dialConfig.autoFocus = true;
+    this.dialog.open(AddContactDialogComponent, dialConfig);
+  }
 
 }

@@ -1,0 +1,16 @@
+<h2 mat-dialog-title>Add New Contact</h2>
+
+<mat-dialog-content [formGroup]="form">
+
+  <mat-form-field>
+    <input matInput
+           placeholder="Course Description"
+           formControlName="description">
+  </mat-form-field>
+
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <button class="btn btn-outline-secondary btn-sm"(click)="close()">Close</button>
+  <button class="btn btn-primary btn-sm"(click)="save()">Save</button>
+</mat-dialog-actions>

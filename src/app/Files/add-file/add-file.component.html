@@ -1,46 +1,50 @@
 <app-nav></app-nav>
 <div class="container">
   <div class="row">
-    <div class="col-lg-8 col-sm-10 offset-lg-2 offset-sm-1 box">
+    <div class="col-lg-8 col-sm-12 offset-lg-2 box">
       <mat-horizontal-stepper #stepper>
         <!--[linear]="true"-->
         <mat-step [stepControl]="fileForm">
           <form [formGroup]="fileForm">
             <ng-template matStepLabel>File Details</ng-template>
-            <mat-form-field>
-              <input matInput placeholder="File Reference" formControlName="fileRef" required>
-              <mat-error *ngIf="fileRef.hasError('required')">
-                File Reference is required.
-              </mat-error>
-            </mat-form-field>
-            <mat-form-field>
-              <input matInput placeholder="Cause of action" formControlName="action" [matAutocomplete]="actions" required>
-              <mat-error *ngIf="action.hasError('required')">
-                Action Type is required.
-              </mat-error>
-              <mat-autocomplete #actions="matAutocomplete" (optionSelected)="actionTypeSelected($event.option)">
-                <mat-option *ngFor="let action of filteredActions | async" [value]="action">
-                  {{ action }}
-                </mat-option>
-              </mat-autocomplete>
-            </mat-form-field>
-            <mat-form-field>
-              <input matInput placeholder="Our Reference" formControlName="ourRef" required>
-              <mat-error *ngIf="ourRef.hasError('required')">
-                Our Reference is required.
-              </mat-error>
-            </mat-form-field>
-            <mat-form-field>
-              <mat-select placeholder="Milestone Process" [formControl]="milestoneProc" required>
-                <mat-option>--</mat-option>
-                <mat-option *ngFor="let ml of milestonesLists" [value]="ml">
-                  {{ml}}
-                </mat-option>
-              </mat-select>
-              <mat-error *ngIf="milestoneProc.hasError('required')">
-                Milestone Process is required.
-              </mat-error>
-            </mat-form-field>
+            <div class="row">
+              <div class="col-sm-12 col-md-8 offset-md-2">
+                <mat-form-field>
+                <input matInput placeholder="File Reference" formControlName="fileRef" required>
+                <mat-error *ngIf="fileRef.hasError('required')">
+                  File Reference is required.
+                </mat-error>
+              </mat-form-field><br>
+                <mat-form-field>
+                  <input matInput placeholder="Cause of action" formControlName="action" [matAutocomplete]="actions" required>
+                  <mat-error *ngIf="action.hasError('required')">
+                    Action Type is required.
+                  </mat-error>
+                  <mat-autocomplete #actions="matAutocomplete" (optionSelected)="actionTypeSelected($event.option)">
+                    <mat-option *ngFor="let action of filteredActions | async" [value]="action">
+                      {{ action }}
+                    </mat-option>
+                  </mat-autocomplete>
+                </mat-form-field><br>
+                <mat-form-field>
+                  <input matInput placeholder="Our Reference" formControlName="ourRef" required>
+                  <mat-error *ngIf="ourRef.hasError('required')">
+                    Our Reference is required.
+                  </mat-error>
+                </mat-form-field><br>
+                <mat-form-field>
+                  <mat-select placeholder="Milestone Process" [formControl]="milestoneProc" required>
+                    <mat-option>--</mat-option>
+                    <mat-option *ngFor="let ml of milestonesLists" [value]="ml">
+                      {{ml}}
+                    </mat-option>
+                  </mat-select>
+                  <mat-error *ngIf="milestoneProc.hasError('required')">
+                    Milestone Process is required.
+                  </mat-error>
+                </mat-form-field>
+              </div>
+            </div>
             <div>
               <button class="btn btn-primary btn-sm" matStepperNext>Next</button>
             </div>
@@ -49,40 +53,44 @@
         <mat-step [stepControl]="propForm">
           <form [formGroup]="propForm">
             <ng-template matStepLabel>Property Details</ng-template>
-            <mat-form-field>
-              <input matInput placeholder="Property Type" formControlName="propType" [matAutocomplete]="props" required>
-              <mat-error *ngIf="propType.hasError('required')">
-                Property Type is required.
-              </mat-error>
-              <mat-autocomplete #props="matAutocomplete" (optionSelected)="propTypeSelected($event.option)">
-                <mat-option *ngFor="let type of filteredProps | async" [value]="type">
-                  {{ type }}
-                </mat-option>
-              </mat-autocomplete>
-            </mat-form-field>
-            <mat-form-field>
-              <input matInput placeholder="Deeds Office" formControlName="deedsOffice" [matAutocomplete]="deed" required>
-              <mat-error *ngIf="deedsOffice.hasError('required')">
-                Deeds Office is required.
-              </mat-error>
-              <mat-autocomplete #deed="matAutocomplete" (optionSelected)="deedsSelected($event.option)">
-                <mat-option *ngFor="let d of filteredDeeds | async" [value]="d">
-                  {{ d }}
-                </mat-option>
-              </mat-autocomplete>
-            </mat-form-field>
-            <mat-form-field>
-              <input matInput placeholder="Erf Number" formControlName="erfNum" required>
-              <mat-error *ngIf="erfNum.hasError('required')">
-                Erf Number is required.
-              </mat-error>
-            </mat-form-field>
-            <mat-form-field>
-              <input type="number" matInput placeholder="Portion Number" formControlName="portionNum" required>
-              <mat-error *ngIf="portionNum.hasError('required')">
-                Portion Number is required.
-              </mat-error>
-            </mat-form-field>
+            <div class="row">
+              <div class="col-sm-12 col-md-8 offset-md-2">
+                <mat-form-field>
+                  <input matInput placeholder="Property Type" formControlName="propType" [matAutocomplete]="props" required>
+                  <mat-error *ngIf="propType.hasError('required')">
+                    Property Type is required.
+                  </mat-error>
+                  <mat-autocomplete #props="matAutocomplete" (optionSelected)="propTypeSelected($event.option)">
+                    <mat-option *ngFor="let type of filteredProps | async" [value]="type">
+                      {{ type }}
+                    </mat-option>
+                  </mat-autocomplete>
+                </mat-form-field><br>
+                <mat-form-field>
+                  <input matInput placeholder="Deeds Office" formControlName="deedsOffice" [matAutocomplete]="deed" required>
+                  <mat-error *ngIf="deedsOffice.hasError('required')">
+                    Deeds Office is required.
+                  </mat-error>
+                  <mat-autocomplete #deed="matAutocomplete" (optionSelected)="deedsSelected($event.option)">
+                    <mat-option *ngFor="let d of filteredDeeds | async" [value]="d">
+                      {{ d }}
+                    </mat-option>
+                  </mat-autocomplete>
+                </mat-form-field><br>
+                <mat-form-field>
+                  <input matInput placeholder="Erf Number" formControlName="erfNum" required>
+                  <mat-error *ngIf="erfNum.hasError('required')">
+                    Erf Number is required.
+                  </mat-error>
+                </mat-form-field><br>
+                <mat-form-field>
+                  <input type="number" matInput placeholder="Portion Number" formControlName="portionNum" required>
+                  <mat-error *ngIf="portionNum.hasError('required')">
+                    Portion Number is required.
+                  </mat-error>
+                </mat-form-field>
+              </div>
+            </div>
             <div>
               <button class="btn btn-primary btn-sm" matStepperNext>Next</button>
               <button style="margin-right: 5px;" class="btn btn-outline-secondary btn-sm" matStepperPrevious>Back</button>
@@ -92,7 +100,7 @@
         <mat-step>
           <ng-template matStepLabel>Add Contacts</ng-template>
           <div class="row contactsRow">
-            <div class="col-6 fileCol dropBox">
+            <div class="col-sm-12 col-md-6 fileCol dropBox">
               <div class="contactHeaders">
                 <h5>File Contacts</h5>
               </div>
@@ -104,10 +112,22 @@
                 class="example-list"
                 (cdkDropListDropped)="drop($event)">
                 <div class="hint" *ngIf="fileContactsList.length === 0" style="color: gray">Drag and drop contacts here to add them to the file</div>
-                <div class="example-box" *ngFor="let ct of fileContactsList" cdkDrag>{{ct?.name}}</div>
+                <div class="example-box" *ngFor="let ct of fileContactsList" cdkDrag>
+                  <div class="row">
+                    <div class="col-12">
+                      <span style="font-weight: bold"><i class="far fa-id-card"></i> {{ct?.name}}</span>
+                    </div>
+                    <div class="col-8">
+                      <small style="color: darkgray"><i class="far fa-envelope"></i> {{ct?.email}}</small>
+                    </div>
+                    <div class="col-4">
+                      <small style="color: darkgray">| <i class="fas fa-user-friends"></i> {{ct?.type}}</small>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="col-6 contactsCol dropBox">
+            <div class="col-sm-12 col-md-6 contactsCol dropBox">
               <div class="contactHeaders">
                 <h5>My Contacts</h5>
                 <mat-form-field>
@@ -124,10 +144,25 @@
                 class="example-list"
                 (cdkDropListDropped)="drop($event)">
                 <div class="example-box" *ngFor="let ct of filteredContacts" cdkDrag>
-                  {{ct?.name}}
+                  <div class="row">
+                    <div class="col-12">
+                      <span style="font-weight: bold"><i class="far fa-id-card"></i> {{ct?.name}}</span>
+                    </div>
+                    <div class="col-8">
+                      <small style="color: darkgray"><i class="far fa-envelope"></i> {{ct?.email}}</small>
+                    </div>
+                    <div class="col-4">
+                      <small style="color: darkgray">| <i class="fas fa-user-friends"></i> {{ct?.type}}</small>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
+          </div>
+          <div style="margin-top: 10px;">
+            <button class="btn btn-primary btn-sm" matStepperNext>Done</button>
+            <button style="margin-right: 5px;" class="btn btn-outline-secondary btn-sm" matStepperPrevious>Back</button>
+            <button style="margin-right: 5px;" class="btn btn-outline-secondary btn-sm" (click)="createNewContactDialog()"><i class="fas fa-plus"></i> Add New Contact</button>
           </div>
         </mat-step>
       </mat-horizontal-stepper>

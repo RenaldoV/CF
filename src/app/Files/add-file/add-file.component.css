@@ -23,10 +23,7 @@ button {
 .hint {
   padding: 10px;
 }
-.contactHeaders {
-  min-height: 100px;
-  max-height: 200px;
-}
+
 .dropBox {
   max-width: 100%;
   display: inline-block;
@@ -34,23 +31,19 @@ button {
 }
 .example-list {
   border: solid 1px #ccc;
-  min-height: 60px;
   background: #efefef;
   border-radius: 4px;
   overflow: hidden;
+  overflow-y: scroll;
   display: block;
   min-height: 100px;
+  max-height: 350px;
 }
 
 .example-box {
   padding: 20px 10px;
   border-bottom: solid 1px #ccc;
   color: rgba(0, 0, 0, 0.87);
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  box-sizing: border-box;
   cursor: move;
   background: white;
   font-size: 14px;
@@ -78,4 +71,30 @@ button {
 
 .example-list.cdk-drop-list-dragging .example-box:not(.cdk-drag-placeholder) {
   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+@media (min-width: 768px) {
+  .contactHeaders {
+    min-height: 100px;
+    max-height: 200px;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
