@@ -69,12 +69,14 @@ export class AddFileComponent implements OnInit {
       });
     this.adminService.searchContacts(this.searchTerm$)
       .subscribe(res => {
-        this.filteredContacts = res.filter(ct => {
-          this.fileContactsList.map(c => c.name).indexOf(ct.name) > -1;
+        this.filteredContacts = [];
+        res.forEach(ct => {
+          if (this.fileContactsList.map(c => c.email).indexOf(ct.email) === -1) {
+            this.filteredContacts.push(ct);
+          }
         });
       });
     // TODO: post contacts with unique email address
-    // TODO: Only add contacts to filtered array if they are not present in the File Contacts array
   }
   ngOnInit() {}
   // ======= File Form functions ===============
