@@ -6,6 +6,7 @@ const List = require('../models/milestoneList');
 const Milestone = require('../models/milestone');
 const Properties = require('../models/properties');
 const Contact = require('../models/contact');
+const File = require('../models/file');
 const bcrypt = require('bcrypt');
 
 // ============================ ADMIN ROUTES ===========================
@@ -315,6 +316,87 @@ userRoutes.route('/updateProperties').post((req, res, next) => {
     }
   });
 });
+userRoutes.route('/addOneActionProperty').post((req, res, next) => {
+  const action = req.body.action;
+  const uid = req.body.uid;
+  User.findById(uid, 'properties', (err, user) => {
+    if(err) {
+      console.log(err);
+      res.send(false);
+    }
+    if (user) {
+      Properties.findByIdAndUpdate(user.properties, {
+        $push: {actionTypes: action}
+      }, (er, pRes) => {
+        if(er) {
+          console.log(er);
+          res.send(false);
+        }
+        if(pRes) {
+          res.send(true);
+        }else {
+          res.send(false);
+        }
+      })
+    }else {
+      res.send(false);
+    }
+  });
+});
+userRoutes.route('/addOnePropType').post((req, res, next) => {
+  const pt = req.body.propertyType;
+  const uid = req.body.uid;
+  User.findById(uid, 'properties', (err, user) => {
+    if(err) {
+      console.log(err);
+      res.send(false);
+    }
+    if (user) {
+      Properties.findByIdAndUpdate(user.properties, {
+        $push: {propertyTypes: pt}
+      }, (er, pRes) => {
+        if(er) {
+          console.log(er);
+          res.send(false);
+        }
+        if(pRes) {
+          res.send(true);
+        }else {
+          res.send(false);
+        }
+      })
+    }else {
+      res.send(false);
+    }
+  });
+});
+userRoutes.route('/addOneDeedsOffice').post((req, res, next) => {
+  const d = req.body.deedsOffice;
+  const uid = req.body.uid;
+  User.findById(uid, 'properties', (err, user) => {
+    if(err) {
+      console.log(err);
+      res.send(false);
+    }
+    if (user) {
+      Properties.findByIdAndUpdate(user.properties, {
+        $push: {deedsOffices: d}
+      }, (er, pRes) => {
+        if(er) {
+          console.log(er);
+          res.send(false);
+        }
+        if(pRes) {
+          res.send(true);
+        }else {
+          res.send(false);
+        }
+      })
+    }else {
+      res.send(false);
+    }
+  });
+});
 // ============================ ADMIN PROPERTIES ROUTES  ===============
 // ============================ CONTACTS ROUTES  =======================
 userRoutes.route('/addContact').post((req, res, next) => {
@@ -446,6 +528,32 @@ userRoutes.route('/contact/:email/:uid').get((req, res, next) => {
   });
 });
 // ============================ CONTACTS ROUTES  =======================
+// ============================ FILE ROUTES  ===========================
+userRoutes.route('/addFile').post((req, res, next) => {
+  let file = req.body.file;
+  let uid = req.body.uid;
+  File.create(file, (er, f) => {
+      if (er) {
+        console.log(er);
+        res.send(false);
+      }
+      if (f) {
+        User.findByIdAndUpdate(uid, {$push: {files: f._id}}, (e, usr) => {
+          if (e) {
+            console.log(e);
+            res.send(false);
+          }
+          if (usr) {
+            res.json(f);
+          }
+        });
+      } else {
+        console.log('unsuccessful creation: \n' + result);
+        res.send(false);
+      }
+    })
+
+});
 
 module.exports = userRoutes;
 

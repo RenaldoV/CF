@@ -5,8 +5,10 @@ import { map, startWith } from 'rxjs/operators';
 import { AuthService } from '../../auth/auth.service';
 import { AdminService } from '../../Admin/admin.service';
 import { CdkDragDrop , moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
-import {MatDialog, MatDialogConfig} from '@angular/material';
+import {MatDialog, MatDialogConfig, MatSnackBar} from '@angular/material';
 import {AddContactDialogComponent} from '../add-contact-dialog/add-contact-dialog.component';
+import {Router} from '@angular/router';
+import {LoaderService} from '../../Loader';
 
 @Component({
   selector: 'app-add-file',
@@ -16,14 +18,13 @@ import {AddContactDialogComponent} from '../add-contact-dialog/add-contact-dialo
 export class AddFileComponent implements OnInit {
   fileForm: FormGroup;
   propForm: FormGroup;
-  contactsForm: FormGroup;
   propTypes: String[] = [];
   filteredProps: Observable<any[]>;
   actionTypes: String[] = [];
   filteredActions: Observable<any[]>;
   deedsOffices: String[] = [];
   filteredDeeds: Observable<any[]>;
-  milestonesLists: String[] = [];
+  milestonesLists: any[] = [];
   filteredContacts: any[] = [];
   fileContactsList: any[] = [];
   searchTerm$ = new Subject<string>();
@@ -31,7 +32,10 @@ export class AddFileComponent implements OnInit {
     private fb: FormBuilder,
     private auth: AuthService,
     private adminService: AdminService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private matSnack: MatSnackBar,
+    private router: Router,
+    public loaderService: LoaderService
   ) {
     this.createFileForm();
     this.createPropertyForm();
@@ -65,7 +69,7 @@ export class AddFileComponent implements OnInit {
     this.adminService.getAllMilestoneLists()
       .subscribe(res => {
         if (res) {
-          this.milestonesLists = res.map((ml) => ml.title);
+          this.milestonesLists = res;
         }
       }, err => {
         console.log(err);
@@ -79,7 +83,7 @@ export class AddFileComponent implements OnInit {
           }
         });
       });
-    // TODO: post contacts with unique email address
+    // TODO: get all my contact initially
   }
   ngOnInit() {}
   // ======= File Form functions ===============
@@ -96,9 +100,25 @@ export class AddFileComponent implements OnInit {
   propTypeSelected(option) {
     if (option.value.indexOf('Would you like to add') > - 1) {
       const newState = option.value.split('*')[1];
-      this.propTypes.push(newState);
-      // TODO: persist prop type to database
-      this.propType.setValue(newState);
+      this.adminService.addOnePropType(newState)
+        .subscribe(res => {
+          if (res) {
+            this.propTypes.push(newState);
+            this.propType.setValue(newState);
+            this.matSnack.open('Property type successfully saved');
+          } else {
+            const sb = this.matSnack.open('Save unsuccessful', 'retry');
+            sb.onAction().subscribe(() => {
+              this.propTypeSelected(option);
+            });
+          }
+        }, err => {
+          const sb = this.matSnack.open('Save unsuccessful', 'retry');
+          sb.onAction().subscribe(() => {
+            this.propTypeSelected(option);
+          });
+          console.log(err);
+        });
     }
   }
   filterActions(val: string) {
@@ -112,9 +132,25 @@ export class AddFileComponent implements OnInit {
   actionTypeSelected(option) {
     if (option.value.indexOf('Would you like to add') > - 1) {
       const newState = option.value.split('*')[1];
-      this.actionTypes.push(newState);
-      // TODO: persist prop type to database
-      this.action.setValue(newState);
+      this.adminService.addOneAction(newState)
+        .subscribe(res => {
+          if (res) {
+            this.actionTypes.push(newState);
+            this.action.setValue(newState);
+            this.matSnack.open('Cause of Action successfully saved');
+          } else {
+            const sb = this.matSnack.open('Save unsuccessful', 'retry');
+            sb.onAction().subscribe(() => {
+              this.actionTypeSelected(option);
+            });
+          }
+        }, err => {
+          const sb = this.matSnack.open('Save unsuccessful', 'retry');
+          sb.onAction().subscribe(() => {
+            this.actionTypeSelected(option);
+          });
+          console.log(err);
+        });
     }
   }
   filterDeeds(val: string) {
@@ -128,13 +164,28 @@ export class AddFileComponent implements OnInit {
   deedsSelected(option) {
     if (option.value.indexOf('Would you like to add') > - 1) {
       const newState = option.value.split('*')[1];
-      this.deedsOffices.push(newState);
-      // TODO: persist prop type to database
-      this.deedsOffice.setValue(newState);
+      this.adminService.addOneDeedsOffice(newState)
+        .subscribe(res => {
+          if (res) {
+            this.deedsOffices.push(newState);
+            this.deedsOffice.setValue(newState);
+            this.matSnack.open('Deeds office successfully saved');
+          } else {
+            const sb = this.matSnack.open('Save unsuccessful', 'retry');
+            sb.onAction().subscribe(() => {
+              this.deedsSelected(option);
+            });
+          }
+        }, err => {
+          const sb = this.matSnack.open('Save unsuccessful', 'retry');
+          sb.onAction().subscribe(() => {
+            this.deedsSelected(option);
+          });
+          console.log(err);
+        });
     }
   }
     // ====auto complete functions=======
-
   createFileForm() {
     this.fileForm = this.fb.group({
       fileRef: ['', Validators.required],
@@ -202,5 +253,30 @@ export class AddFileComponent implements OnInit {
     });
   }
   // TODO: post file to database
+  // TODO: add guard to prevent user navigating away if form is Dirty.
 
+  submitFile() {
+    if (this.propForm.valid && this.fileForm.valid) {
+      const file = {...this.fileForm.value, ...this.propForm.value, ...{'contacts': this.fileContactsList.map(ct => ct._id)}};
+      this.adminService.createFile(file)
+        .subscribe(res => {
+          if (file) {
+            const sb = this.matSnack.open('File saved successfully', 'Ok');
+            sb.onAction().subscribe(() => {
+              this.router.navigate(['/admin-home']);
+            });
+            sb.afterDismissed().subscribe(() => {
+              this.router.navigate(['/admin-home']);
+            });
+          } else {
+            const sb = this.matSnack.open('Save unsuccessful', 'retry');
+            sb.onAction().subscribe(() => {
+              this.submitFile();
+            });
+          }
+        });
+    } else {
+      this.matSnack.open('Please check that all data is valid');
+    }
+  }
 }

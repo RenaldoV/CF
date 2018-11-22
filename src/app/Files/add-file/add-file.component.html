@@ -2,8 +2,7 @@
 <div class="container">
   <div class="row">
     <div class="col-lg-8 col-sm-12 offset-lg-2 box">
-      <mat-horizontal-stepper #stepper>
-        <!--[linear]="true"-->
+      <mat-horizontal-stepper #stepper [linear]="true">
         <mat-step [stepControl]="fileForm">
           <form [formGroup]="fileForm">
             <ng-template matStepLabel>File Details</ng-template>
@@ -35,8 +34,8 @@
                 <mat-form-field>
                   <mat-select placeholder="Milestone Process" [formControl]="milestoneProc" required>
                     <mat-option>--</mat-option>
-                    <mat-option *ngFor="let ml of milestonesLists" [value]="ml">
-                      {{ml}}
+                    <mat-option *ngFor="let ml of milestonesLists" [value]="ml._id">
+                      {{ml.title}}
                     </mat-option>
                   </mat-select>
                   <mat-error *ngIf="milestoneProc.hasError('required')">
@@ -111,7 +110,7 @@
                 [cdkDropListConnectedTo]="[myContactsElement]"
                 class="example-list"
                 (cdkDropListDropped)="drop($event)">
-                <div class="hint" *ngIf="fileContactsList.length === 0" style="color: gray">Drag and drop contacts here to add them to the file</div>
+                <div class="hint" *ngIf="fileContactsList.length === 0" style="color: gray">Drag and drop at least one contact here to add them to the file</div>
                 <div class="example-box" *ngFor="let ct of fileContactsList" cdkDrag>
                   <div class="row">
                     <div class="col-12">
@@ -160,7 +159,10 @@
             </div>
           </div>
           <div style="margin-top: 10px;">
-            <button class="btn btn-primary btn-sm" matStepperNext>Done</button>
+            <button class="btn btn-primary btn-sm" matStepperNext [disabled]="fileContactsList.length < 1" (click)="submitFile()">
+              <span *ngIf="!(loaderService.isLoading | async)"><i class="far fa-save"></i> Done</span>
+              <i *ngIf="loaderService.isLoading | async" class="fas fa-spinner fa-spin"></i>
+            </button>
             <button style="margin-right: 5px;" class="btn btn-outline-secondary btn-sm" matStepperPrevious>Back</button>
             <button style="margin-right: 5px;" class="btn btn-outline-secondary btn-sm" (click)="createNewContactDialog()"><i class="fas fa-plus"></i> Add New Contact</button>
           </div>

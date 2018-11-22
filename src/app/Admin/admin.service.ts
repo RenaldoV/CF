@@ -81,6 +81,21 @@ export class AdminService {
     headers.set('Content-Type', 'application/json');
     return this.http.post<any>(`${this.host}/updateProperties`, {properties: p, uid: this.auth.getID()});
   }
+  addOneAction(a) {
+    const headers = new HttpHeaders();
+    headers.set('Content-Type', 'application/json');
+    return this.http.post<any>(`${this.host}/addOneActionProperty`, {action: a, uid: this.auth.getID()});
+  }
+  addOnePropType(p) {
+    const headers = new HttpHeaders();
+    headers.set('Content-Type', 'application/json');
+    return this.http.post<any>(`${this.host}/addOnePropType`, {propertyType: p, uid: this.auth.getID()});
+  }
+  addOneDeedsOffice(d) {
+    const headers = new HttpHeaders();
+    headers.set('Content-Type', 'application/json');
+    return this.http.post<any>(`${this.host}/addOneDeedsOffice`, {deedsOffice: d, uid: this.auth.getID()});
+  }
   createContact(ct) {
     const headers = new HttpHeaders();
     headers.set('Content-Type', 'application/json');
@@ -117,5 +132,11 @@ export class AdminService {
     const uid = this.auth.getID();
     const url = `${this.host}/contacts/` + uid + '/' + term;
     return this.http.get<any[]>(url);
+  }
+  createFile(file) {
+    const uid = this.auth.getID();
+    const headers = new HttpHeaders();
+    headers.set('Content-Type', 'application/json');
+    return this.http.post<any>(`${this.host}/addFile`, {file: file, uid: uid});
   }
 }
