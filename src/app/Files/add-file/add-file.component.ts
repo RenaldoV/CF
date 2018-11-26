@@ -212,15 +212,15 @@ export class AddFileComponent implements OnInit {
     this.propForm = this.fb.group({
       propType: ['', Validators.required],
       deedsOffice: ['', Validators.required],
-      erfNum: ['', Validators.required],
+      erfNumber: ['', Validators.required],
       portionNum: ['', Validators.required]
     });
   }
   get deedsOffice () {
     return this.propForm.get('deedsOffice');
   }
-  get erfNum () {
-    return this.propForm.get('erfNum');
+  get erfNumber () {
+    return this.propForm.get('erfNumber');
   }
   get portionNum () {
     return this.propForm.get('portionNum');

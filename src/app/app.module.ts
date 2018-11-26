@@ -12,9 +12,9 @@ import {
   MAT_SNACK_BAR_DEFAULT_OPTIONS,
   MatAutocompleteModule, MatCardModule, MatCheckboxModule, MatDialogModule, MatExpansionModule,
   MatFormFieldModule, MatIconModule,
-  MatInputModule, MatRadioModule,
-  MatSelectModule, MatSnackBarModule,
-  MatStepperModule, MatTableModule, MatTooltipModule, MatTreeModule
+  MatInputModule, MatPaginatorModule, MatRadioModule,
+  MatSelectModule, MatSnackBarModule, MatSortModule,
+  MatStepperModule, MatTableModule, MatTooltipModule
 } from '@angular/material';
 import { ReactiveFormsModule } from '@angular/forms';
 import { AdminHomeComponent } from './Admin/admin-home/admin-home.component';
@@ -24,6 +24,8 @@ import { AdminSetupComponent } from './Admin/admin-setup/admin-setup.component';
 import {LoaderModule} from './Loader';
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import { AddContactDialogComponent } from './Files/add-contact-dialog/add-contact-dialog.component';
+import { FileTableComponent } from './Common/file-table/file-table.component';
+import {CdkDetailRowDirective} from './Common/file-table/cdk-detail-row.directive';
 
 
 
@@ -35,7 +37,9 @@ import { AddContactDialogComponent } from './Files/add-contact-dialog/add-contac
     NavComponent,
     AddFileComponent,
     AdminSetupComponent,
-    AddContactDialogComponent
+    AddContactDialogComponent,
+    FileTableComponent,
+    CdkDetailRowDirective
   ],
   imports: [
     MatInputModule,
@@ -48,8 +52,10 @@ import { AddContactDialogComponent } from './Files/add-contact-dialog/add-contac
     MatRadioModule,
     MatSnackBarModule,
     MatDialogModule,
+    MatPaginatorModule,
     MatExpansionModule,
     MatIconModule,
+    MatSortModule,
     MatTableModule,
     MatCardModule,
     DragDropModule,

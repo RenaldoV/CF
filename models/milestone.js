@@ -9,6 +9,10 @@ const Milestone = new Schema({
   notificationMessage: String,
   sendEmail: Boolean,
   sendSMS: Boolean,
+  comments: [{
+    user: {type: Schema.Types.ObjectId, ref: 'User'},
+    comment: String
+  }],
   updatedBy: {type: Schema.Types.ObjectId, ref: 'User'}
 },
 {

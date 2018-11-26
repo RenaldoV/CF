@@ -1,0 +1,68 @@
+<div class="example-header">
+  <mat-form-field>
+    <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Filter">
+  </mat-form-field>
+</div>
+
+<div class="example-container mat-elevation-z8">
+  <mat-table #table [dataSource]="dataSource" matSort>
+
+    <!--- Note that these columns can be defined in any order.
+          The actual rendered columns are set as a property on the row definition" -->
+
+    <ng-container matColumnDef="fileRef">
+      <mat-header-cell *matHeaderCellDef mat-sort-header> File Ref </mat-header-cell>
+      <mat-cell *matCellDef="let element"> {{element.fileRef}} </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="action">
+      <mat-header-cell *matHeaderCellDef mat-sort-header> Cause of Action </mat-header-cell>
+      <mat-cell *matCellDef="let element"> {{element.action}} </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="ourRef">
+      <mat-header-cell *matHeaderCellDef mat-sort-header> Our Ref </mat-header-cell>
+      <mat-cell *matCellDef="let element"> {{element.ourRef}} </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="Contacts">
+      <mat-header-cell *matHeaderCellDef mat-sort-header> Contacts </mat-header-cell>
+      <mat-cell *matCellDef="let element"> {{reduceContacts(element.contacts)}} </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="ERF">
+      <mat-header-cell *matHeaderCellDef mat-sort-header> ERF </mat-header-cell>
+      <mat-cell *matCellDef="let element"> {{element.erfNumber}} </mat-cell>
+    </ng-container>
+
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns;" matRipple class="element-row" [cdkDetailRow]="row" [cdkDetailRowTpl]="tpl">
+    </mat-row>
+  </mat-table>
+  <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+</div>
+
+<ng-template #tpl let-element>
+  <div class="mat-row detail-row" [@detailExpand] style="overflow: hidden">
+    <div class="milestonesBox">
+      <mat-accordion>
+        <mat-expansion-panel *ngFor="let milestone of element.milestoneList.milestones; let i = index" hideToggle>
+          <mat-expansion-panel-header [style.text-decoration]="milestone.complete ? 'line-through' : 'none'">
+            <mat-panel-title>
+              Milestone {{i + 1}}
+            </mat-panel-title>
+            <mat-panel-description>
+              {{ milestone.name }}
+              <mat-checkbox [checked]="milestone.complete" (change)="markMilestone($event, milestone)"></mat-checkbox>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </div>
+  </div>
+</ng-template>
+
+
+<!-- Copyright 2018 Google Inc. All Rights Reserved.
+    Use of this source code is governed by an MIT-style license that
+    can be found in the LICENSE file at http://angular.io/license -->
