@@ -139,4 +139,9 @@ export class AdminService {
     headers.set('Content-Type', 'application/json');
     return this.http.post<any>(`${this.host}/addFile`, {file: file, uid: uid});
   }
+  getMyFiles() {
+    const uid = this.auth.getID();
+    const url = `${this.host}/files/` + uid;
+    return this.http.get(url);
+  }
 }

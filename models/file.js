@@ -5,7 +5,7 @@ let File = new mongoose.Schema({
     fileRef: String,
     action: String,
     ourRef: String,
-    milestoneProcess: {type: Schema.Types.ObjectId, ref: 'Milestone'},
+    milestoneList: {type: Schema.Types.ObjectId, ref: 'MilestoneList'},
     propertyType: String,
     deedsOffice: String,
     erfNumber: String,

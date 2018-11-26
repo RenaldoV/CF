@@ -14,7 +14,7 @@ import {
   MatFormFieldModule, MatIconModule,
   MatInputModule, MatRadioModule,
   MatSelectModule, MatSnackBarModule,
-  MatStepperModule, MatTooltipModule
+  MatStepperModule, MatTableModule, MatTooltipModule, MatTreeModule
 } from '@angular/material';
 import { ReactiveFormsModule } from '@angular/forms';
 import { AdminHomeComponent } from './Admin/admin-home/admin-home.component';
@@ -50,6 +50,7 @@ import { AddContactDialogComponent } from './Files/add-contact-dialog/add-contac
     MatDialogModule,
     MatExpansionModule,
     MatIconModule,
+    MatTableModule,
     MatCardModule,
     DragDropModule,
     BrowserModule,

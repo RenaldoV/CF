@@ -191,7 +191,7 @@ export class AddFileComponent implements OnInit {
       fileRef: ['', Validators.required],
       action: ['', Validators.required],
       ourRef: [this.auth.getName(), Validators.required],
-      milestoneProc: ['', Validators.required] // TODO: get milestone lists from DB
+      milestoneList: ['', Validators.required] // TODO: get milestone lists from DB
     });
   }
   get fileRef () {
@@ -203,8 +203,8 @@ export class AddFileComponent implements OnInit {
   get ourRef () {
     return this.fileForm.get('ourRef');
   }
-  get milestoneProc () {
-    return this.fileForm.get('milestoneProc');
+  get milestoneList () {
+    return this.fileForm.get('milestoneList');
   }
   // ======= File Form functions ===============
   // ======= Property Form functions ===============

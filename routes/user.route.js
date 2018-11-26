@@ -554,6 +554,30 @@ userRoutes.route('/addFile').post((req, res, next) => {
     })
 
 });
+userRoutes.route('/files/:id').get((req, res, next) => {
+  // get user's Files
+  const id = req.params.id;
+  User.findById(id, 'files').exec((err, user) => {
+    if(err) {
+      console.log(err);
+      res.send(false);
+    }
+    if (user) {
+      File.find({_id: {$in: user.files}}).populate({path: 'milestoneList', populate: {path: 'milestones'}}).populate('contacts').exec((er, files) => {
+        if (er) {
+          console.log(er);
+          res.send(false);
+        } else if (files) {
+          res.send(files);
+        } else {
+          res.send(false);
+        }
+      });
+    }else {
+      res.send(false);
+    }
+  });
+});
 
 module.exports = userRoutes;
 

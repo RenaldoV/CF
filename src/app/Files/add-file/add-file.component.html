@@ -32,13 +32,12 @@
                   </mat-error>
                 </mat-form-field><br>
                 <mat-form-field>
-                  <mat-select placeholder="Milestone Process" [formControl]="milestoneProc" required>
-                    <mat-option>--</mat-option>
+                  <mat-select placeholder="Milestone Process" [formControl]="milestoneList" required>
                     <mat-option *ngFor="let ml of milestonesLists" [value]="ml._id">
                       {{ml.title}}
                     </mat-option>
                   </mat-select>
-                  <mat-error *ngIf="milestoneProc.hasError('required')">
+                  <mat-error *ngIf="milestoneList.hasError('required')">
                     Milestone Process is required.
                   </mat-error>
                 </mat-form-field>
