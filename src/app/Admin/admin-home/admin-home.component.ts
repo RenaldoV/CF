@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {AdminService} from '../admin.service';
+import {LoaderService} from '../../Loader';
 @Component({
   selector: 'app-admin-home',
   templateUrl: './admin-home.component.html',
@@ -11,7 +12,8 @@ export class AdminHomeComponent implements OnInit {
   files;
   constructor(
     private fb: FormBuilder,
-    private adminService: AdminService
+    private adminService: AdminService,
+    public loaderService: LoaderService
   ) {
     this.adminService.getMyFiles()
       .subscribe(res => {
@@ -23,4 +25,5 @@ export class AdminHomeComponent implements OnInit {
 
   ngOnInit() {
   }
+
 }

@@ -532,6 +532,8 @@ userRoutes.route('/contact/:email/:uid').get((req, res, next) => {
 userRoutes.route('/addFile').post((req, res, next) => {
   let file = req.body.file;
   let uid = req.body.uid;
+  file.createdBy = uid;
+  file.updatedBy = uid;
   File.create(file, (er, f) => {
       if (er) {
         console.log(er);
@@ -563,7 +565,8 @@ userRoutes.route('/files/:id').get((req, res, next) => {
       res.send(false);
     }
     if (user) {
-      File.find({_id: {$in: user.files}}).populate({path: 'milestoneList', populate: {path: 'milestones'}}).populate('contacts').exec((er, files) => {
+      File.find({_id: {$in: user.files}}).populate({path: 'milestoneList', populate: {path: 'milestones'}})
+        .populate('contacts').populate('createdBy', 'name').populate('updatedBy', 'name').exec((er, files) => {
         if (er) {
           console.log(er);
           res.send(false);

@@ -10,10 +10,13 @@ let File = new mongoose.Schema({
     deedsOffice: String,
     erfNumber: String,
     portionNumber: Number,
-    contacts: [{type: Schema.Types.ObjectId, ref: 'Contact'}]
+    contacts: [{type: Schema.Types.ObjectId, ref: 'Contact'}],
+    createdBy: {type: Schema.Types.ObjectId, ref: 'User'},
+    updatedBy: {type: Schema.Types.ObjectId, ref: 'User'},
   },
   {
-    collection: 'files'
+    collection: 'files',
+    timestamps: {createdAt: 'createdAt', updatedAt: 'updatedAt'}
   });
 
 module.exports = mongoose.model('File', File);

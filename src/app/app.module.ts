@@ -12,7 +12,7 @@ import {
   MAT_SNACK_BAR_DEFAULT_OPTIONS,
   MatAutocompleteModule, MatCardModule, MatCheckboxModule, MatDialogModule, MatExpansionModule,
   MatFormFieldModule, MatIconModule,
-  MatInputModule, MatPaginatorModule, MatRadioModule,
+  MatInputModule, MatMenuModule, MatPaginatorModule, MatRadioModule,
   MatSelectModule, MatSnackBarModule, MatSortModule,
   MatStepperModule, MatTableModule, MatTooltipModule
 } from '@angular/material';
@@ -52,6 +52,8 @@ import {CdkDetailRowDirective} from './Common/file-table/cdk-detail-row.directiv
     MatRadioModule,
     MatSnackBarModule,
     MatDialogModule,
+    MatMenuModule,
+    MatCardModule,
     MatPaginatorModule,
     MatExpansionModule,
     MatIconModule,

@@ -17,7 +17,7 @@ import {MatTableDataSource, MatSort, MatPaginator} from '@angular/material';
   ],
 })
 export class FileTableComponent implements OnInit {
-  displayedColumns: string[] = ['action', 'fileRef', 'ourRef', 'Contacts', 'ERF'];
+  displayedColumns: string[] = ['action', 'fileRef', 'ourRef', 'ERF', 'created', 'updated', 'actions'];
   dataSource;
   @Input() files;
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -30,6 +30,29 @@ export class FileTableComponent implements OnInit {
     console.log(this.files);
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
+    this.dataSource.sortingDataAccessor = (item, property) => {
+      switch (property) {
+        case 'created': return new Date(item.createdAt)
+        case 'updated': return new Date(item.updatedAt)
+        default: return item[property];
+      }
+    };
+    this.dataSource.filterPredicate =
+      (data: File, filters: string) => {
+        const matchFilter = [];
+        const filterArray = filters.split('+');
+        // const columns = (<any>Object).values(data);
+        console.log(data);
+        // OR be more specific [data.name, data.race, data.color];
+
+        // Main
+        /*filterArray.forEach(filter => {
+          const customFilter = [];
+          columns.forEach(column => customFilter.push(column.toLowerCase().includes(filter)));
+          matchFilter.push(customFilter.some(Boolean)); // OR
+        });
+        return matchFilter.every(Boolean); // AND*/
+      };
   }
 
   applyFilter(filterValue: string) {
@@ -58,6 +81,11 @@ export class FileTableComponent implements OnInit {
       }
     }
   }
+  convertDate(inputFormat, d) {
+    d = new Date(d);
+    function pad(s) { return (s < 10) ? '0' + s : s; }
+    return [pad(d.getDate()), pad(d.getMonth() + 1), d.getFullYear()].join('/');
+  }
 }
 
 export interface PeriodicElement {
@@ -74,6 +102,10 @@ export interface File {
   milestoneList: MilestoneList;
   contacts: [any];
   erfNumber: string;
+  updatedBy: any;
+  createdBy: any;
+  updatedAt: any;
+  createdAt: any;
 }
 export interface MilestoneList {
   title: string;

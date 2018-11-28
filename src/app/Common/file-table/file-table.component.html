@@ -25,14 +25,38 @@
       <mat-cell *matCellDef="let element"> {{element.ourRef}} </mat-cell>
     </ng-container>
 
-    <ng-container matColumnDef="Contacts">
-      <mat-header-cell *matHeaderCellDef mat-sort-header> Contacts </mat-header-cell>
-      <mat-cell *matCellDef="let element"> {{reduceContacts(element.contacts)}} </mat-cell>
-    </ng-container>
-
     <ng-container matColumnDef="ERF">
       <mat-header-cell *matHeaderCellDef mat-sort-header> ERF </mat-header-cell>
       <mat-cell *matCellDef="let element"> {{element.erfNumber}} </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="created">
+      <mat-header-cell *matHeaderCellDef mat-sort-header> Created </mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        <small style="color: darkgrey">
+          {{convertDate('dd/mm/yyyy', element.createdAt)}} <br>by {{element.createdBy.name}}
+        </small>
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="updated">
+      <mat-header-cell *matHeaderCellDef mat-sort-header> Updated </mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        <small style="color: darkgrey">
+          {{convertDate('dd/mm/yyyy', element.updatedAt)}} <br>by {{element.updatedBy.name}}
+        </small>
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <mat-header-cell *matHeaderCellDef mat-sort-header> Actions </mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        <i class="fas fa-ellipsis-h" [matMenuTriggerFor]="actionsMenu" (click)="$event.stopPropagation()"></i>
+        <mat-menu #actionsMenu="matMenu">
+          <button mat-menu-item><i class="far fa-edit"></i></button>
+          <button mat-menu-item><i class="far fa-trash-alt"></i></button>
+        </mat-menu>
+      </mat-cell>
     </ng-container>
 
     <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
@@ -44,6 +68,20 @@
 
 <ng-template #tpl let-element>
   <div class="mat-row detail-row" [@detailExpand] style="overflow: hidden">
+    <div class="contactsBox row">
+      <div class="col-sm-12 col-md-6 col-lg{{element.contacts.length <= 4 ? '' : '-3'}}" *ngFor="let ct of element.contacts; let i = index">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title><i class="far fa-id-card"></i> {{ct.name}}</mat-card-title>
+            <mat-card-subtitle>
+              <small><i class="fas fa-user-friends"></i> {{ct?.type}}</small><br>
+              <small><i class="far fa-envelope"></i> {{ ct?.email }}</small><br>
+              <small><i class="fas fa-phone-square"></i> {{ ct?.cell }}</small>
+            </mat-card-subtitle>
+          </mat-card-header>
+        </mat-card>
+      </div>
+    </div>
     <div class="milestonesBox">
       <mat-accordion>
         <mat-expansion-panel *ngFor="let milestone of element.milestoneList.milestones; let i = index" hideToggle>
@@ -53,7 +91,7 @@
             </mat-panel-title>
             <mat-panel-description>
               {{ milestone.name }}
-              <mat-checkbox [checked]="milestone.complete" (change)="markMilestone($event, milestone)"></mat-checkbox>
+              <mat-checkbox (click)="$event.stopPropagation()" [checked]="milestone.complete" (change)="markMilestone($event, milestone)"></mat-checkbox>
             </mat-panel-description>
           </mat-expansion-panel-header>
         </mat-expansion-panel>
