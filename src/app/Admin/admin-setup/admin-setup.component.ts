@@ -1,5 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import {FormArray, FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
+import {
+  AbstractControl,
+  FormArray,
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ValidationErrors,
+  Validators
+} from '@angular/forms';
 import {AdminService} from '../admin.service';
 import {LoaderService} from '../../Loader';
 import {AuthService} from '../../auth/auth.service';
@@ -68,6 +76,7 @@ export class AdminSetupComponent implements OnInit {
     arrayControl.push(ms);
   }
   removeMilestoneList (e, i) { // remove result from form array
+    e.stopPropagation();
     e.preventDefault();
     if (confirm('Are you sure you want to delete this list and all milestones associated with it?')) {
       const list = this.list.at(i);
@@ -98,6 +107,7 @@ export class AdminSetupComponent implements OnInit {
     }
   }
   removeMilestone (e, i, k) { // remove result from form array
+    e.stopPropagation();
     e.preventDefault();
     if (confirm('Are you sure you want to delete this milestone?')) {
       const milestone = this.getMilestones(i).at(k);
@@ -309,6 +319,7 @@ export class AdminSetupComponent implements OnInit {
     arrayControl.push(d);
   }
   removePropertyType(e, i) {
+    e.stopPropagation();
     e.preventDefault();
     if (confirm('Are you sure you want to delete this property type?')) {
       const pt = this.propertyTypes.at(i);
@@ -320,6 +331,7 @@ export class AdminSetupComponent implements OnInit {
     }
   }
   removeActionType(e, i) {
+    e.stopPropagation();
     e.preventDefault();
     if (confirm('Are you sure you want to delete this action type?')) {
       const at = this.actionTypes.at(i);
@@ -331,6 +343,7 @@ export class AdminSetupComponent implements OnInit {
     }
   }
   removeDeedsOffice(e, i) {
+    e.stopPropagation();
     e.preventDefault();
     if (confirm('Are you sure you want to delete this deeds office?')) {
       const d = this.deedsOffices.at(i);
@@ -494,14 +507,17 @@ export class AdminSetupComponent implements OnInit {
       _id: [''],
       name: ['', Validators.required],
       cell: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
+      email: ['', [Validators.required, Validators.email],
+        existing ? null : this.shouldBeUnique.bind(this)],
       updatedBy: [existing ? 'existing' : 'new'],
       type: ['', Validators.required]
     });
     const arrayControl = <FormArray>this.contacts;
+    if (existing) {ct.get('email').disable();}
     arrayControl.push(ct);
-  } // TODO: Add unique email validation
+  }
   removeContact(e, i) {
+    e.stopPropagation();
     e.preventDefault();
     const ct = this.contacts.at(i);
     if (confirm('Are you sure you want to delete ' +
@@ -550,6 +566,8 @@ export class AdminSetupComponent implements OnInit {
           if (res) {
             this.matSnack.open('Contact created successfully');
             ct.patchValue(res);
+            ct.get('email').clearAsyncValidators();
+            ct.get('email').disable();
           } else {
             const sb = this.matSnack.open('Contact not created successful', 'retry');
             sb.onAction().subscribe(() => {
@@ -586,5 +604,19 @@ export class AdminSetupComponent implements OnInit {
         });
     }
     // console.log(this.contacts.at(i).value);
+  }
+  shouldBeUnique(control: AbstractControl): Promise<ValidationErrors> | null {
+    const q = new Promise((resolve, reject) => {
+      setTimeout(() => {
+        this.adminService.getContactByEmail(control.value).subscribe((res) => {
+          if (!res) {
+            resolve(null);
+          } else {
+            resolve({'emailNotUnique': true});
+          }
+        });
+      }, 100);
+    });
+    return q;
   }
 }

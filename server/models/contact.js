@@ -9,7 +9,8 @@ let Contact = new mongoose.Schema({
     forgotPassword: {
       token: String,
       expiry: Date
-    }
+    },
+    verified: Boolean
   },
   {
     collection: 'contacts'

@@ -404,6 +404,7 @@ userRoutes.route('/addOneDeedsOffice').post((req, res, next) => {
 // ============================ CONTACTS ROUTES  =======================
 userRoutes.route('/addContact').post((req, res, next) => {
   let contact = req.body.contact;
+  contact.verified = false;
   let uid = req.body.uid;
   contact.passwordHash = Math.random().toString(36).substring(10);
   // console.log(contact.passwordHash);

@@ -18,7 +18,7 @@
               <form class="MilestoneListForm" [formGroup]="MilestoneListForm">
                 <mat-accordion>
                   <mat-expansion-panel hideToggle class="msListPanel" formArrayName="list"
-                                       *ngFor="let l of list.controls; let i = index">
+                                       *ngFor="let l of list.controls; let i = index" [expanded]="true">
                     <mat-expansion-panel-header>
                       <mat-panel-title>
                         {{ l.get('title').value ? l.get('title').value : 'List ' + (i + 1) }}
@@ -38,7 +38,7 @@
                       </mat-form-field>
                       <mat-accordion>
                         <mat-expansion-panel hideToggle class="msPanel" formArrayName="milestones"
-                                           *ngFor="let m of getMilestones(i).controls; let k = index">
+                                           *ngFor="let m of getMilestones(i).controls; let k = index" [expanded]="true">
                         <mat-expansion-panel-header>
                           <mat-panel-title>
                             {{ m.get('name').value ? m.get('name').value : 'Milestone' }}
@@ -147,7 +147,8 @@
                     </mat-expansion-panel-header>
                     <div class="propertiesPanelBody">
                       <mat-accordion>
-                        <mat-expansion-panel class="msPanel" hideToggle *ngFor="let p of propertyTypes.controls; let i = index" formArrayName="propertyTypes">
+                        <mat-expansion-panel class="msPanel" hideToggle [expanded]="true"
+                                             *ngFor="let p of propertyTypes.controls; let i = index" formArrayName="propertyTypes">
                           <mat-expansion-panel-header>
                             <mat-panel-description>
                               {{p.get('name').value ? p.get('name').value : 'Property Type ' + (i+1)}}
@@ -181,7 +182,8 @@
                     </mat-expansion-panel-header>
                     <div class="propertiesPanelBody">
                       <mat-accordion>
-                        <mat-expansion-panel class="msPanel" hideToggle *ngFor="let at of actionTypes.controls; let i = index" formArrayName="actionTypes">
+                        <mat-expansion-panel class="msPanel" hideToggle [expanded]="true"
+                                             *ngFor="let at of actionTypes.controls; let i = index" formArrayName="actionTypes">
                           <mat-expansion-panel-header>
                             <mat-panel-description>
                               {{at.get('name').value ? at.get('name').value : 'Action Type ' + (i+1)}}
@@ -215,7 +217,8 @@
                     </mat-expansion-panel-header>
                     <div class="propertiesPanelBody">
                       <mat-accordion>
-                        <mat-expansion-panel class="msPanel" hideToggle *ngFor="let d of deedsOffices.controls; let i = index" formArrayName="deedsOffices">
+                        <mat-expansion-panel class="msPanel" hideToggle [expanded]="true"
+                                             *ngFor="let d of deedsOffices.controls; let i = index" formArrayName="deedsOffices">
                           <mat-expansion-panel-header>
                             <mat-panel-description>
                               {{d.get('name').value ? d.get('name').value : 'Deeds Office ' + (i+1)}}
@@ -262,7 +265,8 @@
             <div class="col-10 offset-1" style="margin-bottom: 10px;">
               <form class="ContactsForm" [formGroup]="ContactsForm">
                 <mat-accordion>
-                  <mat-expansion-panel hideToggle class="msListPanel" *ngFor="let c of contacts.controls; let i = index" formArrayName="contacts">
+                  <mat-expansion-panel hideToggle class="msListPanel" [expanded]="true"
+                                       *ngFor="let c of contacts.controls; let i = index" formArrayName="contacts">
                     <mat-expansion-panel-header>
                       <mat-panel-description>
                         {{c.get('name').value ? c.get('name').value : 'Contact ' + (i+1)}}
@@ -291,6 +295,9 @@
                         </mat-error>
                         <mat-error *ngIf="c.get('email').hasError('email')">
                           Email must be a valid email address.
+                        </mat-error>
+                        <mat-error *ngIf="c.get('email').hasError('emailNotUnique')">
+                          You already have a contact with this email.
                         </mat-error>
                       </mat-form-field>
                       <p style="color: gray;">Contact Type</p>
