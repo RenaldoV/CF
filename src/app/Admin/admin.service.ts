@@ -133,15 +133,4 @@ export class AdminService {
     const url = `${this.host}/contacts/` + uid + '/' + term;
     return this.http.get<any[]>(url);
   }
-  createFile(file) {
-    const uid = this.auth.getID();
-    const headers = new HttpHeaders();
-    headers.set('Content-Type', 'application/json');
-    return this.http.post<any>(`${this.host}/addFile`, {file: file, uid: uid});
-  }
-  getMyFiles() {
-    const uid = this.auth.getID();
-    const url = `${this.host}/files/` + uid;
-    return this.http.get(url);
-  }
 }

@@ -5,7 +5,20 @@ let File = new mongoose.Schema({
     fileRef: String,
     action: String,
     ourRef: String,
-    milestoneList: {type: Schema.Types.ObjectId, ref: 'MilestoneList'},
+    milestoneList: {
+      _id: {type: Schema.Types.ObjectId, ref: 'MilestoneList'},
+      milestones: [{
+        _id: {type: Schema.Types.ObjectId, ref: 'Milestone'},
+        completed: Boolean,
+        updatedBy: {type: Schema.Types.ObjectId, ref: 'User'},
+        updatedAt: Date,
+        comments: [{
+          user: {type: Schema.Types.ObjectId, ref: 'User'},
+          timestamp: Date,
+          comment: String
+        }]
+      }]
+      },
     propertyType: String,
     deedsOffice: String,
     erfNumber: String,

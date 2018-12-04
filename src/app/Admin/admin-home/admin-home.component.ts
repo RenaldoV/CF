@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {AdminService} from '../admin.service';
 import {LoaderService} from '../../Loader';
+import {FileService} from '../../Files/file.service';
 @Component({
   selector: 'app-admin-home',
   templateUrl: './admin-home.component.html',
@@ -13,9 +14,10 @@ export class AdminHomeComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private adminService: AdminService,
-    public loaderService: LoaderService
+    public loaderService: LoaderService,
+    public fileService: FileService
   ) {
-    this.adminService.getMyFiles()
+    this.fileService.getMyFiles()
       .subscribe(res => {
         this.files = res;
       }, err => {

@@ -89,5 +89,4 @@ export class AddContactDialogComponent implements OnInit {
     });
     return q;
   }
-
 }

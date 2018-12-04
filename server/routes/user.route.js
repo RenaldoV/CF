@@ -8,6 +8,9 @@ const Properties = require('../models/properties');
 const Contact = require('../models/contact');
 const File = require('../models/file');
 const bcrypt = require('bcrypt');
+const Mailer = require ('../mailer/mailer');
+const mailer = new Mailer("mail.carbonsoft.co.za", 465, "ronnie@carbonsoft.co.za", "Carbon@Ronnie2018");
+const async = require('async');
 
 // ============================ ADMIN ROUTES ===========================
 userRoutes.route('/addUser').post((req, res, next) => {
@@ -534,26 +537,41 @@ userRoutes.route('/addFile').post((req, res, next) => {
   let uid = req.body.uid;
   file.createdBy = uid;
   file.updatedBy = uid;
-  File.create(file, (er, f) => {
-      if (er) {
-        console.log(er);
-        res.send(false);
-      }
-      if (f) {
-        User.findByIdAndUpdate(uid, {$push: {files: f._id}}, (e, usr) => {
-          if (e) {
-            console.log(e);
-            res.send(false);
-          }
-          if (usr) {
-            res.json(f);
-          }
-        });
-      } else {
-        console.log('unsuccessful creation: \n' + result);
-        res.send(false);
-      }
-    })
+  List.findById(file.milestoneList, 'milestones').exec((error, list) => {
+    if (error) {
+      console.log(error);
+      res.send(false);
+    }
+    if (list) {
+      let newList = new Object();
+      newList.milestones = list.milestones.map(ms => {
+        return new Object({_id: ms, completed: false, updatedBy: uid, updatedAt: new Date()})
+      });
+      newList._id = list._id;
+      file.milestoneList = newList;
+      File.create(file, (er, f) => {
+        if (er) {
+          console.log(er);
+          res.send(false);
+        }
+        if (f) {
+          User.findByIdAndUpdate(uid, {$push: {files: f._id}}, (e, usr) => {
+            if (e) {
+              console.log(e);
+              res.send(false);
+            }
+            if (usr) {
+              res.json(f);
+            }
+          });
+        } else {
+          console.log('unsuccessful creation: \n' + result);
+          res.send(false);
+        }
+      })
+    }
+  });
+
 
 });
 userRoutes.route('/files/:id').get((req, res, next) => {
@@ -565,8 +583,8 @@ userRoutes.route('/files/:id').get((req, res, next) => {
       res.send(false);
     }
     if (user) {
-      File.find({_id: {$in: user.files}}).populate({path: 'milestoneList', populate: {path: 'milestones'}})
-        .populate('contacts').populate('createdBy', 'name').populate('updatedBy', 'name').exec((er, files) => {
+      File.find({_id: {$in: user.files}}).populate('milestoneList.milestones._id').populate('milestoneList.milestones.updatedBy', 'name')
+        .populate('contacts').populate('milestoneList.milestones.comments.user', 'name').populate('createdBy', 'name').populate('updatedBy', 'name').exec((er, files) => {
         if (er) {
           console.log(er);
           res.send(false);
@@ -581,7 +599,89 @@ userRoutes.route('/files/:id').get((req, res, next) => {
     }
   });
 });
-
+userRoutes.route('/completeMilestone').post((req, res, next) => {
+  let fileID = req.body.fileID;
+  let milestoneID = req.body.milestoneID;
+  let uid = req.body.uid;
+  File.findOneAndUpdate(
+    {_id: fileID, 'milestoneList.milestones._id': milestoneID},
+    {$set: {'milestoneList.milestones.$.completed': true}}, {new: true}).exec((err, newFile) => {
+      if (err) {
+        console.log(err);
+        res.send(false);
+      }
+      if (newFile) {
+        async.parallel({
+          contacts: (callback) => {
+            Contact.find({_id: {$in: newFile.contacts}}).exec((er, cts) => {
+              callback(er, cts);
+            });
+          },
+          adminUser: (callback) => {
+            User.findById(uid, (er, user) => {
+              callback(er, user);
+            });
+          },
+          milestone: (callback) => {
+            Milestone.findById(milestoneID, (er, m) => {
+              callback(er, milestoneID);
+            });
+          }
+        }, (er, callback) => {
+          if (er) {
+            console.log(err);
+            res.send(false);
+          } else if (callback.contacts && callback.adminUser && callback.milestone) {
+            let messageBody = callback.milestone.notificationMessage;
+            const milestoneName = callback.milestone.name;
+            messageBody = messageBody.split('*deeds_office*').join(newFile.deedsOffice);
+            messageBody = messageBody.split('*erf_name*').join(newFile.erfNumber);
+            messageBody = messageBody.split('*my_name*').join(callback.adminUser.name);
+            const url = req.protocol + '://' + req.get('host');
+            callback.contacts.forEach(ct => {
+              const email = ct.email;
+              messageBody = messageBody.split('*contact_name*').join(ct.name);
+              if (callback.milestone.sendEmail) {
+                mailer.sendEmail(email, messageBody, url, milestoneName + ' milestone has been completed.');
+              }
+            });
+            res.send({
+              message: 'Milestone successfully marked as complete' + (callback.milestone.sendEmail || callback.milestone.sendSMS ? ', and all parties notified.' : '.')
+            });
+          } else {
+            res.send(false);
+          }
+        });
+      } else {
+        res.send(false);
+      }
+  })
+});
+userRoutes.route('/addComment').post((req, res, next) => {
+  let fileID = req.body.fileID;
+  let milestoneID = req.body.milestoneID;
+  let comment = {
+    user: req.body.uid,
+    comment: req.body.comment,
+    timestamp: new Date()
+  };
+  File.findOneAndUpdate(
+    {_id: fileID, 'milestoneList.milestones._id': milestoneID},
+    { $push: {'milestoneList.milestones.$.comments': comment}}, {fields: 'milestoneList.milestones.$.comments'}).populate('milestoneList.milestones.comments.user', 'name').exec((err, result) => {
+    if (err) {
+      console.log(err);
+      res.send(false);
+    }
+    if (result) {
+      User.findById(comment.user, 'name', (er, user) => {
+        comment.user = user;
+        res.send(comment);
+      });
+    } else {
+      res.send(false);
+    }
+  })
+});
 module.exports = userRoutes;
 
 function find(items, text) {

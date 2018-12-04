@@ -9,6 +9,7 @@ import {MatDialog, MatDialogConfig, MatSnackBar} from '@angular/material';
 import {AddContactDialogComponent} from '../add-contact-dialog/add-contact-dialog.component';
 import {Router} from '@angular/router';
 import {LoaderService} from '../../Loader';
+import {FileService} from '../file.service';
 
 @Component({
   selector: 'app-add-file',
@@ -32,6 +33,7 @@ export class AddFileComponent implements OnInit {
     private fb: FormBuilder,
     private auth: AuthService,
     private adminService: AdminService,
+    private fileService: FileService,
     private dialog: MatDialog,
     private matSnack: MatSnackBar,
     private router: Router,
@@ -252,13 +254,12 @@ export class AddFileComponent implements OnInit {
       }
     });
   }
-  // TODO: post file to database
   // TODO: add guard to prevent user navigating away if form is Dirty.
 
   submitFile() {
     if (this.propForm.valid && this.fileForm.valid) {
       const file = {...this.fileForm.value, ...this.propForm.value, ...{'contacts': this.fileContactsList.map(ct => ct._id)}};
-      this.adminService.createFile(file)
+      this.fileService.createFile(file)
         .subscribe(res => {
           if (file) {
             const sb = this.matSnack.open('File saved successfully', 'Ok');

@@ -54,4 +54,15 @@ mat-accordion .mat-expansion-panel-header-description {
 .detail-row {
   background-color: #e3e3e3;
 }
+.comment {
+  margin-bottom: 15px;
+}
+
+.speech {
+  margin-left: 5px;
+  background-color: lightgray;
+  color: black;
+  border-radius: 10px;
+  padding: 7px;
+}
 

@@ -1,0 +1,21 @@
+<h2 mat-dialog-title>Add Comment</h2>
+
+<mat-dialog-content [formGroup]="commentForm">
+  <div style="margin-bottom: 10px;">
+    <mat-form-field class="innerFormFields" appearance="outline">
+      <mat-label>Comment</mat-label>
+      <textarea matInput placeholder="Write a comment" formControlName="comment" rows="4" required></textarea>
+      <mat-error>
+        Comment can't be empty text.
+      </mat-error>
+    </mat-form-field>
+    <br>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <button class="btn btn-outline-secondary btn-sm closeBtn"(click)="close()">Close</button>
+  <button [disabled]="commentForm.invalid" class="btn btn-primary btn-sm" (click)="submitComment()">
+    <span><i class="far fa-save"></i> Save Comment</span>
+  </button>
+</mat-dialog-actions>

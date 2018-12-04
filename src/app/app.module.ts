@@ -24,8 +24,10 @@ import { AdminSetupComponent } from './Admin/admin-setup/admin-setup.component';
 import {LoaderModule} from './Loader';
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import { AddContactDialogComponent } from './Files/add-contact-dialog/add-contact-dialog.component';
-import { FileTableComponent } from './Common/file-table/file-table.component';
-import {CdkDetailRowDirective} from './Common/file-table/cdk-detail-row.directive';
+import { FileTableComponent } from './Files/file-table/file-table.component';
+import {CdkDetailRowDirective} from './Files/file-table/cdk-detail-row.directive';
+import {FileService} from './Files/file.service';
+import { AddCommentDialogComponent } from './Files/add-comment-dialog/add-comment-dialog.component';
 
 
 
@@ -39,7 +41,8 @@ import {CdkDetailRowDirective} from './Common/file-table/cdk-detail-row.directiv
     AdminSetupComponent,
     AddContactDialogComponent,
     FileTableComponent,
-    CdkDetailRowDirective
+    CdkDetailRowDirective,
+    AddCommentDialogComponent
   ],
   imports: [
     MatInputModule,
@@ -70,10 +73,14 @@ import {CdkDetailRowDirective} from './Common/file-table/cdk-detail-row.directiv
   ],
   providers: [
     AuthService,
+    FileService,
     WINDOW_PROVIDERS,
     {provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue:  {duration: 3000}}
   ],
   bootstrap: [AppComponent],
-  entryComponents: [AddContactDialogComponent]
+  entryComponents: [
+    AddContactDialogComponent,
+    AddCommentDialogComponent
+  ]
 })
 export class AppModule { }

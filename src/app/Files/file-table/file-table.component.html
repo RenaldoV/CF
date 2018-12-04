@@ -85,15 +85,35 @@
     <div class="milestonesBox">
       <mat-accordion>
         <mat-expansion-panel *ngFor="let milestone of element.milestoneList.milestones; let i = index" hideToggle>
-          <mat-expansion-panel-header [style.text-decoration]="milestone.complete ? 'line-through' : 'none'">
-            <mat-panel-title>
+          <mat-expansion-panel-header>
+            <mat-panel-title [style.text-decoration]="milestone.completed ? 'line-through' : 'none'">
               Milestone {{i + 1}}
             </mat-panel-title>
             <mat-panel-description>
-              {{ milestone.name }}
-              <mat-checkbox (click)="$event.stopPropagation()" [checked]="milestone.complete" (change)="markMilestone($event, milestone)"></mat-checkbox>
+              {{ milestone._id.name }}
+              <small style="color: darkgrey">
+                Last Updated: {{convertDate('dd/mm/yyyy', milestone.updatedAt)}} <br>by {{milestone.updatedBy.name}}
+              </small>
+              <mat-checkbox *ngIf="!milestone.completed" (click)="$event.stopPropagation()" [checked]="milestone.completed" (change)="markMilestone($event, milestone, element._id)"></mat-checkbox>
             </mat-panel-description>
           </mat-expansion-panel-header>
+          <h5 style="color: darkslategray">Comments: </h5>
+          <div class="comments" style="text-indent: 2em">
+            <span *ngIf="milestone.comments < 1">No comments to display</span>
+            <div class="comment" *ngFor="let c of milestone.comments">
+              <i class="fas fa-user-tie"></i> <span style="font-weight: bold; color: darkslategray"> {{c.user.name}}</span>
+              <span class="speech">{{c.comment}}</span>
+            </div>
+
+            <div class="milestoneComments">
+              <div class="btn-group" role="group" aria-label="action buttons" style="margin-top: 5px;">
+                <button class="btn btn-secondary btn-sm saveButton" color="primary" (click)="addComment(milestone, i, element._id)">
+                  <span *ngIf="!(loaderService.isLoading | async)"><i class="far fa-comment"></i> Add comment</span>
+                  <i *ngIf="loaderService.isLoading | async" class="fas fa-spinner fa-spin"></i>
+                </button>
+              </div>
+            </div>
+          </div>
         </mat-expansion-panel>
       </mat-accordion>
     </div>

@@ -12,7 +12,7 @@ mongoose.connect(config.DB, {useNewUrlParser: true}).then(
   () => {console.log('Database is connected') },
   err => { console.log('Can not connect to the database'+ err)}
 );
-const userRoutes = require('./routes/user.route');
+const userRoutes = require('./server/routes/user.route');
 const root = __dirname + '/dist/ConveyFeed';
 const app = express();
 app.use(bodyParser.json());
