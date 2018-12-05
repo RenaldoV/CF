@@ -538,42 +538,70 @@ userRoutes.route('/addFile').post((req, res, next) => {
   let uid = req.body.uid;
   file.createdBy = uid;
   file.updatedBy = uid;
-  List.findById(file.milestoneList, 'milestones').exec((error, list) => {
-    if (error) {
-      console.log(error);
-      res.send(false);
-    }
-    if (list) {
-      let newList = new Object();
-      newList.milestones = list.milestones.map(ms => {
-        return new Object({_id: ms, completed: false, updatedBy: uid, updatedAt: new Date()})
-      });
-      newList._id = list._id;
-      file.milestoneList = newList;
-      File.create(file, (er, f) => {
-        if (er) {
-          console.log(er);
+  async.waterfall([
+    (callback) => { // first method: Get milestone list associated to file and build new file with milestones array
+      List.findById(file.milestoneList, 'milestones').exec((error, list) => {
+        if (error) {
+          callback(error);
+        }
+        if (list) {
+          let newList = new Object();
+          newList.milestones = list.milestones.map(ms => {
+            return new Object({_id: ms, completed: false, updatedBy: uid, updatedAt: new Date()})
+          });
+          newList._id = list._id;
+          file.milestoneList = newList;
+          console.log('found list: \n');
+          callback(null, file);
+        } else {
+          console.log('unsuccessful creation: \n');
           res.send(false);
         }
+      });
+    }, (file, callback) => { // Second method: Insert File
+      console.log('New File : \n' + file);
+      File.create(file, (error, f) => {
+        if (error) {
+          callback(error);
+        }
         if (f) {
-          User.findByIdAndUpdate(uid, {$push: {files: f._id}}, (e, usr) => {
-            if (e) {
-              console.log(e);
-              res.send(false);
-            }
-            if (usr) {
-              res.json(f);
-            }
-          });
+          callback(null, f);
         } else {
-          console.log('unsuccessful creation: \n' + result);
+          console.log('unsuccessful creation: \n');
           res.send(false);
         }
       })
+    }, (file, callback) => { // Third method: Update user files array with new file _id
+      console.log('file created, result: \n' + file);
+      User.findByIdAndUpdate(uid, {$push: {files: f._id}}, (error, usr) => {
+        if (error) {
+          callback(error);
+        }
+        if (usr) {
+          callback(null, file, usr);
+        }
+      });
+    }, (file, usr, callback) => { // get contacts and send out emails
+      File.findById(file._id).populate('contacts').exec((error, f) => {
+        const host = req.protocol + '://' + req.get('host');
+        const fileURL = host  + '/file/' + encodeURI(file._id);
+        const loginUrl = host + '/login/' + encodeURI(file._id);
+        f.contacts.forEach(ct => {
+          if (ct.verified) {
+            mailer.contactAddedToFile(ct.email, ct.name, file.action, loginUrl);
+          } else {
+            const registerURL = loginUrl + '/' + encoded(ct._id);
+            mailer.contactAddedToFile(ct.email, ct.name, file.action, registerURL);
+          }
+        });
+      });
+    }
+  ], (err, results) => {
+    if (err) {
+      console.log(err);
+      res.send(false);
     }
   });
-
-
 });
 userRoutes.route('/files/:id').get((req, res, next) => {
   // get user's Files
