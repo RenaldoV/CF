@@ -109,7 +109,7 @@ class Mailer {
     const subject = 'File successfully created';
     this.sendEmail(email, message, link, subject);
   }
-  contactAddedToFile(email, name, fileType, link) {
+  contactAddedToFile(email, name, fileType, fileRef, link) {
     const message = 'Hi ' + name + ', \nyou have been added to a new ' + fileType + ' file with reference ' + fileRef + '. To view the file click the link below.';
     const subject = 'You\'ve been added to a new ' + fileType + ' file';
     this.sendEmail(email, message, link, subject);

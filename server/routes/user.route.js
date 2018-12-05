@@ -269,8 +269,6 @@ userRoutes.route('/properties/:id').get((req, res, next) => {
     }
     if (user) {
       res.json(user.properties);
-    }else {
-      res.send(false);
     }
   });
 });
@@ -551,15 +549,14 @@ userRoutes.route('/addFile').post((req, res, next) => {
           });
           newList._id = list._id;
           file.milestoneList = newList;
-          console.log('found list: \n');
           callback(null, file);
         } else {
           console.log('unsuccessful creation: \n');
           res.send(false);
         }
       });
-    }, (file, callback) => { // Second method: Insert File
-      console.log('New File : \n' + file);
+    },
+    (file, callback) => { // Second method: Insert File
       File.create(file, (error, f) => {
         if (error) {
           callback(error);
@@ -571,9 +568,10 @@ userRoutes.route('/addFile').post((req, res, next) => {
           res.send(false);
         }
       })
-    }, (file, callback) => { // Third method: Update user files array with new file _id
+    },
+    (file, callback) => { // Third method: Update user files array with new file _id
       console.log('file created, result: \n' + file);
-      User.findByIdAndUpdate(uid, {$push: {files: f._id}}, (error, usr) => {
+      User.findByIdAndUpdate(uid, {$push: {files: file._id}}, (error, usr) => {
         if (error) {
           callback(error);
         }
@@ -581,25 +579,31 @@ userRoutes.route('/addFile').post((req, res, next) => {
           callback(null, file, usr);
         }
       });
-    }, (file, usr, callback) => { // get contacts and send out emails
+    },
+    (file, usr, callback) => { // get contacts and send out emails
       File.findById(file._id).populate('contacts').exec((error, f) => {
         const host = req.protocol + '://' + req.get('host');
         const fileURL = host  + '/file/' + encodeURI(file._id);
         const loginUrl = host + '/login/' + encodeURI(file._id);
         f.contacts.forEach(ct => {
           if (ct.verified) {
-            mailer.contactAddedToFile(ct.email, ct.name, file.action, loginUrl);
+            mailer.contactAddedToFile(ct.email, ct.name, file.action, file.fileRef, loginUrl);
           } else {
-            const registerURL = loginUrl + '/' + encoded(ct._id);
-            mailer.contactAddedToFile(ct.email, ct.name, file.action, registerURL);
+            const registerURL = loginUrl + '/' + encodeURI(ct._id);
+            mailer.contactAddedToFile(ct.email, ct.name, file.action, file.fileRef, registerURL);
           }
         });
+        mailer.adminFileCreated(usr.email, fileURL, file.fileRef);
+        callback(null, file);
       });
     }
-  ], (err, results) => {
+  ], (err, result) => {
     if (err) {
       console.log(err);
       res.send(false);
+    }
+    if (result) {
+      res.send(result);
     }
   });
 });
