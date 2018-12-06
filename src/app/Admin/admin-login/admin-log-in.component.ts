@@ -17,6 +17,16 @@ export class AdminLogInComponent implements OnInit {
     private fb: FormBuilder,
     private auth: AuthService,
     private router: Router) {
+    /*this.auth.addUser(
+      {
+        passwordHash: 'rootTest1#',
+        company: 'CBI Attorneys',
+        email: 'renaldovd@gmail.com',
+        role: 'admin',
+        name: 'Renaldo',
+        surname: 'Van Dyk'
+      }
+    );*/
     this.createForm();
   }
   createForm() {
@@ -32,7 +42,7 @@ export class AdminLogInComponent implements OnInit {
     return this.loginForm.get('password');
   }
   submit () {
-    this.auth.loginUser(this.loginForm.value)
+    this.auth.loginUser(this.loginForm.value);
   }
 
 }

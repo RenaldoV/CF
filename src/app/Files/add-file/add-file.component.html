@@ -9,12 +9,12 @@
             <div class="row">
               <div class="col-sm-12 col-md-8 offset-md-2">
                 <mat-form-field>
-                <input matInput placeholder="File Reference" formControlName="fileRef" required>
+                <input matInput placeholder="Our File Reference" formControlName="fileRef" required>
                 <mat-error *ngIf="fileRef.hasError('required')">
                   File Reference is required.
                 </mat-error>
               </mat-form-field><br>
-                <mat-form-field>
+                <!--<mat-form-field>
                   <input matInput placeholder="Cause of action" formControlName="action" [matAutocomplete]="actions" required>
                   <mat-error *ngIf="action.hasError('required')">
                     Action Type is required.
@@ -24,11 +24,11 @@
                       {{ action }}
                     </mat-option>
                   </mat-autocomplete>
-                </mat-form-field><br>
+                </mat-form-field><br>-->
                 <mat-form-field>
-                  <input matInput placeholder="Our Reference" formControlName="ourRef" required>
-                  <mat-error *ngIf="ourRef.hasError('required')">
-                    Our Reference is required.
+                  <input matInput placeholder="Secretary Name" formControlName="refUser" required>
+                  <mat-error *ngIf="refUser.hasError('required')">
+                    Secretary is required.
                   </mat-error>
                 </mat-form-field><br>
                 <mat-form-field>
@@ -53,7 +53,7 @@
             <ng-template matStepLabel>Property Details</ng-template>
             <div class="row">
               <div class="col-sm-12 col-md-8 offset-md-2">
-                <mat-form-field>
+                <!--<mat-form-field>
                   <input matInput placeholder="Property Type" formControlName="propType" [matAutocomplete]="props" required>
                   <mat-error *ngIf="propType.hasError('required')">
                     Property Type is required.
@@ -63,7 +63,7 @@
                       {{ type }}
                     </mat-option>
                   </mat-autocomplete>
-                </mat-form-field><br>
+                </mat-form-field><br>-->
                 <mat-form-field>
                   <input matInput placeholder="Deeds Office" formControlName="deedsOffice" [matAutocomplete]="deed" required>
                   <mat-error *ngIf="deedsOffice.hasError('required')">
@@ -76,6 +76,12 @@
                   </mat-autocomplete>
                 </mat-form-field><br>
                 <mat-form-field>
+                  <textarea matInput placeholder="Property Description" formControlName="propertyDescription" required></textarea>
+                  <mat-error *ngIf="propertyDescription.hasError('required')">
+                    Property Description is required.
+                  </mat-error>
+                </mat-form-field><br>
+                <!--<mat-form-field>
                   <input matInput placeholder="Erf Number" formControlName="erfNumber" required>
                   <mat-error *ngIf="erfNumber.hasError('required')">
                     Erf Number is required.
@@ -86,7 +92,7 @@
                   <mat-error *ngIf="portionNum.hasError('required')">
                     Portion Number is required.
                   </mat-error>
-                </mat-form-field>
+                </mat-form-field>-->
               </div>
             </div>
             <div>

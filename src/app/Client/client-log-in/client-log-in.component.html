@@ -1,0 +1,85 @@
+<div class="container">
+  <div class="row align-items-center">
+    <div class="col-sm-8 col-lg-6 offset-sm-2 offset-lg-3 card-box-main">
+      <div class="row">
+        <div class="col-sm-12 reg-box-header card-box-header text-center">
+          <h2>{{title}}</h2>
+          <h4>File: {{fileRef}}</h4>
+          <span class="subtitle">{{subtitle}}</span>
+        </div>
+      </div>
+      <hr/>
+      <div class="row">
+        <div class="col-sm-12 card-box-main-content">
+          <form *ngIf="loginForm" [formGroup]="loginForm">
+            <div class="row">
+              <div class="col-sm-12 col-md-8 offset-md-2">
+                <mat-form-field appearance="outline">
+                  <mat-label>Username</mat-label>
+                  <input matInput placeholder="Username (email address)" formControlName="email" required>
+                  <mat-error *ngIf="loginEmail.hasError('required')">
+                    Email is required.
+                  </mat-error>
+                </mat-form-field>
+              </div>
+              <div class="col-sm-12 col-md-8 offset-md-2">
+                <mat-form-field appearance="outline">
+                  <mat-label>Password</mat-label>
+                  <input type="password" matInput placeholder="Password" formControlName="password" required>
+                  <mat-error *ngIf="loginPassword.hasError('required')">
+                    Password is required.
+                  </mat-error>
+                </mat-form-field>
+
+              </div>
+              <div class="col-sm-12 col-md-8 offset-md-2 text-right">
+                <a href="">Forgot Password?</a>
+              </div>
+              <div class="col-sm-12 col-md-8 offset-md-2 text-right button-cols">
+                <button type="submit" class="submitBtn btn btn-lg" (click)="login()" [disabled]="!loginForm.valid">Log In</button>
+              </div>
+            </div>
+          </form>
+          <form *ngIf="registerForm" [formGroup]="registerForm">
+            <div class="row">
+              <div class="col-sm-12 col-md-8 offset-md-2">
+                <mat-form-field appearance="outline">
+                  <mat-label>Username</mat-label>
+                  <input matInput placeholder="Username (email address)" formControlName="email" required>
+                  <mat-error *ngIf="regEmail.hasError('required')">
+                    Email is required.
+                  </mat-error>
+                </mat-form-field>
+              </div>
+              <div class="col-sm-12 col-md-8 offset-md-2">
+                <mat-form-field appearance="outline">
+                  <mat-label>Password</mat-label>
+                  <input type="password" matInput placeholder="Password" formControlName="password" required>
+                  <mat-error *ngIf="regPassword.hasError('required')">
+                    Password is required.
+                  </mat-error>
+                </mat-form-field>
+              </div>
+              <div class="col-sm-12 col-md-8 offset-md-2">
+                <mat-form-field appearance="outline">
+                  <mat-label>Re enter password</mat-label>
+                  <input type="password" matInput placeholder="Re enter password" formControlName="rePassword" required>
+                  <mat-error *ngIf="regRePassword.hasError('required')">
+                    Password is required.
+                  </mat-error>
+                </mat-form-field>
+              </div>
+              <div class="col-sm-12 col-md-8 offset-md-2 text-right">
+                <a href="">Forgot Password?</a>
+              </div>
+              <div class="col-sm-12 col-md-8 offset-md-2 text-right button-cols">
+                <button type="submit" class="submitBtn btn btn-lg" (click)="register()" [disabled]="!registerForm.valid">Register</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

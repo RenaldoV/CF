@@ -6,7 +6,8 @@ const Schema = mongoose.Schema;
 const Milestone = new Schema({
   name: String,
   number: Number,
-  notificationMessage: String,
+  emailMessage: String,
+  smsMessage: String,
   sendEmail: Boolean,
   sendSMS: Boolean,
   updatedBy: {type: Schema.Types.ObjectId, ref: 'User'}

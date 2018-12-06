@@ -3,8 +3,7 @@ const Schema = mongoose.Schema;
 
 let File = new mongoose.Schema({
     fileRef: String,
-    action: String,
-    ourRef: String,
+    refUser: String,
     milestoneList: {
       _id: {type: Schema.Types.ObjectId, ref: 'MilestoneList'},
       milestones: [{
@@ -19,10 +18,12 @@ let File = new mongoose.Schema({
         }]
       }]
       },
-    propertyType: String,
     deedsOffice: String,
-    erfNumber: String,
-    portionNumber: Number,
+    propertyDescription: String,
+    /*erfNumber: String,
+    action: String,
+    propertyType: String,
+    portionNumber: Number,*/
     contacts: [{type: Schema.Types.ObjectId, ref: 'Contact'}],
     createdBy: {type: Schema.Types.ObjectId, ref: 'User'},
     updatedBy: {type: Schema.Types.ObjectId, ref: 'User'},

@@ -19,10 +19,10 @@ import {FileService} from '../file.service';
 export class AddFileComponent implements OnInit {
   fileForm: FormGroup;
   propForm: FormGroup;
-  propTypes: String[] = [];
+  /*propTypes: String[] = [];
   filteredProps: Observable<any[]>;
   actionTypes: String[] = [];
-  filteredActions: Observable<any[]>;
+  filteredActions: Observable<any[]>;*/
   deedsOffices: String[] = [];
   filteredDeeds: Observable<any[]>;
   milestonesLists: any[] = [];
@@ -44,11 +44,11 @@ export class AddFileComponent implements OnInit {
     this.adminService.getProperties()
       .subscribe(res => {
         if (res) {
-          this.propTypes = res.propertyTypes;
-          this.actionTypes = res.actionTypes;
+          /*this.propTypes = res.propertyTypes;
+          this.actionTypes = res.actionTypes;*/
           this.deedsOffices = res.deedsOffices;
           // ======= Autocomplete Filters =============
-          this.filteredProps = this.propType.valueChanges
+          /*this.filteredProps = this.propType.valueChanges
             .pipe(
               startWith(''),
               map(prop => prop ? this.filterProps(prop) : this.propTypes.slice())
@@ -57,13 +57,19 @@ export class AddFileComponent implements OnInit {
             .pipe(
               startWith(''),
               map(ac => ac ? this.filterActions(ac) : this.actionTypes.slice())
-            );
+            );*/
           this.filteredDeeds = this.deedsOffice.valueChanges
             .pipe(
               startWith(''),
               map(d => d ? this.filterDeeds(d) : this.deedsOffices.slice())
             );
           // ======= Autocomplete Filters =============
+        } else {
+          this.filteredDeeds = this.deedsOffice.valueChanges
+            .pipe(
+              startWith(''),
+              map(d => d ? this.filterDeeds(d) : this.deedsOffices.slice())
+            );
         }
       }, err => {
         console.log(err);
@@ -91,7 +97,7 @@ export class AddFileComponent implements OnInit {
   // ======= File Form functions ===============
 
     // ====auto complete functions=======
-  filterProps(val: string) {
+  /*filterProps(val: string) {
     let results = this.propTypes.filter(prop =>
       prop.toLowerCase().indexOf(val.toLowerCase()) === 0);
     if (results.length < 1) {
@@ -122,8 +128,8 @@ export class AddFileComponent implements OnInit {
           console.log(err);
         });
     }
-  }
-  filterActions(val: string) {
+  }*/
+  /*filterActions(val: string) {
     let results = this.actionTypes.filter(ac =>
       ac.toLowerCase().indexOf(val.toLowerCase()) === 0);
     if (results.length < 1) {
@@ -154,7 +160,7 @@ export class AddFileComponent implements OnInit {
           console.log(err);
         });
     }
-  }
+  }*/
   filterDeeds(val: string) {
     let results = this.deedsOffices.filter(d =>
       d.toLowerCase().indexOf(val.toLowerCase()) === 0);
@@ -166,13 +172,14 @@ export class AddFileComponent implements OnInit {
   deedsSelected(option) {
     if (option.value.indexOf('Would you like to add') > - 1) {
       const newState = option.value.split('*')[1];
+      this.deedsOffice.setValue(newState);
       this.adminService.addOneDeedsOffice(newState)
         .subscribe(res => {
           if (res) {
             this.deedsOffices.push(newState);
-            this.deedsOffice.setValue(newState);
             this.matSnack.open('Deeds office successfully saved');
           } else {
+            this.deedsOffice.setValue('');
             const sb = this.matSnack.open('Save unsuccessful', 'retry');
             sb.onAction().subscribe(() => {
               this.deedsSelected(option);
@@ -191,19 +198,19 @@ export class AddFileComponent implements OnInit {
   createFileForm() {
     this.fileForm = this.fb.group({
       fileRef: ['', Validators.required],
-      action: ['', Validators.required],
-      ourRef: [this.auth.getName(), Validators.required],
+      /*action: ['', Validators.required],*/
+      refUser: [this.auth.getName(), Validators.required],
       milestoneList: ['', Validators.required] // TODO: get milestone lists from DB
     });
   }
   get fileRef () {
     return this.fileForm.get('fileRef');
   }
-  get action () {
+  /*get action () {
     return this.fileForm.get('action');
-  }
-  get ourRef () {
-    return this.fileForm.get('ourRef');
+  }*/
+  get refUser () {
+    return this.fileForm.get('refUser');
   }
   get milestoneList () {
     return this.fileForm.get('milestoneList');
@@ -212,16 +219,20 @@ export class AddFileComponent implements OnInit {
   // ======= Property Form functions ===============
   createPropertyForm() {
     this.propForm = this.fb.group({
-      propType: ['', Validators.required],
       deedsOffice: ['', Validators.required],
+      propertyDescription: ['', Validators.required]
+      /*propType: ['', Validators.required],
       erfNumber: ['', Validators.required],
-      portionNum: ['', Validators.required]
+      portionNum: ['', Validators.required]*/
     });
   }
   get deedsOffice () {
     return this.propForm.get('deedsOffice');
   }
-  get erfNumber () {
+  get propertyDescription () {
+    return this.propForm.get('propertyDescription');
+  }
+  /*get erfNumber () {
     return this.propForm.get('erfNumber');
   }
   get portionNum () {
@@ -229,7 +240,7 @@ export class AddFileComponent implements OnInit {
   }
   get propType () {
     return this.propForm.get('propType');
-  }
+  }*/
   // ======= Property Form functions ===============
   // ======= Contacts Form functions ===============
   drop(event: CdkDragDrop<string[]>) {

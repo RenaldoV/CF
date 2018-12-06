@@ -66,7 +66,8 @@ export class AdminService {
     const url = `${this.host}/hasProperties/` + uid;
     return this.http.get(url);
   }
-  createProperties(p, uid) {
+  createProperties(p) {
+    const uid = this.auth.getID();
     const headers = new HttpHeaders();
     headers.set('Content-Type', 'application/json');
     return this.http.post<any>(`${this.host}/addProperties`, {properties: p, uid: uid});
@@ -81,7 +82,7 @@ export class AdminService {
     headers.set('Content-Type', 'application/json');
     return this.http.post<any>(`${this.host}/updateProperties`, {properties: p, uid: this.auth.getID()});
   }
-  addOneAction(a) {
+  /*addOneAction(a) {
     const headers = new HttpHeaders();
     headers.set('Content-Type', 'application/json');
     return this.http.post<any>(`${this.host}/addOneActionProperty`, {action: a, uid: this.auth.getID()});
@@ -90,7 +91,7 @@ export class AdminService {
     const headers = new HttpHeaders();
     headers.set('Content-Type', 'application/json');
     return this.http.post<any>(`${this.host}/addOnePropType`, {propertyType: p, uid: this.auth.getID()});
-  }
+  }*/
   addOneDeedsOffice(d) {
     const headers = new HttpHeaders();
     headers.set('Content-Type', 'application/json');

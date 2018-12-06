@@ -21,7 +21,7 @@ import {AddCommentDialogComponent} from '../add-comment-dialog/add-comment-dialo
   ],
 })
 export class FileTableComponent implements OnInit {
-  displayedColumns: string[] = ['action', 'fileRef', 'ourRef', 'ERF', 'created', 'updated', 'actions'];
+  displayedColumns: string[] = ['action', 'fileRef', 'secretary', 'created', 'updated'/*, 'actions'*/];
   dataSource;
   @Input() files;
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -38,7 +38,7 @@ export class FileTableComponent implements OnInit {
 
   ngOnInit() {
     this.dataSource = new MatTableDataSource<File>(this.files);
-    console.log(this.files);
+    /*console.log(this.files);*/
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
     this.dataSource.sortingDataAccessor = (item, property) => {
@@ -64,6 +64,46 @@ export class FileTableComponent implements OnInit {
         });
         return matchFilter.every(Boolean); // AND*!/
       };*/
+    this.dataSource.filterPredicate =
+      (data: File, filters: string) => {
+        const matchFilter = [];
+        const filterArray = filters.split('+');
+        // slim down objects to only filterable fields
+        const tempData = JSON.parse(JSON.stringify(data));
+        tempData.contacts.forEach(ct => {
+          delete ct._id;
+          delete ct.passwordHash;
+          delete ct.verified;
+          delete ct.type;
+          delete ct._v;
+        });
+        tempData.milestoneList.milestones.forEach(m => {
+          delete m.completed;
+          delete m.comments;
+          delete m.updatedBy._id;
+          delete m._id;
+        });
+        tempData.milestoneList._id = tempData.milestoneList._id.title;
+        delete tempData._id;
+        delete tempData.updatedBy._id;
+        delete tempData.createdBy._id;
+        delete tempData._v;
+        const columns = (<any>Object).values(this.flatten(tempData));
+        // console.log(tempData);
+        // OR be more specific [data.name, data.race, data.color];
+        // console.log(columns);
+        // Main
+        filterArray.forEach(filter => {
+        const customFilter = [];
+        columns.forEach(column => {
+          if (column && typeof column === 'string') {
+            customFilter.push(column.toLowerCase().includes(filter));
+          }
+        });
+        matchFilter.push(customFilter.some(Boolean)); // OR
+      });
+  return matchFilter.every(Boolean);
+};
   }
 
   applyFilter(filterValue: string) {
@@ -71,7 +111,6 @@ export class FileTableComponent implements OnInit {
     filterValue = filterValue.toLowerCase(); // Datasource defaults to lowercase matches
     this.dataSource.filter = filterValue;
   }
-
   reduceContacts(contacts) {
     return contacts.map(ct => ct.name).toString().replace(',', ',\n');
   }
@@ -101,7 +140,7 @@ export class FileTableComponent implements OnInit {
   convertDate(inputFormat, d) {
     d = new Date(d);
     function pad(s) { return (s < 10) ? '0' + s : s; }
-    return [pad(d.getDate()), pad(d.getMonth() + 1), d.getFullYear()].join('/');
+    return [d.getFullYear(), pad(d.getMonth() + 1), pad(d.getDate())].join('-');
   }
   addComment(mID, mNum, fileID) {
     const dialConfig = new MatDialogConfig();
@@ -124,23 +163,50 @@ export class FileTableComponent implements OnInit {
   }
   // TODO: Update, delete file
   // TODO: Update milestone propogates to file?
+
+  // ============== HELPER FUNCTIONS ================
+  dive(currentKey, into, target) {
+    for (const i in into) {
+      if (into.hasOwnProperty(i)) {
+        let newKey = i;
+        const newVal = into[i];
+
+        if (currentKey.length > 0) {
+          newKey = currentKey + '.' + i;
+        }
+
+        if (typeof newVal === 'object') {
+          this.dive(newKey, newVal, target);
+        } else {
+          target[newKey] = newVal;
+        }
+      }
+    }
+  }
+
+  flatten(arr) {
+    const newObj = {};
+    this.dive('', arr, newObj);
+    return newObj;
+  }
 }
 
 export interface File {
+  _id: string;
   fileRef: string;
   action: string;
-  ourRef: string;
+  userRef: string;
   milestoneList: MilestoneList;
   contacts: [any];
-  erfNumber: string;
+  propertyDescription: string;
   updatedBy: any;
   createdBy: any;
   updatedAt: any;
   createdAt: any;
+  _v: any;
 }
 export interface MilestoneList {
-  title: string;
-  updatedBy: any;
+  _id: any;
   milestones: [Milestone];
 }
 
@@ -157,7 +223,7 @@ export interface Milestone {
     user: any;
     comment: string;
   }];
-  complete: boolean;
+  completed: boolean;
 }
 
 

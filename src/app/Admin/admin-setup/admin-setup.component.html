@@ -60,33 +60,65 @@
                             <input matInput type="number" placeholder="Milestone Number" formControlName="number" required>
                           </mat-form-field>
                           <mat-form-field class="innerFormFields col-12" appearance="outline">
-                            <mat-label>Notification Message</mat-label>
+                            <mat-label>Email Notification Message</mat-label>
                             <textarea matInput
-                                      placeholder="Dear *contact_name* your property *erf_name* has been registered at *deeds_office* please contact me *my_name* for any other queries."
-                                      formControlName="notificationMessage" required rows="4"></textarea>
-                            <mat-error>Notification Message is required.</mat-error>
+                                      placeholder="Dear *contact_name* your property *property_description* has been registered at *deeds_office* please contact me *my_name* for any other queries."
+                                      formControlName="emailMessage" required rows="4"></textarea>
+                            <mat-error>Email Message is required.</mat-error>
                           </mat-form-field>
                           <div class="col-12">
-                            <span style="color: lightgray">Insert Placeholders</span>
+                            <span style="color: lightgray">Insert Placeholders</span><br>
                             <div class="btn-group placeholderButtons" role="group" aria-label="action buttons">
                               <button
                                 class="btn btn-outline-secondary btn-sm"
-                                (click)="insertNoti($event, i, k, ' *contact_name*'); onMilestoneChange(i,k); onListChange(i)">
+                                (click)="insertNoti($event, i, k, ' *contact_name*','emailMessage'); onMilestoneChange(i,k); onListChange(i)">
                                 Contact's Name
                               </button>
                               <button
                                 class="btn btn-outline-secondary btn-sm"
-                                (click)="insertNoti($event, i, k, ' *erf_name*'); onMilestoneChange(i,k); onListChange(i)">
-                                Erf Name
+                                (click)="insertNoti($event, i, k, ' *property_description*', 'emailMessage'); onMilestoneChange(i,k); onListChange(i)">
+                                Prop Description
                               </button>
                               <button
                                 class="btn btn-outline-secondary btn-sm"
-                                (click)="insertNoti($event, i, k, ' *deeds_office*'); onMilestoneChange(i,k); onListChange(i)">
+                                (click)="insertNoti($event, i, k, ' *deeds_office*', 'emailMessage'); onMilestoneChange(i,k); onListChange(i)">
                                 Deeds Office
                               </button>
                               <button
                                 class="btn btn-outline-secondary btn-sm"
-                                (click)="insertNoti($event, i, k, ' *my_name*'); onMilestoneChange(i,k); onListChange(i)">
+                                (click)="insertNoti($event, i, k, ' *my_name*', 'emailMessage'); onMilestoneChange(i,k); onListChange(i)">
+                                My Name
+                              </button>
+                            </div>
+                          </div>
+                          <mat-form-field class="innerFormFields col-12" appearance="outline">
+                            <mat-label>SMS Notification Message</mat-label>
+                            <textarea matInput
+                                      placeholder="Dear *contact_name* your property *property_description* has been registered at *deeds_office* please contact me *my_name* for any other queries."
+                                      formControlName="smsMessage" required rows="4"></textarea>
+                            <mat-error>SMS Message is required.</mat-error>
+                          </mat-form-field>
+                          <div class="col-12">
+                            <span style="color: lightgray">Insert Placeholders</span><br>
+                            <div class="btn-group placeholderButtons" role="group" aria-label="action buttons">
+                              <button
+                                class="btn btn-outline-secondary btn-sm"
+                                (click)="insertNoti($event, i, k, ' *contact_name*','smsMessage'); onMilestoneChange(i,k); onListChange(i)">
+                                Contact's Name
+                              </button>
+                              <button
+                                class="btn btn-outline-secondary btn-sm"
+                                (click)="insertNoti($event, i, k, ' *property_description*', 'smsMessage'); onMilestoneChange(i,k); onListChange(i)">
+                                Prop Description
+                              </button>
+                              <button
+                                class="btn btn-outline-secondary btn-sm"
+                                (click)="insertNoti($event, i, k, ' *deeds_office*', 'smsMessage'); onMilestoneChange(i,k); onListChange(i)">
+                                Deeds Office
+                              </button>
+                              <button
+                                class="btn btn-outline-secondary btn-sm"
+                                (click)="insertNoti($event, i, k, ' *my_name*', 'smsMessage'); onMilestoneChange(i,k); onListChange(i)">
                                 My Name
                               </button>
                             </div>
@@ -124,10 +156,10 @@
         <mat-expansion-panel hideToggle>
           <mat-expansion-panel-header>
             <mat-panel-title>
-              File Properties
+              <!--File Properties--> Deeds Offices
             </mat-panel-title>
             <mat-panel-description>
-              Configure File Properties and types.
+              <!--Configure File Properties and types.--> Add and remove deeds offices
               <i class="fas fa-cog"></i>
             </mat-panel-description>
           </mat-expansion-panel-header>
@@ -135,7 +167,7 @@
             <div class="col-10 offset-1" style="margin-bottom: 10px;">
               <form class="PropertiesForm" [formGroup]="PropertiesForm">
                 <mat-accordion>
-                  <mat-expansion-panel hideToggle class="msListPanel">
+                  <!--<mat-expansion-panel hideToggle class="msListPanel">
                     <mat-expansion-panel-header>
                       <mat-panel-title>
                         Property Types
@@ -204,7 +236,7 @@
                     <button *ngIf="actionTypes.valid" (click)="addActionType()" class="btn btn-outline-secondary btn-sm" color="primary" style="margin-top: 5px;">
                       <i class="fas fa-plus"></i> Add Action Type
                     </button>
-                  </mat-expansion-panel>
+                  </mat-expansion-panel>-->
                   <mat-expansion-panel hideToggle class="msListPanel">
                     <mat-expansion-panel-header>
                       <mat-panel-title>

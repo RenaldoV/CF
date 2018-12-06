@@ -1,6 +1,6 @@
 <div class="example-header">
   <mat-form-field>
-    <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Filter">
+    <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Search">
   </mat-form-field>
 </div>
 
@@ -17,24 +17,19 @@
 
     <ng-container matColumnDef="action">
       <mat-header-cell *matHeaderCellDef mat-sort-header> Cause of Action </mat-header-cell>
-      <mat-cell *matCellDef="let element"> {{element.action}} </mat-cell>
+      <mat-cell *matCellDef="let element"> {{element.milestoneList._id.title}} </mat-cell>
     </ng-container>
 
-    <ng-container matColumnDef="ourRef">
-      <mat-header-cell *matHeaderCellDef mat-sort-header> Our Ref </mat-header-cell>
-      <mat-cell *matCellDef="let element"> {{element.ourRef}} </mat-cell>
-    </ng-container>
-
-    <ng-container matColumnDef="ERF">
-      <mat-header-cell *matHeaderCellDef mat-sort-header> ERF </mat-header-cell>
-      <mat-cell *matCellDef="let element"> {{element.erfNumber}} </mat-cell>
+    <ng-container matColumnDef="secretary">
+      <mat-header-cell *matHeaderCellDef mat-sort-header> Secretary </mat-header-cell>
+      <mat-cell *matCellDef="let element"> {{element.refUser}} </mat-cell>
     </ng-container>
 
     <ng-container matColumnDef="created">
       <mat-header-cell *matHeaderCellDef mat-sort-header> Created </mat-header-cell>
       <mat-cell *matCellDef="let element">
         <small style="color: darkgrey">
-          {{convertDate('dd/mm/yyyy', element.createdAt)}} <br>by {{element.createdBy.name}}
+          {{convertDate('yyyy/mm/dd', element.createdAt)}} <br>by {{element.createdBy.name}}
         </small>
       </mat-cell>
     </ng-container>
@@ -43,12 +38,12 @@
       <mat-header-cell *matHeaderCellDef mat-sort-header> Updated </mat-header-cell>
       <mat-cell *matCellDef="let element">
         <small style="color: darkgrey">
-          {{convertDate('dd/mm/yyyy', element.updatedAt)}} <br>by {{element.updatedBy.name}}
+          {{convertDate('yyyy/mm/dd', element.updatedAt)}} <br>by {{element.updatedBy.name}}
         </small>
       </mat-cell>
     </ng-container>
 
-    <ng-container matColumnDef="actions">
+    <!--<ng-container matColumnDef="actions">
       <mat-header-cell *matHeaderCellDef mat-sort-header> Actions </mat-header-cell>
       <mat-cell *matCellDef="let element">
         <i class="fas fa-ellipsis-h" [matMenuTriggerFor]="actionsMenu" (click)="$event.stopPropagation()"></i>
@@ -57,7 +52,7 @@
           <button mat-menu-item><i class="far fa-trash-alt"></i></button>
         </mat-menu>
       </mat-cell>
-    </ng-container>
+    </ng-container>-->
 
     <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
     <mat-row *matRowDef="let row; columns: displayedColumns;" matRipple class="element-row" [cdkDetailRow]="row" [cdkDetailRowTpl]="tpl">

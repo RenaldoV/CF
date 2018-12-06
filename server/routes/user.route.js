@@ -317,7 +317,7 @@ userRoutes.route('/updateProperties').post((req, res, next) => {
     }
   });
 });
-userRoutes.route('/addOneActionProperty').post((req, res, next) => {
+/*userRoutes.route('/addOneActionProperty').post((req, res, next) => {
   const action = req.body.action;
   const uid = req.body.uid;
   User.findById(uid, 'properties', (err, user) => {
@@ -370,7 +370,7 @@ userRoutes.route('/addOnePropType').post((req, res, next) => {
       res.send(false);
     }
   });
-});
+});*/
 userRoutes.route('/addOneDeedsOffice').post((req, res, next) => {
   const d = req.body.deedsOffice;
   const uid = req.body.uid;
@@ -379,7 +379,7 @@ userRoutes.route('/addOneDeedsOffice').post((req, res, next) => {
       console.log(err);
       res.send(false);
     }
-    if (user) {
+    if (user.properties) {
       Properties.findByIdAndUpdate(user.properties, {
         $push: {deedsOffices: d}
       }, (er, pRes) => {
@@ -393,6 +393,31 @@ userRoutes.route('/addOneDeedsOffice').post((req, res, next) => {
           res.send(false);
         }
       })
+    }else if(user && !user.properties) {
+      const properties = new Properties();
+      properties.deedsOffices = [];
+      properties.deedsOffices.push(d);
+      properties.save((error, prop) => {
+        if (error) {
+          console.log(error);
+          res.send(false);
+        }
+        if (prop) {
+          User.findByIdAndUpdate(uid, {properties: prop._id}, (er, result) => {
+            if(er) {
+              console.log(er);
+              res.send(false);
+            }
+            if (result) {
+              res.send(true);
+            }else {
+              res.send(false);
+            }
+          });
+        } else {
+          res.send(false);
+        }
+      });
     }else {
       res.send(false);
     }
@@ -529,6 +554,20 @@ userRoutes.route('/contact/:email/:uid').get((req, res, next) => {
     }
   });
 });
+userRoutes.route('/contact/:id').get((req, res, next) => {
+  const id = req.params.id;
+  Contact.findById(id).exec((err, contact) => {
+    if(err) {
+      console.log(err);
+      res.send(false);
+    }
+    if (contact) {
+      res.json(contact);
+    }else {
+      res.send(false);
+    }
+  });
+});
 // ============================ CONTACTS ROUTES  =======================
 // ============================ FILE ROUTES  ===========================
 userRoutes.route('/addFile').post((req, res, next) => {
@@ -581,16 +620,16 @@ userRoutes.route('/addFile').post((req, res, next) => {
       });
     },
     (file, usr, callback) => { // get contacts and send out emails
-      File.findById(file._id).populate('contacts').exec((error, f) => {
+      File.findById(file._id).populate('contacts').populate('milestoneList._id', 'title').exec((error, f) => {
         const host = req.protocol + '://' + req.get('host');
         const fileURL = host  + '/file/' + encodeURI(file._id);
         const loginUrl = host + '/login/' + encodeURI(file._id);
         f.contacts.forEach(ct => {
           if (ct.verified) {
-            mailer.contactAddedToFile(ct.email, ct.name, file.action, file.fileRef, loginUrl);
+            mailer.contactAddedToFile(ct.email, ct.name, f.milestoneList._id.title, file.fileRef, loginUrl);
           } else {
             const registerURL = loginUrl + '/' + encodeURI(ct._id);
-            mailer.contactAddedToFile(ct.email, ct.name, file.action, file.fileRef, registerURL);
+            mailer.contactAddedToFile(ct.email, ct.name, f.milestoneList._id.title, file.fileRef, registerURL);
           }
         });
         mailer.adminFileCreated(usr.email, fileURL, file.fileRef);
@@ -616,7 +655,10 @@ userRoutes.route('/files/:id').get((req, res, next) => {
       res.send(false);
     }
     if (user) {
-      File.find({_id: {$in: user.files}}).populate('milestoneList.milestones._id').populate('milestoneList.milestones.updatedBy', 'name')
+      File.find({_id: {$in: user.files}})
+        .populate('milestoneList.milestones._id')
+        .populate('milestoneList._id', 'title')
+        .populate('milestoneList.milestones.updatedBy', 'name')
         .populate('contacts').populate('milestoneList.milestones.comments.user', 'name').populate('createdBy', 'name').populate('updatedBy', 'name').exec((er, files) => {
         if (er) {
           console.log(er);
@@ -629,6 +671,18 @@ userRoutes.route('/files/:id').get((req, res, next) => {
       });
     }else {
       res.send(false);
+    }
+  });
+});
+userRoutes.route('/fileRef/:id').get((req, res, next) => {
+  const id = req.params.id;
+  File.findById(id, 'fileRef').exec((error, file) => {
+    if(error) {
+      console.log(error);
+      res.send(false);
+    }
+    if(file) {
+      res.send(file);
     }
   });
 });
@@ -665,17 +719,21 @@ userRoutes.route('/completeMilestone').post((req, res, next) => {
             console.log(err);
             res.send(false);
           } else if (callback.contacts && callback.adminUser && callback.milestone) {
-            let messageBody = callback.milestone.notificationMessage;
+            let emailMessage = callback.milestone.emailMessage;
+            let smsMessage = callback.milestone.smsMessage;
             const milestoneName = callback.milestone.name;
-            messageBody = messageBody.split('*deeds_office*').join(newFile.deedsOffice);
-            messageBody = messageBody.split('*erf_name*').join(newFile.erfNumber);
-            messageBody = messageBody.split('*my_name*').join(callback.adminUser.name);
             const url = req.protocol + '://' + req.get('host');
             callback.contacts.forEach(ct => {
               const email = ct.email;
-              messageBody = messageBody.split('*contact_name*').join(ct.name);
+              const emailContext = {
+                deedsOffice: newFile.deedsOffice,
+                propertyDescription: newFile.propertyDescription,
+                myName: callback.adminUser.name,
+                contactName: ct.name
+              };
+              const emailBody = buildMessage(emailMessage, emailContext);
               if (callback.milestone.sendEmail) {
-                mailer.sendEmail(email, messageBody, url, milestoneName + ' milestone has been completed.');
+                mailer.sendEmail(email, emailBody, url, milestoneName + ' milestone has been completed.');
               }
             });
             res.send({
@@ -725,4 +783,11 @@ function find(items, text) {
       return item.name.toLowerCase().indexOf(el) > -1 || item.cell.indexOf(el) > -1 || item.email.toLowerCase().indexOf(el) > -1 || item.type.toLowerCase().indexOf(el) > -1;
     });
   });
+}
+function buildMessage(body, context) {
+  let resultMessage = body.split('*deeds_office*').join(context.deedsOffice);
+  resultMessage = resultMessage.split('*property_description*').join(context.propertyDescription);
+  resultMessage = resultMessage.split('*my_name*').join(context.myName);
+  resultMessage = resultMessage.split('*contact_name*').join(context.contactName);
+  return resultMessage;
 }

@@ -6,7 +6,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { AuthService } from './auth/auth.service';
 import { AppRoutingModule } from './app-routing.module';
 import { WINDOW_PROVIDERS } from './window.service';
-import { AdminLogInComponent } from './log-in/admin-login/admin-log-in.component';
+import { AdminLogInComponent } from './Admin/admin-login/admin-log-in.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {
   MAT_SNACK_BAR_DEFAULT_OPTIONS,
@@ -28,7 +28,7 @@ import { FileTableComponent } from './Files/file-table/file-table.component';
 import {CdkDetailRowDirective} from './Files/file-table/cdk-detail-row.directive';
 import {FileService} from './Files/file.service';
 import { AddCommentDialogComponent } from './Files/add-comment-dialog/add-comment-dialog.component';
-import { ClientLogInComponent } from './log-in/client-log-in/client-log-in.component';
+import { ClientLogInComponent } from './Client/client-log-in/client-log-in.component';
 
 
 

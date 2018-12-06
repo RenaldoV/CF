@@ -3,6 +3,7 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Router} from '@angular/router';
 import {WINDOW} from '../window.service';
 import {AuthService} from '../auth/auth.service';
+import {Observable} from 'rxjs/index';
 
 @Injectable({
   providedIn: 'root'
@@ -41,6 +42,10 @@ export class FileService {
     return this.http.post<any>(`${this.host}/addComment`, {
       fileID: fileID, milestoneID: milestoneID, uid: uid, comment: comment
     });
+  }
+  getFileRef(id): Observable<any> {
+    const url = `${this.host}/fileRef/` + id;
+    return this.http.get(url);
   }
 
 }

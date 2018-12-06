@@ -67,7 +67,8 @@ export class AdminSetupComponent implements OnInit {
       _id: [''],
       name: ['', Validators.required],
       number: new FormControl({value: this.getMilestones(i).length + 1, disabled: true}),
-      notificationMessage: ['', Validators.required],
+      emailMessage: ['', Validators.required],
+      smsMessage: ['', Validators.required],
       sendEmail: [false],
       sendSMS: [false],
       updatedBy: ['new']
@@ -138,9 +139,9 @@ export class AdminSetupComponent implements OnInit {
       }
     }
   }
-  insertNoti(e, i, k, msg) {
+  insertNoti(e, i, k, msg, control) {
     e.preventDefault();
-    this.getMilestones(i).at(k).get('notificationMessage').setValue(this.getMilestones(i).at(k).value.notificationMessage + msg);
+    this.getMilestones(i).at(k).get(control).setValue(this.getMilestones(i).at(k).get(control).value + msg);
   }
   getAllLists() {
     this.adminService.getAllMilestoneLists()
@@ -430,7 +431,7 @@ export class AdminSetupComponent implements OnInit {
           deedsOffices: this.deedsOffices.value.map((d) => d.name)
         };
         if (!hasProperties) { // if user doensn't already have properties assigned create new properties
-          this.adminService.createProperties(body, this.auth.getID())
+          this.adminService.createProperties(body)
             .subscribe((res) => {
               if (res) {
                 this.matSnack.open('Properties saved successfully');
