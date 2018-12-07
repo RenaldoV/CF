@@ -36,3 +36,7 @@ img {
 h4 {
   color: gray;
 }
+
+.pwEye {
+  cursor: pointer;
+}

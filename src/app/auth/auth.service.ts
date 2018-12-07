@@ -52,6 +52,7 @@ export class AuthService {
       });
   }
   saveUser(user) {
+    this.destroySession();
     localStorage.setItem('user', JSON.stringify(user));
   }
   isAuthenticated(): boolean {

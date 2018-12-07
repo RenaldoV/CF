@@ -9,14 +9,13 @@ const Contact = require('../models/contact');
 const File = require('../models/file');
 const bcrypt = require('bcrypt');
 const Mailer = require ('../mailer/mailer');
-const mailer = new Mailer("mail.carbonsoft.co.za", 465, "ronnie@carbonsoft.co.za", "Carbon@Ronnie2018");
+const mailer = new Mailer("slash.aserv.co.za", 465, "donotreply@conveyfeed.co.za", "D0N0tRep3y@C0nV5yF@ee#d@2018@!");
 const async = require('async');
 
 // ============================ ADMIN ROUTES ===========================
 userRoutes.route('/addUser').post((req, res, next) => {
   let user = req.body;
   let saltRounds = 10;
-  let newUser = {};
   bcrypt.hash(user.passwordHash, saltRounds, (err, hash) => {
     // Store hash in your password DB.
     if (err) return next(err);
@@ -568,6 +567,55 @@ userRoutes.route('/contact/:id').get((req, res, next) => {
     }
   });
 });
+userRoutes.route('/registerContact').post((req, res, next) => {
+  const contact = req.body;
+  let saltRounds = 10;
+  bcrypt.hash(contact.passwordHash, saltRounds, (err, hash) => {
+    // Store hash in your password DB.
+    if (err) {
+      console.log(err);
+      res.send(false);
+    }
+    Contact.findByIdAndUpdate(contact._id, {$set : {verified: true, passwordHash: hash}}, (er, resCt) => {
+      if (er) {
+        console.log(er);
+        res.send(false);
+      }
+      if (resCt) {
+        res.json(resCt);
+        console.log('successful registration: \n');
+        console.log(resCt);
+      } else {
+        console.log('unsuccessful registration: \n' + resCt);
+        res.send(false);
+      }
+    })
+  });
+});
+userRoutes.route('/loginContact').post((req, res, next) => {
+  let ct = req.body;
+  Contact.findById(ct._id, '_id name passwordHash email', (err, resCt) => {
+    if (err) {
+      console.log(err);
+      res.send(false);
+    }
+    if (resCt) {
+      resCt = resCt.toObject();
+      bcrypt.compare(ct.password, resCt.passwordHash, (err, pwMatch) => {
+        if (err) {
+          console.log(err);
+          res.send(false);
+        }
+        if(pwMatch) {
+          delete resCt.passwordHash;
+          res.send(resCt);
+        }else {
+          res.send(false);
+        }
+      });
+    }
+  });
+});
 // ============================ CONTACTS ROUTES  =======================
 // ============================ FILE ROUTES  ===========================
 userRoutes.route('/addFile').post((req, res, next) => {
@@ -625,12 +673,8 @@ userRoutes.route('/addFile').post((req, res, next) => {
         const fileURL = host  + '/file/' + encodeURI(file._id);
         const loginUrl = host + '/login/' + encodeURI(file._id);
         f.contacts.forEach(ct => {
-          if (ct.verified) {
-            mailer.contactAddedToFile(ct.email, ct.name, f.milestoneList._id.title, file.fileRef, loginUrl);
-          } else {
             const registerURL = loginUrl + '/' + encodeURI(ct._id);
             mailer.contactAddedToFile(ct.email, ct.name, f.milestoneList._id.title, file.fileRef, registerURL);
-          }
         });
         mailer.adminFileCreated(usr.email, fileURL, file.fileRef);
         callback(null, file);
@@ -659,7 +703,11 @@ userRoutes.route('/files/:id').get((req, res, next) => {
         .populate('milestoneList.milestones._id')
         .populate('milestoneList._id', 'title')
         .populate('milestoneList.milestones.updatedBy', 'name')
-        .populate('contacts').populate('milestoneList.milestones.comments.user', 'name').populate('createdBy', 'name').populate('updatedBy', 'name').exec((er, files) => {
+        .populate('contacts')
+        .populate('milestoneList.milestones.comments.user', 'name')
+        .populate('createdBy', 'name')
+        .populate('updatedBy', 'name')
+        .exec((er, files) => {
         if (er) {
           console.log(er);
           res.send(false);
@@ -722,8 +770,12 @@ userRoutes.route('/completeMilestone').post((req, res, next) => {
             let emailMessage = callback.milestone.emailMessage;
             let smsMessage = callback.milestone.smsMessage;
             const milestoneName = callback.milestone.name;
-            const url = req.protocol + '://' + req.get('host');
             callback.contacts.forEach(ct => {
+              if (!ct.verified) { // build link depending on whether contact has registered or not
+                const url = req.protocol + '://' + req.get('host') + '/' + encodeURI(fileID) + '/' + ct._id;
+              }else {
+                const url = req.protocol + '://' + req.get('host') + '/' + encodeURI(fileID) + '/' + ct._id;
+              }
               const email = ct.email;
               const emailContext = {
                 deedsOffice: newFile.deedsOffice,

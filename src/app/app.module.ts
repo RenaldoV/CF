@@ -28,7 +28,9 @@ import { FileTableComponent } from './Files/file-table/file-table.component';
 import {CdkDetailRowDirective} from './Files/file-table/cdk-detail-row.directive';
 import {FileService} from './Files/file.service';
 import { AddCommentDialogComponent } from './Files/add-comment-dialog/add-comment-dialog.component';
-import { ClientLogInComponent } from './Client/client-log-in/client-log-in.component';
+import { ContactLogInComponent } from './Contact/contact-log-in/contact-log-in.component';
+import { FileComponent } from './Files/file/file.component';
+
 
 
 
@@ -44,7 +46,8 @@ import { ClientLogInComponent } from './Client/client-log-in/client-log-in.compo
     FileTableComponent,
     CdkDetailRowDirective,
     AddCommentDialogComponent,
-    ClientLogInComponent
+    ContactLogInComponent,
+    FileComponent
   ],
   imports: [
     MatInputModule,

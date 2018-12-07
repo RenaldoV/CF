@@ -7,7 +7,9 @@ import { NotAuthService } from './auth/guards/not-auth.service';
 import { AdminGuardService } from './auth/guards/admin-guard.service';
 import { AddFileComponent } from './Files/add-file/add-file.component';
 import { AdminSetupComponent } from './Admin/admin-setup/admin-setup.component';
-import { ClientLogInComponent } from './Client/client-log-in/client-log-in.component';
+import { ContactLogInComponent } from './Contact/contact-log-in/contact-log-in.component';
+import {FileComponent} from './Files/file/file.component';
+
 
 const appRoutes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: '/admin-login' },
@@ -19,8 +21,8 @@ const appRoutes: Routes = [
   },
   { path: 'add-file', component: AddFileComponent },
   { path: 'admin-setup', component: AdminSetupComponent },
-  { path: 'login/:file/:client', component: ClientLogInComponent},
-  { path: 'login/:file', component: ClientLogInComponent},
+  { path: 'login/:file/:contact', component: ContactLogInComponent},
+  { path: 'file/:id', component: FileComponent},
   { path: '**',  redirectTo: ''}
 ];
 

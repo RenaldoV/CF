@@ -1,6 +1,5 @@
 import {Inject, Injectable} from '@angular/core';
 import {AuthService} from '../auth/auth.service';
-import {IUser} from '../../interfaces/IUser';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WINDOW} from '../window.service';
 import {Router} from '@angular/router';
@@ -9,7 +8,7 @@ import {Observable} from 'rxjs/index';
 @Injectable({
   providedIn: 'root'
 })
-export class ClientService {
+export class ContactService {
   private host;
   constructor(
     private http: HttpClient,
@@ -20,9 +19,21 @@ export class ClientService {
     this.host = 'http://' + window.location.hostname + ':4000/user';
   }
 
-  getClient(id): Observable<any> {
-    console.log('getting client');
+  getContact(id): Observable<any> {
+    console.log('getting contact');
     const url = `${this.host}/contact/` + id;
     return this.http.get(url);
+  }
+
+  registerContact(ct) {
+    const headers = new HttpHeaders();
+    headers.set('Content-Type', 'application/json');
+    return this.http.post<any>(`${this.host}/registerContact`, ct);
+  }
+
+  login(ct) {
+    const headers = new HttpHeaders();
+    headers.set('Content-Type', 'application/json');
+    return this.http.post<any>(`${this.host}/loginContact`, ct);
   }
 }
