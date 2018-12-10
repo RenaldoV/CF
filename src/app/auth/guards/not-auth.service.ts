@@ -11,7 +11,7 @@ export class NotAuthService implements CanActivate {
     private auth: AuthService,
     private router: Router
   ) { }
-  canActivate(): boolean {
+  canActivate(): Promise<boolean> | boolean {
     if (this.auth.isAuthenticated()) {
       this.router.navigate(['/admin-home']);
       return false;

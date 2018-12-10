@@ -54,8 +54,16 @@ userRoutes.route('/login').post((req, res, next) => {
 });
 userRoutes.route('/getRole').post((req, res, next) => {
   let id = req.body._id;
+  console.log(id);
   User.findById(id, 'role', (err, result) => {
-    res.send(result);
+    if (err) {
+      res.send(false);
+    }
+    if (result) {
+      res.send(result);
+    }else {
+      res.send(false);
+    }
   })
 });
 // ============================ ADMIN ROUTES ===========================
@@ -771,11 +779,7 @@ userRoutes.route('/completeMilestone').post((req, res, next) => {
             let smsMessage = callback.milestone.smsMessage;
             const milestoneName = callback.milestone.name;
             callback.contacts.forEach(ct => {
-              if (!ct.verified) { // build link depending on whether contact has registered or not
-                const url = req.protocol + '://' + req.get('host') + '/' + encodeURI(fileID) + '/' + ct._id;
-              }else {
-                const url = req.protocol + '://' + req.get('host') + '/' + encodeURI(fileID) + '/' + ct._id;
-              }
+              const url = req.protocol + '://' + req.get('host') + '/file' + encodeURI(fileID) + '/' + encodeURI(ct._id);
               const email = ct.email;
               const emailContext = {
                 deedsOffice: newFile.deedsOffice,

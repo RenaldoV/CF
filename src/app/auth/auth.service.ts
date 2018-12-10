@@ -62,21 +62,23 @@ export class AuthService {
       return false;
     }
   }
-  isAdmin(): boolean {
-    const user = JSON.parse(localStorage.getItem('user'));
-    console.log(user._id);
-    this.http.post<any>(`${this.host}/getRole`, user)
-      .subscribe(res => {
-        if (res.role === 'admin') {
-          return true;
-        } else {
+  isAdmin() {
+    return new Promise((resolve, reject) => {
+      const user = JSON.parse(localStorage.getItem('user'));
+      console.log(user._id);
+      this.http.post<any>(`${this.host}/getRole`, user)
+        .toPromise()
+        .then(res => {
+          if (res.role === 'admin') {
+            resolve(res.role === 'admin');
+          } else {
+            reject();
+          }
+        }, err => {
+          console.log(err);
           return false;
-        }
-      }, err => {
-        console.log(err);
-        return false;
-      });
-    return false;
+        });
+    });
   }
   destroySession() {
     localStorage.clear();
@@ -86,5 +88,8 @@ export class AuthService {
   }
   getID() {
     return JSON.parse(localStorage.getItem('user'))._id;
+  }
+  getUser() {
+    return JSON.parse(localStorage.getItem('user'));
   }
 }
