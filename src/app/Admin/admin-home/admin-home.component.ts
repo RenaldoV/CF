@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {AdminService} from '../admin.service';
-import {LoaderService} from '../../Loader';
+import {LoaderService} from '../../Common/Loader';
 import {FileService} from '../../Files/file.service';
 @Component({
   selector: 'app-admin-home',

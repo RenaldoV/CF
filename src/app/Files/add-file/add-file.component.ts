@@ -8,7 +8,7 @@ import { CdkDragDrop , moveItemInArray, transferArrayItem } from '@angular/cdk/d
 import {MatDialog, MatDialogConfig, MatSnackBar} from '@angular/material';
 import {AddContactDialogComponent} from '../add-contact-dialog/add-contact-dialog.component';
 import {Router} from '@angular/router';
-import {LoaderService} from '../../Loader';
+import {LoaderService} from '../../Common/Loader';
 import {FileService} from '../file.service';
 
 @Component({

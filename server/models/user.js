@@ -8,6 +8,7 @@ let User = new mongoose.Schema({
     role: String,
     name: String,
     surname: String,
+    companyAdmin: {type: Schema.Types.ObjectId, ref: 'User'},
     forgotPassword: {
       token: String,
       expiry: Date

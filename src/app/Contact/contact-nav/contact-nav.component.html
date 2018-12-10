@@ -1,0 +1,17 @@
+<nav class="navbar navbar-expand-sm bg-dark">
+  <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+    <li class="nav-item active">
+      <span>ConveyFeed</span>
+      <span> / File: {{fileref}}</span>
+    </li>
+  </ul>
+  <div class="dropdown">
+    <button class="btn btn-sm btn-secondary" type="button" id="dropdownMenuButton" >
+      <i class="fas fa-user-tie"></i> {{ getName() }}
+    </button>
+  </div>
+  <span class="navbar-text">
+
+  </span>
+  <button class="btn btn-sm btn-outline-secondary" type="button" (click)="logout()">Log Out</button>
+</nav>

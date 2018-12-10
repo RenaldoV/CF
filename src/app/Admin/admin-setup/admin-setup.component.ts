@@ -9,7 +9,7 @@ import {
   Validators
 } from '@angular/forms';
 import {AdminService} from '../admin.service';
-import {LoaderService} from '../../Loader';
+import {LoaderService} from '../../Common/Loader';
 import {AuthService} from '../../auth/auth.service';
 import {computeStyle} from '@angular/animations/browser/src/util';
 import {MatSnackBar} from '@angular/material';
@@ -164,7 +164,8 @@ export class AdminSetupComponent implements OnInit {
           _id: [''],
           name: ['', Validators.required],
           number: new FormControl({value: k + 1, disabled: true}),
-          notificationMessage: ['', Validators.required],
+          emailMessage: ['', Validators.required],
+          smsMessage: ['', Validators.required],
           sendEmail: [false],
           sendSMS: [false],
           updatedBy: ['']

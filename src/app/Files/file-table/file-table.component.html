@@ -97,7 +97,9 @@
             <span *ngIf="milestone.comments < 1">No comments to display</span>
             <div class="comment" *ngFor="let c of milestone.comments">
               <i class="fas fa-user-tie"></i> <span style="font-weight: bold; color: darkslategray"> {{c.user.name}}</span>
-              <span class="speech">{{c.comment}}</span>
+              <span class="speech">
+                {{c.comment}}<small style="color: #888888">&nbsp;{{getTimeAgo(c.timestamp)}}</small>
+              </span>
             </div>
 
             <div class="milestoneComments">

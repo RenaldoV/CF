@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import {AuthService} from '../auth/auth.service';
+import {AuthService} from '../../auth/auth.service';
 import {ActivatedRoute, Router} from '@angular/router';
 
 @Component({
   selector: 'app-nav',
-  templateUrl: './nav.component.html',
-  styleUrls: ['./nav.component.css']
+  templateUrl: './admin-nav.component.html',
+  styleUrls: ['./admin-nav.component.css']
 })
-export class NavComponent implements OnInit {
+export class AdminNavComponent implements OnInit {
 
   constructor(
     private auth: AuthService,

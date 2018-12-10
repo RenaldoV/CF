@@ -18,18 +18,19 @@ import {
 } from '@angular/material';
 import { ReactiveFormsModule } from '@angular/forms';
 import { AdminHomeComponent } from './Admin/admin-home/admin-home.component';
-import { NavComponent } from './nav/nav.component';
+import { AdminNavComponent } from './Admin/admin-nav/admin-nav.component';
 import { AddFileComponent } from './Files/add-file/add-file.component';
 import { AdminSetupComponent } from './Admin/admin-setup/admin-setup.component';
-import {LoaderModule} from './Loader';
-import {DragDropModule} from '@angular/cdk/drag-drop';
+import { LoaderModule } from './Common/Loader';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 import { AddContactDialogComponent } from './Files/add-contact-dialog/add-contact-dialog.component';
 import { FileTableComponent } from './Files/file-table/file-table.component';
-import {CdkDetailRowDirective} from './Files/file-table/cdk-detail-row.directive';
-import {FileService} from './Files/file.service';
+import { CdkDetailRowDirective } from './Files/file-table/cdk-detail-row.directive';
+import { FileService } from './Files/file.service';
 import { AddCommentDialogComponent } from './Files/add-comment-dialog/add-comment-dialog.component';
 import { ContactLogInComponent } from './Contact/contact-log-in/contact-log-in.component';
 import { FileComponent } from './Files/file/file.component';
+import { ContactNavComponent } from './Contact/contact-nav/contact-nav.component';
 
 
 
@@ -39,7 +40,7 @@ import { FileComponent } from './Files/file/file.component';
     AppComponent,
     AdminLogInComponent,
     AdminHomeComponent,
-    NavComponent,
+    AdminNavComponent,
     AddFileComponent,
     AdminSetupComponent,
     AddContactDialogComponent,
@@ -47,7 +48,8 @@ import { FileComponent } from './Files/file/file.component';
     CdkDetailRowDirective,
     AddCommentDialogComponent,
     ContactLogInComponent,
-    FileComponent
+    FileComponent,
+    ContactNavComponent
   ],
   imports: [
     MatInputModule,

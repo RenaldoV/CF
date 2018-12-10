@@ -1,12 +1,11 @@
 import {ViewChild, Component, OnInit, Input} from '@angular/core';
-import { DataSource } from '@angular/cdk/collections';
-import { of } from 'rxjs';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import {MatTableDataSource, MatSort, MatPaginator, MatSnackBar, MatDialogConfig, MatDialog} from '@angular/material';
 import {FileService} from '../file.service';
-import {LoaderService} from '../../Loader';
-import {AddContactDialogComponent} from '../add-contact-dialog/add-contact-dialog.component';
+import {LoaderService} from '../../Common/Loader';
 import {AddCommentDialogComponent} from '../add-comment-dialog/add-comment-dialog.component';
+import TimeAgo from 'javascript-time-ago';
+import en from 'javascript-time-ago/locale/en';
 
 @Component({
   selector: 'app-file-table',
@@ -23,6 +22,7 @@ import {AddCommentDialogComponent} from '../add-comment-dialog/add-comment-dialo
 export class FileTableComponent implements OnInit {
   displayedColumns: string[] = ['action', 'fileRef', 'secretary', 'created', 'updated'/*, 'actions'*/];
   dataSource;
+  timeAgo;
   @Input() files;
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -37,6 +37,8 @@ export class FileTableComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    TimeAgo.addLocale(en);
+    this.timeAgo = new TimeAgo('en-US');
     this.dataSource = new MatTableDataSource<File>(this.files);
     /*console.log(this.files);*/
     this.dataSource.paginator = this.paginator;
@@ -188,6 +190,9 @@ export class FileTableComponent implements OnInit {
     const newObj = {};
     this.dive('', arr, newObj);
     return newObj;
+  }
+  getTimeAgo(t) {
+    return this.timeAgo.format(new Date(t));
   }
 }
 

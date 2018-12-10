@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import {AddContactDialogComponent} from '../add-contact-dialog/add-contact-dialog.component';
 import {MatDialogRef, MatSnackBar} from '@angular/material';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {LoaderService} from '../../Loader';
+import {LoaderService} from '../../Common/Loader';
 import {AdminService} from '../../Admin/admin.service';
 import {GlobalValidators} from '../../Common/Validators/globalValidators';
 

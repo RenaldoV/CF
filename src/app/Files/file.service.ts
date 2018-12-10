@@ -47,5 +47,9 @@ export class FileService {
     const url = `${this.host}/fileRef/` + id;
     return this.http.get(url);
   }
+  getFile(id) {
+    const url = `${this.host}/file/` + id;
+    return this.http.get(url);
+  }
 
 }

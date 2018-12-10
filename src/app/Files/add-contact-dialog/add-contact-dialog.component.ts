@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {AbstractControl, FormArray, FormBuilder, FormGroup, ValidationErrors, Validators} from '@angular/forms';
 import {MatDialogRef, MatSnackBar} from '@angular/material';
-import {LoaderService} from '../../Loader';
+import {LoaderService} from '../../Common/Loader';
 import {AdminService} from '../../Admin/admin.service';
 import {GlobalValidators} from '../../Common/Validators/globalValidators';
 

@@ -1,0 +1,42 @@
+.no-padding {
+  padding: 0px 0px 0px 0px;
+}
+
+nav.navbar {
+  font-family: 'Anton',Helvetica,Arial,Lucida,sans-serif;
+  min-height: 90px;
+  z-index: 100;
+}
+.navbar-toggler {
+  color: white;
+  transition: all 0.3s ease-in-out;
+}
+.navbar-toggler:hover {
+  color: #f3f3f3;
+}
+li.nav-item span {
+  color: white;
+  font-size: 22px;
+  letter-spacing: 1px;
+  line-height: 1.5em;
+  transition: all 0.3s ease-in-out;
+}
+li.nav-item a:hover {
+  color: #f3f3f3;
+}
+li.nav-item.active a  {
+  color: #f3f3f3;
+}
+a.navbar-brand {
+  color: white;
+  transition: all 0.3s ease-in-out;
+}
+a.navbar-brand:hover {
+  color: #f3f3f3;
+  font-size: 24px;
+}
+
+.navbar-text {
+  color: #f3f3f3;
+  margin-right: 10px;
+}

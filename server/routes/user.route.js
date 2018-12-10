@@ -730,6 +730,32 @@ userRoutes.route('/files/:id').get((req, res, next) => {
     }
   });
 });
+userRoutes.route('/file/:id').get((req, res, next) => {
+  const id = req.params.id;
+  File.findById(id)
+    .populate('milestoneList.milestones._id')
+    .populate('milestoneList._id', 'title')
+    .populate('milestoneList.milestones.updatedBy', 'name')
+    .populate('contacts')
+    .populate('milestoneList.milestones.comments.user', 'name')
+    .populate({
+      path: 'createdBy',
+      select: {'company': 1, 'name': 1, 'surname': 1, 'email': 1},
+      populate: {
+        path: 'companyAdmin',
+        select: {'company': 1, 'name': 1, 'surname': 1, 'email': 1}
+      }})
+    .populate('updatedBy', 'name')
+    .exec((error, file) => {
+    if(error) {
+      console.log(error);
+      res.send(false);
+    }
+    if(file) {
+      res.send(file);
+    }
+  });
+});
 userRoutes.route('/fileRef/:id').get((req, res, next) => {
   const id = req.params.id;
   File.findById(id, 'fileRef').exec((error, file) => {

@@ -80,6 +80,9 @@ export class AuthService {
         });
     });
   }
+  isContact() {
+    return !!JSON.parse(localStorage.getItem('user')).type;
+  }
   destroySession() {
     localStorage.clear();
   }
