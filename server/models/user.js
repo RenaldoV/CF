@@ -8,6 +8,8 @@ let User = new mongoose.Schema({
     role: String,
     name: String,
     surname: String,
+    cell: String,
+    verified: Boolean,
     companyAdmin: {type: Schema.Types.ObjectId, ref: 'User'},
     forgotPassword: {
       token: String,

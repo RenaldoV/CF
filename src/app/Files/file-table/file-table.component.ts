@@ -123,12 +123,14 @@ export class FileTableComponent implements OnInit {
         this.fileService.completeMilestone(fileID, m._id)
           .subscribe(res => {
             if (res.message) {
-              m.completed = e.checked;
+             // m.completed = e.checked;
               this.matSnack.open(res.message);
             }
           });
       } else {
-        m.complete = !e.checked;
+        e.checked = false;
+        m.completed = e.checked;
+        console.log(m.completed); // TODO: BUG milestone stays checked when clicking cancel.
       }
     } /*else {
       if (confirm('Are you sure you want to mark this milestone as not done?')) {

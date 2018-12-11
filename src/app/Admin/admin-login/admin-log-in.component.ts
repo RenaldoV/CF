@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../auth/auth.service';
-import { Router } from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
+import {PasswordValidators} from '../../Common/Validators/passwordValidators';
 
 @Component({
   selector: 'app-log-in',
@@ -10,25 +11,36 @@ import { Router } from '@angular/router';
 })
 export class AdminLogInComponent implements OnInit {
   loginForm: FormGroup;
+  registerForm: FormGroup;
+  uid;
   ngOnInit() {
+    this.uid = this.route.snapshot.paramMap.get('id');
+    if (this.uid) { // check if user has been verified and exists
+      this.auth.getUserById(this.uid)
+        .subscribe(res => {
+          if (res) {
+            if (!res.verified) {
+              this.createRegisterForm(res.email);
+            } else {
+              alert('This account has already been registered, please log in');
+              this.createForm();
+            }
+          } else {
+            alert('This account has already been registered, please log in');
+            this.createForm();
+          }
+        });
+    } else {
+      this.createForm();
+    }
   }
 
   constructor(
     private fb: FormBuilder,
     private auth: AuthService,
-    private router: Router) {
-    /*this.auth.addUser(
-      {
-        passwordHash: 'rootTest1#',
-        company: 'CBI Attorneys',
-        email: 'renaldovd@gmail.com',
-        role: 'admin',
-        name: 'Renaldo',
-        surname: 'Van Dyk'
-      }
-    );*/
-    this.createForm();
-  }
+    private router: Router,
+    private route: ActivatedRoute
+  ) {}
   createForm() {
     this.loginForm = this.fb.group({
       email: ['', Validators.required],
@@ -43,6 +55,38 @@ export class AdminLogInComponent implements OnInit {
   }
   submit () {
     this.auth.loginUser(this.loginForm.value);
+  }
+
+  createRegisterForm(email) {
+    this.registerForm = this.fb.group({
+      email: [email, Validators.required],
+      passwordHash: ['', [Validators.required, PasswordValidators.passwordPattern]],
+      rePassword: ['', Validators.required]
+    }, {
+      validator: PasswordValidators.passwordsMatch
+    });
+    this.regEmail.disable();
+  }
+  get regEmail () {
+    return this.registerForm.get('email');
+  }
+  get regPassword () {
+    return this.registerForm.get('passwordHash');
+  }
+  get regRePassword () {
+    return this.registerForm.get('rePassword');
+  }
+  togglePasswordViz(el) {
+    el.type === 'password' ? el.type = 'text' : el.type = 'password';
+  }
+  register() {
+    // delete password and email
+    const payload = this.registerForm.value;
+    payload.verified = true;
+    payload._id = this.uid;
+    delete payload.email;
+    delete payload.rePassword;
+    this.auth.register(payload);
   }
 
 }

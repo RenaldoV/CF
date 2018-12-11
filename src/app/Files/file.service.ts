@@ -25,7 +25,12 @@ export class FileService {
     return this.http.post<any>(`${this.host}/addFile`, {file: file, uid: uid});
   }
   getMyFiles() {
-    const uid = this.auth.getID();
+    let uid;
+    if (this.auth.isTopLevelUser()) {
+      uid = this.auth.getID();
+    } else {
+      uid = this.auth.getAdminID();
+    }
     const url = `${this.host}/files/` + uid;
     return this.http.get(url);
   }

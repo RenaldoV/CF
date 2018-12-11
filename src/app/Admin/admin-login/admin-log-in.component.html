@@ -1,16 +1,22 @@
 <div class="container">
   <div class="row align-items-center">
     <div class="col-sm-8 col-lg-6 offset-sm-2 offset-lg-3 card-box-main">
-      <div class="row">
+      <div class="row" *ngIf="loginForm">
         <div class="col-sm-12 reg-box-header card-box-header text-center">
           <h2>Admin Log-In</h2>
           <span class="subtitle">Welcome back! Please login to your account.</span>
         </div>
       </div>
+      <div class="row" *ngIf="registerForm">
+        <div class="col-sm-12 reg-box-header card-box-header text-center">
+          <h2>Register</h2>
+          <span class="subtitle">Choose a password.</span>
+        </div>
+      </div>
       <hr/>
       <div class="row">
         <div class="col-sm-12 card-box-main-content">
-          <form [formGroup]="loginForm">
+          <form *ngIf="loginForm" [formGroup]="loginForm">
             <div class="row">
               <div class="col-sm-12 col-md-8 offset-md-2">
                 <mat-form-field appearance="outline">
@@ -36,6 +42,64 @@
               </div>
               <div class="col-sm-12 col-md-8 offset-md-2 text-right button-cols">
                 <button type="submit" class="submitBtn btn btn-lg" (click)="submit()" [disabled]="!loginForm.valid">Log In</button>
+              </div>
+            </div>
+          </form>
+          <form *ngIf="registerForm" [formGroup]="registerForm">
+            <div class="row">
+              <div class="col-sm-12 col-md-8 offset-md-2">
+                <mat-form-field appearance="outline">
+                  <mat-label>Username</mat-label>
+                  <input matInput placeholder="Username (email address)" formControlName="email" required>
+                  <mat-error *ngIf="regEmail.hasError('required')">
+                    Email is required.
+                  </mat-error>
+                </mat-form-field>
+              </div>
+              <div class="col-sm-12 col-md-8 offset-md-2">
+                <mat-form-field appearance="outline">
+                  <mat-label>Password</mat-label>
+                  <input #regPw type="password" matInput placeholder="Password" formControlName="passwordHash" required>
+                  <span class="pwEye" (click)="togglePasswordViz(regPw)" matSuffix>
+                    &nbsp;<i class="fas fa-eye{{regPw.type === 'password' ? '' : '-slash'}}"></i>
+                  </span>
+                  <mat-error *ngIf="regPassword.hasError('required')">
+                    Password is required.
+                  </mat-error>
+                  <mat-error *ngIf="regPassword.hasError('length')">
+                    Password must contain at least 6 characters.
+                  </mat-error>
+                  <mat-error *ngIf="regPassword.hasError('upperCase')">
+                    Password must contain at least 1 uppercase character.
+                  </mat-error>
+                  <mat-error *ngIf="regPassword.hasError('lowerCase')">
+                    Password must contain at least 1 lowercase character.
+                  </mat-error>
+                  <mat-error *ngIf="regPassword.hasError('special')">
+                    Password must contain at least 1 special character.
+                  </mat-error>
+                  <mat-error *ngIf="regPassword.hasError('number')">
+                    Password must contain at least 1 number.
+                  </mat-error>
+                </mat-form-field>
+              </div>
+              <div class="col-sm-12 col-md-8 offset-md-2">
+                <mat-form-field appearance="outline">
+                  <mat-label>Re enter password</mat-label>
+                  <input #regRePw type="password" matInput placeholder="Re enter password" formControlName="rePassword" required>
+                  <span class="pwEye" (click)="togglePasswordViz(regRePw)" matSuffix>
+                    &nbsp;<i class="fas fa-eye{{regRePw.type === 'password' ? '' : '-slash'}}"></i>
+                  </span>
+                  <mat-error *ngIf="regRePassword.hasError('required')">
+                    Password is required.
+                  </mat-error>
+                  <mat-error *ngIf="regRePassword.hasError('PasswordMismatch')">
+                    Passwords do not match.
+                  </mat-error>
+                </mat-form-field>
+              </div>
+              <div class="col-sm-12 col-md-8 offset-md-2 text-right button-cols">
+                <button type="submit" class="submitBtn btn btn-lg" (click)="register()" [disabled]="!registerForm.valid">Register</button>
               </div>
             </div>
           </form>

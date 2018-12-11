@@ -18,7 +18,7 @@
               <form class="MilestoneListForm" [formGroup]="MilestoneListForm">
                 <mat-accordion>
                   <mat-expansion-panel hideToggle class="msListPanel" formArrayName="list"
-                                       *ngFor="let l of list.controls; let i = index" [expanded]="true">
+                                       *ngFor="let l of list.controls; let i = index" [expanded]="i + 1 === list.length">
                     <mat-expansion-panel-header>
                       <mat-panel-title>
                         {{ l.get('title').value ? l.get('title').value : 'List ' + (i + 1) }}
@@ -38,7 +38,7 @@
                       </mat-form-field>
                       <mat-accordion>
                         <mat-expansion-panel hideToggle class="msPanel" formArrayName="milestones"
-                                           *ngFor="let m of getMilestones(i).controls; let k = index" [expanded]="true">
+                                           *ngFor="let m of getMilestones(i).controls; let k = index" [expanded]="k + 1 === getMilestones(i).length">
                         <mat-expansion-panel-header>
                           <mat-panel-title>
                             {{ m.get('name').value ? m.get('name').value : 'Milestone' }}
@@ -137,7 +137,7 @@
                     </div>
                     <div class="btn-group" role="group" aria-label="action buttons" style="margin-top: 5px;">
                       <button (click)="addMilestone(i)" class="btn btn-outline-secondary btn-sm" color="primary"
-                               *ngIf="l.get('title').valid && MilestoneListForm.valid"><i class="fas fa-plus"></i> Add Milestone
+                               [disabled]="!(l.get('title').valid && MilestoneListForm.valid)"><i class="fas fa-plus"></i> Add Milestone
                       </button>
                       <button class="btn btn-primary btn-sm saveButton" color="primary" [disabled]="!MilestoneListForm.valid" (click)="submitMilestones(i)">
                         <span *ngIf="!(loaderService.isLoading | async)"><i class="far fa-save"></i> Save</span>
@@ -149,7 +149,7 @@
               </form>
             </div>
           </div>
-          <button (click)="addMilestoneList()" *ngIf="MilestoneListForm.valid" class="btn btn-outline-primary btn-xs" color="primary">
+          <button (click)="addMilestoneList()" [disabled]="!MilestoneListForm.valid" class="btn btn-outline-primary btn-xs" color="primary">
             <i class="fas fa-plus"></i> Add Milestone List
           </button>
         </mat-expansion-panel>
@@ -249,7 +249,7 @@
                     </mat-expansion-panel-header>
                     <div class="propertiesPanelBody">
                       <mat-accordion>
-                        <mat-expansion-panel class="msPanel" hideToggle [expanded]="true"
+                        <mat-expansion-panel class="msPanel" hideToggle [expanded]="i + 1 === deedsOffices.length"
                                              *ngFor="let d of deedsOffices.controls; let i = index" formArrayName="deedsOffices">
                           <mat-expansion-panel-header>
                             <mat-panel-description>
@@ -268,7 +268,7 @@
                         </mat-expansion-panel>
                       </mat-accordion>
                     </div>
-                    <button *ngIf="deedsOffices.valid" (click)="addDeedsOffice()" class="btn btn-outline-secondary btn-sm" color="primary" style="margin-top: 5px;">
+                    <button [disabled]="!deedsOffices.valid" (click)="addDeedsOffice()" class="btn btn-outline-secondary btn-sm" color="primary" style="margin-top: 5px;">
                       <i class="fas fa-plus"></i> Add Deeds Office
                     </button>
                   </mat-expansion-panel>
@@ -297,7 +297,7 @@
             <div class="col-10 offset-1" style="margin-bottom: 10px;">
               <form class="ContactsForm" [formGroup]="ContactsForm">
                 <mat-accordion>
-                  <mat-expansion-panel hideToggle class="msListPanel" [expanded]="true"
+                  <mat-expansion-panel hideToggle class="msListPanel" [expanded]="i + 1 === contacts.length"
                                        *ngFor="let c of contacts.controls; let i = index" formArrayName="contacts">
                     <mat-expansion-panel-header>
                       <mat-panel-description>
@@ -363,7 +363,7 @@
               </form>
             </div>
           </div>
-          <button *ngIf="ContactsForm.valid" class="btn btn-outline-primary btn-sm" color="primary" (click)="addContact()">
+          <button [disabled]="!ContactsForm.valid" class="btn btn-outline-primary btn-sm" color="primary" (click)="addContact()">
             <i class="fas fa-plus"></i> Add Contact
           </button>
         </mat-expansion-panel>
@@ -377,10 +377,66 @@
               <i class="fas fa-users"></i>
             </mat-panel-description>
           </mat-expansion-panel-header>
-          <button class="btn btn-outline-primary btn-sm" color="primary"><i class="fas fa-plus"></i> Add User</button>
-          <mat-action-row>
-            <button class="btn btn-primary btn-md" color="primary">Save</button>
-          </mat-action-row>
+          <div class="row">
+            <div class="col-10 offset-1" style="margin-bottom: 10px;">
+              <form class="UsersForm" [formGroup]="UsersForm">
+                <mat-accordion>
+                  <mat-expansion-panel hideToggle class="msListPanel" [expanded]="i + 1 === users.length"
+                                       *ngFor="let u of users.controls; let i = index" formArrayName="users">
+                    <mat-expansion-panel-header>
+                      <mat-panel-description>
+                        {{u.get('name').value ? u.get('name').value + ' ' + u.get('surname')?.value : 'User ' + (i+1)}}
+                        <i class="fas fa-trash-alt float-right deleteBtn" (click)="removeUser($event, i)"></i>
+                      </mat-panel-description>
+                    </mat-expansion-panel-header>
+                    <div [formGroupName]="i" (change)="onUserChange(i)">
+                      <mat-form-field class="innerFormFields">
+                        <input matInput placeholder="Name" formControlName="name" required>
+                        <mat-error>
+                          User name is required.
+                        </mat-error>
+                      </mat-form-field>
+                      <br>
+                      <mat-form-field class="innerFormFields">
+                        <input matInput placeholder="Surname" formControlName="surname" required>
+                        <mat-error>
+                          User surname is required.
+                        </mat-error>
+                      </mat-form-field>
+                      <br>
+                      <mat-form-field class="innerFormFields">
+                        <input matInput placeholder="Cell number" formControlName="cell" required>
+                        <mat-error>
+                          Cell number is required.
+                        </mat-error>
+                      </mat-form-field>
+                      <br>
+                      <mat-form-field class="innerFormFields">
+                        <input type="email" matInput placeholder="Email address" formControlName="email" required>
+                        <mat-error *ngIf="u.get('email').hasError('required')">
+                          Email address is required.
+                        </mat-error>
+                        <mat-error *ngIf="u.get('email').hasError('email')">
+                          Email must be a valid email address.
+                        </mat-error>
+                        <mat-error *ngIf="u.get('email').hasError('emailNotUnique')">
+                          You already have a user with this email.
+                        </mat-error>
+                      </mat-form-field>
+                      <br>
+                      <div class="btn-group" role="group" aria-label="action buttons" style="margin-top: 5px;">
+                        <button class="btn btn-primary btn-sm saveButton" color="primary" [disabled]="!users.at(i).valid || (loaderService.isLoading | async) || users.at(i).get('updatedBy').value === 'existing'" (click)="submitUser(i)">
+                          <span *ngIf="!(loaderService.isLoading | async)"><i class="far fa-save"></i> Save</span>
+                          <i *ngIf="loaderService.isLoading | async" class="fas fa-spinner fa-spin"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </mat-expansion-panel>
+                </mat-accordion>
+              </form>
+            </div>
+          </div>
+          <button [disabled]="!ContactsForm.valid || (loaderService.isLoading | async)" class="btn btn-outline-primary btn-sm" (click)="addUser()" color="primary"><i class="fas fa-plus"></i> Add User</button>
         </mat-expansion-panel>
       </mat-accordion>
     </div>

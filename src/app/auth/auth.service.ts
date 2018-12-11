@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { WINDOW } from '../window.service';
 import { IUser } from '../../interfaces/IUser';
+import {Observable} from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -18,21 +19,34 @@ export class AuthService {
   }
 
   addUser (user) {
-    console.log(user);
     const headers = new HttpHeaders();
     headers.set('Content-Type', 'application/json');
-    this.http.post<any>(`${this.host}/addUser`, user)
-      .subscribe(res => {
-        if (res) {
-          // this.saveUser(res.user);
-          // console.log(res);
-        } else {
-          return res;
-        }
-      }, err => {
-        console.log(err);
-        return false;
-      });
+    return this.http.post<any>(`${this.host}/addUser`, user);
+  }
+  getUserByEmail(email): Observable<any> {
+    const url = `${this.host}/userByEmail/` + email;
+    return this.http.get(url);
+  }
+  getUsers() { // todo: make company field  single point of reference on front and backend
+    const url = `${this.host}/users/` + this.getID();
+    return this.http.get(url);
+  }
+  getUserById(id): Observable<any> { // get non top level user by id
+    const url = `${this.host}/user/` + id;
+    return this.http.get(url);
+  }
+  updateUser(user) {
+    const headers = new HttpHeaders();
+    headers.set('Content-Type', 'application/json');
+    return this.http.post<any>(`${this.host}/updateUser`, user);
+  }
+  deleteUser(id) {
+    const headers = new HttpHeaders();
+    headers.set('Content-Type', 'application/json');
+    return this.http.post<any>(`${this.host}/deleteUser`, {id: id});
+  }
+  isTopLevelUser() {
+    return !!JSON.parse(localStorage.getItem('user')).company; // TODO: check this on backend for more security
   }
   loginUser (user) {
     const headers = new HttpHeaders();
@@ -49,6 +63,24 @@ export class AuthService {
       }, err => {
         console.log(err);
         return false;
+      });
+  }
+  register(user) {
+    console.log(user);
+    const headers = new HttpHeaders();
+    headers.set('Content-Type', 'application/json');
+    return this.http.post<any>(`${this.host}/updateUser`, user)
+      .subscribe(res => {
+        if (res) {
+          delete res.role;
+          delete res.files;
+          delete res.passwordHash;
+          delete res.milestoneLists;
+          delete res.contacts;
+          delete res.verified;
+          this.saveUser(res);
+          this.router.navigate(['admin-home']);
+        }
       });
   }
   saveUser(user) {
@@ -94,5 +126,8 @@ export class AuthService {
   }
   getUser() {
     return JSON.parse(localStorage.getItem('user'));
+  }
+  getAdminID() {
+    return JSON.parse(localStorage.getItem('user')).companyAdmin;
   }
 }

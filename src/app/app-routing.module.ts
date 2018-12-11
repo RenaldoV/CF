@@ -15,6 +15,7 @@ import {ContactNotAuthGuardService} from './auth/contactGuards/contact-not-auth-
 const appRoutes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: '/admin-login' },
   { path: 'admin-login', component: AdminLogInComponent, canActivate: [NotAuthService] },
+  { path: 'admin-login/:id', component: AdminLogInComponent, canActivate: [NotAuthService] },
   {
     path: 'admin-home',
     component: AdminHomeComponent,

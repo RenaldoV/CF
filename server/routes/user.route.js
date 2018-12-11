@@ -13,29 +13,89 @@ const mailer = new Mailer("slash.aserv.co.za", 465, "donotreply@conveyfeed.co.za
 const async = require('async');
 
 // ============================ ADMIN ROUTES ===========================
-userRoutes.route('/addUser').post((req, res, next) => {
+userRoutes.route('/addUser').post((req, res, next) => { // todo: sort out unique emails in contacts and users. Change in Schema
   let user = req.body;
   let saltRounds = 10;
   bcrypt.hash(user.passwordHash, saltRounds, (err, hash) => {
     // Store hash in your password DB.
     if (err) return next(err);
     user.passwordHash = hash;
+    if (!user.company) {
+      user.verified = false;
+    }
     User.create(user, (err, result) => {
       if (err) return next(err);
       if (result) {
-        res.json(user);
-        // console.log('successful creation: \n' + user);
-        // console.log(result);
+        if (!result.company) { // not top level admin, send registration email
+          const host = req.protocol + '://' + req.get('host');
+          const loginUrl = host + '/admin-login/' + encodeURI(result._id);
+          mailer.userCreated(result.name, result.email, loginUrl);
+        }
+        res.json(result);
       }else {
-        console.log('unsuccessful creation: \n' + result);
         res.send(false);
       }
     })
   });
 });
+userRoutes.route('/userByEmail/:email').get((req, res, next) => {
+  // get user by email to checkk email availability
+  const email = req.params.email;
+  User.findOne({email: email}).exec((err, user) => {
+    if(err) {
+      console.log(err);
+      res.send(false);
+    }
+    res.send(user);
+  });
+});
+userRoutes.route('/users/:id').get((req, res, next) => {
+  // get all users but me and admin user
+  const myId = req.params.id;
+  User.findById(myId).exec((er, me) => {
+    if (er) {
+      console.log(er);
+      res.send(false);
+    }
+    if (me.company) { // i am top level admin
+      User.find({_id: {$ne: myId}}).exec((err, users) => {
+        if(err) {
+          console.log(err);
+          res.send(false);
+        }
+        res.json(users);
+      });
+    } else if (me) { // i am not top level but I exist
+      User.find({_id: {$ne: myId}, companyAdmin: {$ne: null}}).exec((err, users) => { // select all but me, and top level admin
+        if(err) {
+          console.log(err);
+          res.send(false);
+        }
+        res.json(users);
+      });
+    }else {
+      res.send(false);
+    }
+  });
+});
+userRoutes.route('/user/:id').get((req, res, next) => {
+  // get me
+  const myId = req.params.id;
+  User.findById(myId).exec((er, me) => {
+    if (er) {
+      console.log(er);
+      res.send(false);
+    }
+    if (!me.company) { // i am not top level admin
+      res.send(me);
+    }else {
+      res.send(false);
+    }
+  });
+});
 userRoutes.route('/login').post((req, res, next) => {
   let user = req.body;
-  User.findOne({email : user.email}, '_id name surname passwordHash email', (err, usr) => {
+  User.findOne({email : user.email}, '_id name surname passwordHash email company companyAdmin', (err, usr) => {
     if (err) return next(err);
     if (usr) {
       usr = usr.toObject();
@@ -65,6 +125,58 @@ userRoutes.route('/getRole').post((req, res, next) => {
       res.send(false);
     }
   })
+});
+userRoutes.route('/updateUser').post((req, res, next) => { // update password and normal update
+  const u = req.body;
+  if (u.passwordHash) {
+    let saltRounds = 10;
+    bcrypt.hash(u.passwordHash, saltRounds, (err, hash) => {
+      if (err) {
+        console.log(err);
+        res.send(false);
+      } else {
+        u.passwordHash = hash;
+        User.findByIdAndUpdate(u._id, u, {new: true}, (er, uRes) => {
+          if(er) {
+            console.log(er);
+            res.send(false);
+          }
+          if(uRes) {
+            res.send(uRes);
+          }else {
+            res.send(false);
+          }
+        });
+      }
+    });
+  } else {
+    User.findByIdAndUpdate(u._id, u, {new: true}, (er, uRes) => {
+      if(er) {
+        console.log(er);
+        res.send(false);
+      }
+      if(uRes) {
+        res.send(uRes);
+      }else {
+        res.send(false);
+      }
+    })
+  }
+});
+userRoutes.route('/deleteUser').post((req, res, next) => {
+  const uid = req.body.id;
+  User.findOneAndRemove({_id: uid, companyAdmin: {$ne: null}}, (err, result) => { // make sure not deleting top level user
+    if (err) {
+      console.log(err);
+      res.send(false);
+    }
+    else if (result) {
+      console.log(result);
+      res.send(true);
+    } else {
+      res.send(false);
+    }
+  });
 });
 // ============================ ADMIN ROUTES ===========================
 // ============================ MILESTONE LIST ROUTES  =================
@@ -666,12 +778,28 @@ userRoutes.route('/addFile').post((req, res, next) => {
     },
     (file, callback) => { // Third method: Update user files array with new file _id
       console.log('file created, result: \n' + file);
-      User.findByIdAndUpdate(uid, {$push: {files: file._id}}, (error, usr) => {
-        if (error) {
+      User.findById(uid).exec((er, me) => {
+        if (er) {
           callback(error);
         }
-        if (usr) {
-          callback(null, file, usr);
+        if(me.companyAdmin) {
+          User.findByIdAndUpdate(me.companyAdmin, {$push: {files: file._id}}, (error, usr) => {
+            if (error) {
+              callback(error);
+            }
+            if (usr) {
+              callback(null, file, me);
+            }
+          });
+        } else {
+          User.findByIdAndUpdate(uid, {$push: {files: file._id}}, (error, usr) => {
+            if (error) {
+              callback(error);
+            }
+            if (usr) {
+              callback(null, file, usr);
+            }
+          });
         }
       });
     },
@@ -774,7 +902,13 @@ userRoutes.route('/completeMilestone').post((req, res, next) => {
   let uid = req.body.uid;
   File.findOneAndUpdate(
     {_id: fileID, 'milestoneList.milestones._id': milestoneID},
-    {$set: {'milestoneList.milestones.$.completed': true}}, {new: true}).exec((err, newFile) => {
+    {$set: {
+        'milestoneList.milestones.$.completed': true,
+        'milestoneList.milestones.$.updatedBy': uid,
+        'milestoneList.milestones.$.updatedAt': new Date(),
+         updatedBy: uid
+      }
+    }, {new: true}).exec((err, newFile) => {
       if (err) {
         console.log(err);
         res.send(false);
@@ -787,8 +921,14 @@ userRoutes.route('/completeMilestone').post((req, res, next) => {
             });
           },
           adminUser: (callback) => {
-            User.findById(uid, (er, user) => {
-              callback(er, user);
+            User.findById(uid, (er, user) => { // get me
+              if (user.companyAdmin) {
+                User.findById(user.companyAdmin).exec((error, comAdmin) => { // get top level user if applicable
+                  callback(error, comAdmin);
+                });
+              } else {
+                callback(er, user);
+              }
             });
           },
           milestone: (callback) => {

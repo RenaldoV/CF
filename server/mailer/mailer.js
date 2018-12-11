@@ -74,8 +74,11 @@ class Mailer {
     }
   }
 
-  sendEmail(email, body, link, subject) {
+  sendEmail(email, body, link, subject, button) {
     //validate
+    if (!button) {
+      button = 'View File';
+    }
     var missingFields = [];
     if (email == null || email == "") {
       missingFields.push("email")
@@ -92,7 +95,8 @@ class Mailer {
 
     let context = {
       body: body,
-      link: link
+      link: link,
+      btn: button
     };
     let that = this;
     return new Promise((resolve, reject) => {
@@ -128,6 +132,11 @@ class Mailer {
         reject(err);
       });
     });
+  }
+  userCreated(name, email, link) {
+    const message = 'Hi '+ name +' \nYou were added as a ConveyFeed admin user / secretary. \n Click the link below to register your account.';
+    const subject = 'You were added as a ConveyFeed admin user / secretary';
+    this.sendEmail(email, message, link, subject, 'Register');
   }
 }
 

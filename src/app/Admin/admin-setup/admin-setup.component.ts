@@ -23,6 +23,7 @@ export class AdminSetupComponent implements OnInit {
   MilestoneListForm: FormGroup;
   PropertiesForm: FormGroup;
   ContactsForm: FormGroup;
+  UsersForm: FormGroup;
   constructor(
     private fb: FormBuilder,
     private adminService: AdminService,
@@ -36,6 +37,8 @@ export class AdminSetupComponent implements OnInit {
     this.getProperties();
     this.createContactsForm();
     this.getContacts();
+    this.createUsersForm();
+    this.getUsers();
   }
 
   ngOnInit() {}
@@ -510,12 +513,12 @@ export class AdminSetupComponent implements OnInit {
       name: ['', Validators.required],
       cell: ['', Validators.required],
       email: ['', [Validators.required, Validators.email],
-        existing ? null : this.shouldBeUnique.bind(this)],
+        existing ? null : this.shouldBeUniqueContact.bind(this)],
       updatedBy: [existing ? 'existing' : 'new'],
       type: ['', Validators.required]
     });
     const arrayControl = <FormArray>this.contacts;
-    if (existing) {ct.get('email').disable();}
+    if (existing) { ct.get('email').disable(); }
     arrayControl.push(ct);
   }
   removeContact(e, i) {
@@ -607,7 +610,7 @@ export class AdminSetupComponent implements OnInit {
     }
     // console.log(this.contacts.at(i).value);
   }
-  shouldBeUnique(control: AbstractControl): Promise<ValidationErrors> | null {
+  shouldBeUniqueContact(control: AbstractControl): Promise<ValidationErrors> | null {
     const q = new Promise((resolve, reject) => {
       setTimeout(() => {
         this.adminService.getContactByEmail(control.value).subscribe((res) => {
@@ -621,4 +624,161 @@ export class AdminSetupComponent implements OnInit {
     });
     return q;
   }
+  // ================== CONTACTS FUNCTIONS ===============================
+  // ================== USER FUNCTIONS ===================================
+  createUsersForm() {
+    this.UsersForm = this.fb.group({
+      users: this.fb.array([]),
+      updated: ['new']
+    });
+  }
+  get users(): FormArray {
+    return this.UsersForm.get('users') as FormArray;
+  }
+  addUser(existing?) {
+    const u = this.fb.group({
+      _id: [''],
+      surname: ['', Validators.required],
+      name: ['', Validators.required],
+      cell: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email],
+        existing ? null : this.shouldBeUniqueUser.bind(this)],
+      updatedBy: [existing ? 'existing' : 'new'],
+      role: ['admin', Validators.required],
+      companyAdmin: [this.auth.isTopLevelUser() ? this.auth.getID() : this.auth.getAdminID()],
+      passwordHash: ['admin']
+    });
+    const arrayControl = <FormArray>this.users;
+    if (existing) { u.get('email').disable(); }
+    arrayControl.push(u);
+  }
+  shouldBeUniqueUser(control: AbstractControl): Promise<ValidationErrors> | null {
+    const q = new Promise((resolve, reject) => {
+      setTimeout(() => {
+        this.auth.getUserByEmail(control.value).subscribe((res) => {
+          if (!res) {
+            resolve(null);
+          } else {
+            resolve({'emailNotUnique': true});
+          }
+        });
+      }, 100);
+    });
+    return q;
+  } // TODO: check user email uniqueness
+  removeUser(e, i) {
+    e.stopPropagation();
+    e.preventDefault();
+    const u = this.users.at(i);
+    if (confirm('Are you sure you want to delete ' +
+      (u.get('name').value ? u.get('name').value : 'this contact') + ' from your user list?')) {
+      const control = <FormArray>this.users;
+      if (u.value.updatedBy === 'new') {
+        control.removeAt(i);
+        this.matSnack.open('User removed successfully');
+      } else {
+        this.auth.deleteUser(u.value._id)
+          .subscribe(res => {
+            if (res) {
+              this.matSnack.open('User removed successfully');
+              control.removeAt(i);
+            } else {
+              const sb = this.matSnack.open('User not removed successful', 'retry');
+              sb.onAction().subscribe(() => {
+                this.removeUser(e, i);
+              });
+            }
+          }, err => {
+            const sb = this.matSnack.open('User not removed successful', 'retry');
+            sb.onAction().subscribe(() => {
+              this.removeUser(e, i);
+            });
+            console.log(err);
+          });
+      }
+    }
+  } // TODO: delete user from db
+  onUserChange(i) {
+    const u = this.users.at(i);
+    if (u.value.updatedBy === 'existing') {
+      console.log('setting contact as updated');
+      u.get('updatedBy').setValue('updated');
+    }
+  }
+  patchUsers(us) { // TODO: test patchUsers properly with multiple updates and adds
+    us.forEach((u, i) => {
+      if (!this.users.at(i)) {
+          this.addUser(true);
+          this.users.at(i).patchValue(u);
+      } else {
+        this.users.at(i).patchValue(u);
+      }
+    });
+  }
+  getUsers() {
+    this.auth.getUsers()
+      .subscribe(res => {
+        if (res) {
+          this.patchUsers(res);
+        }
+      }, err => {
+        console.log(err);
+      });
+  }
+  submitUser(i) {
+    const u = this.users.at(i);
+    if (u.value.updatedBy === 'new') {
+      const newUser = u.value;
+      delete newUser.updatedBy;
+      delete newUser._id;
+      this.auth.addUser(newUser)
+        .subscribe(res => {
+          if (res) {
+            this.matSnack.open('User created successfully');
+            u.patchValue(res);
+            u.get('email').clearAsyncValidators();
+            u.get('email').disable();
+            u.get('updatedBy').setValue('existing');
+          } else {
+            const sb = this.matSnack.open('User not created successfully', 'retry');
+            sb.onAction().subscribe(() => {
+              this.submitUser(i);
+            });
+          }
+        }, err => {
+          const sb = this.matSnack.open('User not created successfully', 'retry');
+          sb.onAction().subscribe(() => {
+            this.submitUser(i);
+          });
+          console.log(err);
+        });
+    } else if (u.value.updatedBy === 'updated') {
+      const newUser = u.value;
+      delete newUser.updatedBy;
+      console.log('before update: \n' + newUser);
+      this.auth.updateUser(newUser)
+        .subscribe(res => {
+          if (res) {
+            this.users.at(i).patchValue(res);
+            this.users.at(i).get('updatedBy').setValue('existing');
+            this.matSnack.open('Update successful');
+          } else {
+            const sb = this.matSnack.open('Update unsuccessful', 'retry');
+            sb.onAction().subscribe(() => {
+              this.submitUser(i);
+            });
+          }
+        }, err => {
+          const sb = this.matSnack.open('Update unsuccessful', 'retry');
+          sb.onAction().subscribe(() => {
+            this.submitUser(i);
+          });
+          console.log(err);
+        });
+    }
+    // console.log(this.contacts.at(i).value);
+  }
+
+  // TODO: disable save buttons if nothings has changed or is not new.
+  // TODO: BUG when adding user form before proper load -> doesn't set updated properly
 }

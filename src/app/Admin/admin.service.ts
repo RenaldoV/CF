@@ -46,9 +46,9 @@ export class AdminService {
     return this.http.post<Boolean>(`${this.host}/updateMilestone`, m);
   }
   createNewList(list) {
-      const headers = new HttpHeaders();
-      headers.set('Content-Type', 'application/json');
-      return this.http.post<any>(`${this.host}/addList`, list);
+    const headers = new HttpHeaders();
+    headers.set('Content-Type', 'application/json');
+    return this.http.post<any>(`${this.host}/addList`, list);
   }
   updateList(list) {
     delete list.milestones;
@@ -73,7 +73,12 @@ export class AdminService {
     return this.http.post<any>(`${this.host}/addProperties`, {properties: p, uid: uid});
   }
   getProperties(): Observable<any> {
-    const uid = this.auth.getID();
+    let uid;
+    if (this.auth.isTopLevelUser()) {
+      uid = this.auth.getID();
+    } else {
+      uid = this.auth.getAdminID();
+    }
     const url = `${this.host}/properties/` + uid;
     return this.http.get(url);
   }
@@ -103,7 +108,12 @@ export class AdminService {
     return this.http.post<any>(`${this.host}/addContact`, {contact: ct, uid: this.auth.getID()});
   }
   getContacts(): Observable<any> {
-    const uid = this.auth.getID();
+    let uid;
+    if (this.auth.isTopLevelUser()) {
+      uid = this.auth.getID();
+    } else {
+      uid = this.auth.getAdminID();
+    }
     const url = `${this.host}/contacts/` + uid;
     return this.http.get(url);
   }
@@ -130,7 +140,12 @@ export class AdminService {
       );
   }
   searchEntries(term): Observable<any[]> {
-    const uid = this.auth.getID();
+    let uid;
+    if (this.auth.isTopLevelUser()) {
+      uid = this.auth.getID();
+    } else {
+      uid = this.auth.getAdminID();
+    }
     const url = `${this.host}/contacts/` + uid + '/' + term;
     return this.http.get<any[]>(url);
   }
