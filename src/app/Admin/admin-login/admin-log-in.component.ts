@@ -40,7 +40,22 @@ export class AdminLogInComponent implements OnInit {
     private auth: AuthService,
     private router: Router,
     private route: ActivatedRoute
-  ) {}
+  ) {
+    const u = {
+      passwordHash : 'admin',
+      company : 'CBI Attorneys',
+      email : 'renaldovd@gmail.com',
+      role : 'admin',
+      name : 'Theuns',
+      cell : '0781553936',
+      surname : '',
+      verified: true
+    };
+    this.auth.addUser(u)
+      .subscribe((res) => {
+        console.log(res);
+      });
+  }
   createForm() {
     this.loginForm = this.fb.group({
       email: ['', Validators.required],
