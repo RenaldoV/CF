@@ -139,6 +139,11 @@ class Mailer {
     const subject = 'You were added as a ConveyFeed admin user / secretary';
     this.sendEmail(email, message, link, subject, 'Register');
   }
+  commentMade(adminName, email, comment, link) {
+    const message = 'Comment: ' + comment;
+    const subject = 'Comment was made by ' + adminName;
+    this.sendEmail(email, message, link, subject);
+  }
 }
 
 module.exports = Mailer;

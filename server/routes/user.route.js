@@ -98,7 +98,6 @@ userRoutes.route('/user/:id').get((req, res, next) => {
 });
 userRoutes.route('/login').post((req, res, next) => {
   let user = req.body;
-  console.log(user);
   User.findOne({email : user.email}, '_id name surname passwordHash email company companyAdmin', (err, usr) => {
     if (err) return next(err);
     if (usr) {
@@ -118,7 +117,6 @@ userRoutes.route('/login').post((req, res, next) => {
 });
 userRoutes.route('/getRole').post((req, res, next) => {
   let id = req.body._id;
-  console.log(id);
   User.findById(id, 'role', (err, result) => {
     if (err) {
       res.send(false);
@@ -175,7 +173,6 @@ userRoutes.route('/deleteUser').post((req, res, next) => {
       res.send(false);
     }
     else if (result) {
-      console.log(result);
       res.send(true);
     } else {
       res.send(false);
@@ -195,7 +192,6 @@ userRoutes.route('/addList').post((req, res, next) => {
       res.json(resList);
     });
   }else {
-    console.log('unsuccessful creation: \n' + result);
     res.send(false);
   }
   })
@@ -208,12 +204,10 @@ userRoutes.route('/addMilestones').post((req, res, next) => {
     if (err) return next(err);
     if (resMs) {
       let mIds = resMs.map((id) => {return id['_id']});
-      console.log(mIds);
       List.findByIdAndUpdate(listID, {$push: {milestones:{$each: mIds}}}, {new: true}).populate('milestones').exec((er, mRes) => {
         res.json(mRes);
       });
     }else {
-      console.log('unsuccessful creation: \n' + result);
       res.send(false);
     }
   })
@@ -229,21 +223,17 @@ userRoutes.route('/addMilestone').post((req, res, next) => {
     }
     if (resM) {
       let mId = resM._id;
-      console.log(mId);
       List.findByIdAndUpdate(listID, {$push: {milestones: mId}}, {new: true}).populate('milestones').exec((er, mRes) => {
         if (er) {
           console.log(er);
           res.send(false);
         }else if(mRes) {
-          console.log('new list: \n' + mRes);
           res.json(mRes);
         }else {
-          console.log('unsuccessful creation: \n' + result);
           res.send(false);
         }
       });
     }else {
-      console.log('unsuccessful creation: \n' + result);
       res.send(false);
     }
   })
@@ -281,7 +271,6 @@ userRoutes.route('/updateMilestone').post((req, res, next) => {
       res.send(false);
     }
     else if (result) {
-      console.log(result);
       res.send(true);
     } else {
       res.send(false);
@@ -354,7 +343,6 @@ userRoutes.route('/updateList').post((req, res, next) => {
       res.send(false);
     }
     else if (result) {
-      console.log(result);
       res.send(result);
     } else {
       res.send(false);
@@ -403,7 +391,6 @@ userRoutes.route('/hasProperties/:id').get((req, res, next) => {
       console.log(err);
       res.send(false);
     }
-    console.log(user.properties);
     if (user.properties) {
       res.json(true);
     }else {
@@ -574,7 +561,6 @@ userRoutes.route('/addContact').post((req, res, next) => {
             res.send(false);
           }
           if (usr) {
-            console.log('Inserted ct into: \n' + usr);
             res.json(ct);
           }
         });
@@ -707,8 +693,6 @@ userRoutes.route('/registerContact').post((req, res, next) => {
       }
       if (resCt) {
         res.json(resCt);
-        console.log('successful registration: \n');
-        console.log(resCt);
       } else {
         console.log('unsuccessful registration: \n' + resCt);
         res.send(false);
@@ -781,7 +765,6 @@ userRoutes.route('/addFile').post((req, res, next) => {
       })
     },
     (file, callback) => { // Third method: Update user files array with new file _id
-      console.log('file created, result: \n' + file);
       User.findById(uid).exec((er, me) => {
         if (er) {
           callback(error);
@@ -963,9 +946,7 @@ userRoutes.route('/completeMilestone').post((req, res, next) => {
               }
               if (callback.milestone.sendSMS) { // send sms
                 smser.send(ct.cell, buildMessage(smsMessage, emailContext))
-                  .then(res => {
-                    console.log(res);
-                  }, (error) => {
+                  .then(res => {}, (error) => {
                     console.log(error);
                     res.send(false);
                   });
@@ -993,14 +974,23 @@ userRoutes.route('/addComment').post((req, res, next) => {
   };
   File.findOneAndUpdate(
     {_id: fileID, 'milestoneList.milestones._id': milestoneID},
-    { $push: {'milestoneList.milestones.$.comments': comment}}, {fields: 'milestoneList.milestones.$.comments'}).populate('milestoneList.milestones.comments.user', 'name').exec((err, result) => {
+    { $push: {'milestoneList.milestones.$.comments': comment}},
+    {fields: 'milestoneList.milestones.$.comments'})
+    .populate('milestoneList.milestones.comments.user', 'name')
+    .populate('contacts', 'cell email')
+    .exec((err, result) => {
     if (err) {
       console.log(err);
       res.send(false);
     }
     if (result) {
-      User.findById(comment.user, 'name', (er, user) => {
+      User.findById(comment.user, 'name email', (er, user) => {
         comment.user = user;
+        result.contacts.forEach(ct => {
+          const url = req.protocol + '://' + req.get('host') + '/file' + encodeURI(fileID) + '/' + encodeURI(ct._id);
+          mailer.commentMade(user.name, ct.email, comment.comment, url);
+          smser.commentMade(ct.cell, comment.comment, user.name);
+        });
         res.send(comment);
       });
     } else {

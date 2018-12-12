@@ -6,12 +6,9 @@ class Sms {
   constructor() {}
 
   send(contact, message) {
-    console.log(contact);
-    console.log(message);
     const ct = this.parseContact(contact);
     const msg = encodeURI(message);
     const smsApiUrl = 'http://148.251.196.36/app/smsapi/index.php?key=54b728a102252&type=text&contacts='+ ct +'&senderid=ULTIMATE&msg=' + msg;
-    console.log(smsApiUrl);
     let promise = new Promise(function(resolve, reject) {
       if (message.length >= 740) {
         reject(new Error('Message is too long'));
@@ -46,6 +43,11 @@ class Sms {
     }
     console.log(ct);
     return ct;
+  }
+
+  commentMade(contact, comment, adminName) {
+    const message = adminName + ' made a comment: ' + comment;
+    return this.send(contact, message);
   }
   //Helper function to determine if word starts with a vowel
   getCredits () {} // TODO: implement get credits
