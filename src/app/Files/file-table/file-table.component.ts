@@ -4,8 +4,7 @@ import {MatTableDataSource, MatSort, MatPaginator, MatSnackBar, MatDialogConfig,
 import {FileService} from '../file.service';
 import {LoaderService} from '../../Common/Loader';
 import {AddCommentDialogComponent} from '../add-comment-dialog/add-comment-dialog.component';
-import TimeAgo from 'javascript-time-ago';
-import en from 'javascript-time-ago/locale/en';
+
 
 @Component({
   selector: 'app-file-table',
@@ -37,7 +36,6 @@ export class FileTableComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.timeAgo = new TimeAgo('en-US');
     this.dataSource = new MatTableDataSource<File>(this.files);
     /*console.log(this.files);*/
     this.dataSource.paginator = this.paginator;
@@ -191,9 +189,6 @@ export class FileTableComponent implements OnInit {
     const newObj = {};
     this.dive('', arr, newObj);
     return newObj;
-  }
-  getTimeAgo(t) {
-    return this.timeAgo.format(new Date(t));
   }
 }
 

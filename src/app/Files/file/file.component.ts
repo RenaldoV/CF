@@ -3,8 +3,6 @@ import {AuthService} from '../../auth/auth.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {FileService} from '../file.service';
 import {LoaderService} from '../../Common/Loader';
-import TimeAgo from 'javascript-time-ago';
-import en from 'javascript-time-ago/locale/en';
 
 @Component({
   selector: 'app-file',
@@ -15,7 +13,6 @@ export class FileComponent implements OnInit {
   fileID;
   userID;
   file;
-  timeAgo;
   constructor(
     private auth: AuthService,
     private router: Router,
@@ -25,7 +22,6 @@ export class FileComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.timeAgo = new TimeAgo('en-US');
     this.fileID = this.route.snapshot.paramMap.get('id');
     this.userID = this.auth.getID();
 
@@ -84,9 +80,6 @@ export class FileComponent implements OnInit {
     } else {
       return this.file.contacts.length + 1 - this.file.contacts.filter(ct => ct.type === 'Agent').length <= 4 ? '' : '-3';
     }
-  }
-  getTimeAgo(t) {
-    return this.timeAgo.format(new Date(t));
   }
 
 }
