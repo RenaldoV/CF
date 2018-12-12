@@ -570,7 +570,7 @@ userRoutes.route('/addContact').post((req, res, next) => {
             res.send(false);
           }
           if (usr) {
-            /*console.log('successful creation: \n' + ct);*/
+            console.log('Inserted ct into: \n' + usr);
             res.json(ct);
           }
         });
@@ -812,7 +812,7 @@ userRoutes.route('/addFile').post((req, res, next) => {
             const registerURL = loginUrl + '/' + encodeURI(ct._id);
             mailer.contactAddedToFile(ct.email, ct.name, f.milestoneList._id.title, file.fileRef, registerURL);
         });
-        mailer.adminFileCreated(usr.email, fileURL, file.fileRef);
+        mailer.adminFileCreated(usr.email, host + '/admin-home', file.fileRef);
         callback(null, file);
       });
     }

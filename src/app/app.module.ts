@@ -9,6 +9,7 @@ import { WINDOW_PROVIDERS } from './window.service';
 import { AdminLogInComponent } from './Admin/admin-login/admin-log-in.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {
+  MAT_CHECKBOX_CLICK_ACTION,
   MAT_SNACK_BAR_DEFAULT_OPTIONS,
   MatAutocompleteModule, MatCardModule, MatCheckboxModule, MatDialogModule, MatExpansionModule,
   MatFormFieldModule, MatIconModule,
@@ -16,7 +17,7 @@ import {
   MatSelectModule, MatSnackBarModule, MatSortModule,
   MatStepperModule, MatTableModule, MatTooltipModule
 } from '@angular/material';
-import { ReactiveFormsModule } from '@angular/forms';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { AdminHomeComponent } from './Admin/admin-home/admin-home.component';
 import { AdminNavComponent } from './Admin/admin-nav/admin-nav.component';
 import { AddFileComponent } from './Files/add-file/add-file.component';
@@ -76,7 +77,8 @@ import { ContactNavComponent } from './Contact/contact-nav/contact-nav.component
     AppRoutingModule,
     BrowserAnimationsModule,
     ReactiveFormsModule,
-    LoaderModule
+    LoaderModule,
+    FormsModule
   ],
   providers: [
     AuthService,

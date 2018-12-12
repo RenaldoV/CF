@@ -57,17 +57,36 @@ export class AdminService {
     return this.http.post<any>(`${this.host}/updateList`, list);
   }
   deleteList(id) {
+    let uid;
+    if (this.auth.isTopLevelUser()) {
+      uid = this.auth.getID();
+    } else {
+      console.log('not top level admin, my admin ID: ' + this.auth.getAdminID());
+      uid = this.auth.getAdminID();
+    }
     const headers = new HttpHeaders();
     headers.set('Content-Type', 'application/json');
-    return this.http.post<any>(`${this.host}/deleteList`, {lid: id, uid: this.auth.getID()});
+    return this.http.post<any>(`${this.host}/deleteList`, {lid: id, uid: uid});
   }
   userHasProperties() {
-    const uid = this.auth.getID();
+    let uid;
+    if (this.auth.isTopLevelUser()) {
+      uid = this.auth.getID();
+    } else {
+      console.log('not top level admin, my admin ID: ' + this.auth.getAdminID());
+      uid = this.auth.getAdminID();
+    }
     const url = `${this.host}/hasProperties/` + uid;
     return this.http.get(url);
   }
   createProperties(p) {
-    const uid = this.auth.getID();
+    let uid;
+    if (this.auth.isTopLevelUser()) {
+      uid = this.auth.getID();
+    } else {
+      console.log('not top level admin, my admin ID: ' + this.auth.getAdminID());
+      uid = this.auth.getAdminID();
+    }
     const headers = new HttpHeaders();
     headers.set('Content-Type', 'application/json');
     return this.http.post<any>(`${this.host}/addProperties`, {properties: p, uid: uid});
@@ -83,9 +102,15 @@ export class AdminService {
     return this.http.get(url);
   }
   updateProperties(p) {
+    let uid;
+    if (this.auth.isTopLevelUser()) {
+      uid = this.auth.getID();
+    } else {
+      uid = this.auth.getAdminID();
+    }
     const headers = new HttpHeaders();
     headers.set('Content-Type', 'application/json');
-    return this.http.post<any>(`${this.host}/updateProperties`, {properties: p, uid: this.auth.getID()});
+    return this.http.post<any>(`${this.host}/updateProperties`, {properties: p, uid: uid});
   }
   /*addOneAction(a) {
     const headers = new HttpHeaders();
@@ -98,14 +123,27 @@ export class AdminService {
     return this.http.post<any>(`${this.host}/addOnePropType`, {propertyType: p, uid: this.auth.getID()});
   }*/
   addOneDeedsOffice(d) {
+    let uid;
+    if (this.auth.isTopLevelUser()) {
+      uid = this.auth.getID();
+    } else {
+      console.log('not top level admin, my admin ID: ' + this.auth.getAdminID());
+      uid = this.auth.getAdminID();
+    }
     const headers = new HttpHeaders();
     headers.set('Content-Type', 'application/json');
-    return this.http.post<any>(`${this.host}/addOneDeedsOffice`, {deedsOffice: d, uid: this.auth.getID()});
+    return this.http.post<any>(`${this.host}/addOneDeedsOffice`, {deedsOffice: d, uid: uid});
   }
   createContact(ct) {
+    let uid;
+    if (this.auth.isTopLevelUser()) {
+      uid = this.auth.getID();
+    } else {
+      uid = this.auth.getAdminID();
+    }
     const headers = new HttpHeaders();
     headers.set('Content-Type', 'application/json');
-    return this.http.post<any>(`${this.host}/addContact`, {contact: ct, uid: this.auth.getID()});
+    return this.http.post<any>(`${this.host}/addContact`, {contact: ct, uid: uid});
   }
   getContacts(): Observable<any> {
     let uid;
@@ -122,9 +160,15 @@ export class AdminService {
     return this.http.get(url);
   }
   deleteContact(id) {
+    let uid;
+    if (this.auth.isTopLevelUser()) {
+      uid = this.auth.getID();
+    } else {
+      uid = this.auth.getAdminID();
+    }
     const headers = new HttpHeaders();
     headers.set('Content-Type', 'application/json');
-    return this.http.post<any>(`${this.host}/deleteContact`, {cid: id, uid: this.auth.getID()});
+    return this.http.post<any>(`${this.host}/deleteContact`, {cid: id, uid: uid});
   }
   updateContact(ct) {
     const headers = new HttpHeaders();

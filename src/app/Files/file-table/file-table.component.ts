@@ -116,21 +116,21 @@ export class FileTableComponent implements OnInit {
   reduceContacts(contacts) {
     return contacts.map(ct => ct.name).toString().replace(',', ',\n');
   }
-  markMilestone(e, m, fileID) {
+  markMilestone(e, m, fileID, chBx) {
     if (e.checked) {
       if (confirm('Are you sure you want to mark this milestone as done?')) {
         console.log('mark milestone ' + m._id + ' as completed: ' + e.checked);
         this.fileService.completeMilestone(fileID, m._id)
           .subscribe(res => {
             if (res.message) {
-             // m.completed = e.checked;
+              m.completed = e.checked;
               this.matSnack.open(res.message);
             }
           });
       } else {
-        e.checked = false;
+        e.checked = !e.checked;
         m.completed = e.checked;
-        console.log(m.completed); // TODO: BUG milestone stays checked when clicking cancel.
+        chBx.checked = false;
       }
     } /*else {
       if (confirm('Are you sure you want to mark this milestone as not done?')) {

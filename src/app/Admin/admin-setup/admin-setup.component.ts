@@ -42,6 +42,9 @@ export class AdminSetupComponent implements OnInit {
   }
 
   ngOnInit() {}
+  iAmAdmin() {
+    return this.auth.isTopLevelUser();
+  }
   // ================== MILESTONE FUNCTIONS ==============================
   createMilestoneListForm() {
     this.MilestoneListForm = this.fb.group({
@@ -573,6 +576,7 @@ export class AdminSetupComponent implements OnInit {
             ct.patchValue(res);
             ct.get('email').clearAsyncValidators();
             ct.get('email').disable();
+            ct.get('updatedBy').setValue('existing');
           } else {
             const sb = this.matSnack.open('Contact not created successful', 'retry');
             sb.onAction().subscribe(() => {
@@ -593,6 +597,7 @@ export class AdminSetupComponent implements OnInit {
         .subscribe(res => {
           if (res) {
             this.contacts.at(i).patchValue(res);
+            ct.get('updatedBy').setValue('existing');
             this.matSnack.open('Update successful');
           } else {
             const sb = this.matSnack.open('Update unsuccessful', 'retry');

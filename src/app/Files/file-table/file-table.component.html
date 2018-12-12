@@ -89,7 +89,9 @@
               <small style="color: darkgrey">
                 Last Updated: {{convertDate('dd/mm/yyyy', milestone.updatedAt)}} <br>by {{milestone.updatedBy.name}}
               </small>
-              <mat-checkbox *ngIf="!milestone.completed" (click)="$event.stopPropagation()" [checked]="milestone.completed" (change)="markMilestone($event, milestone, element._id)"></mat-checkbox>
+              <mat-checkbox
+                *ngIf="!milestone.completed" (click)="$event.stopPropagation()"
+                [checked]="milestone.completed" (change)="markMilestone($event, milestone, element._id, chbx)" #chbx></mat-checkbox>
             </mat-panel-description>
           </mat-expansion-panel-header>
           <h5 style="color: darkslategray">Comments: </h5>

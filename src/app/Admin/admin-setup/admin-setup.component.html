@@ -352,7 +352,8 @@
                       </mat-error>
                       <br>
                       <div class="btn-group" role="group" aria-label="action buttons" style="margin-top: 5px;">
-                        <button class="btn btn-primary btn-sm saveButton" color="primary" [disabled]="!contacts.at(i).valid" (click)="submitContact(i)">
+                        <button class="btn btn-primary btn-sm saveButton" color="primary"
+                                [disabled]="!contacts.at(i).valid || (loaderService.isLoading | async) || contacts.at(i).get('updatedBy').value === 'existing'" (click)="submitContact(i)">
                           <span *ngIf="!(loaderService.isLoading | async)"><i class="far fa-save"></i> Save</span>
                           <i *ngIf="loaderService.isLoading | async" class="fas fa-spinner fa-spin"></i>
                         </button>
@@ -367,7 +368,7 @@
             <i class="fas fa-plus"></i> Add Contact
           </button>
         </mat-expansion-panel>
-        <mat-expansion-panel hideToggle>
+        <mat-expansion-panel hideToggle *ngIf="iAmAdmin()">
           <mat-expansion-panel-header>
             <mat-panel-title>
               Users
