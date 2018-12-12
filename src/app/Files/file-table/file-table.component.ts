@@ -37,7 +37,6 @@ export class FileTableComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    TimeAgo.addLocale(en);
     this.timeAgo = new TimeAgo('en-US');
     this.dataSource = new MatTableDataSource<File>(this.files);
     /*console.log(this.files);*/

@@ -25,7 +25,6 @@ export class FileComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    TimeAgo.addLocale(en);
     this.timeAgo = new TimeAgo('en-US');
     this.fileID = this.route.snapshot.paramMap.get('id');
     this.userID = this.auth.getID();
