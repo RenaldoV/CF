@@ -3,6 +3,7 @@ var smtpttransport = require('nodemailer-smtp-transport');
 var hbs = require('nodemailer-express-handlebars');
 var inlineBase64 = require('nodemailer-plugin-inline-base64');
 var EmailError = require('./EmailError');
+
 class Mailer {
 
   constructor(host, port, emailFrom, password) {

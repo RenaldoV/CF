@@ -9,8 +9,11 @@ const Contact = require('../models/contact');
 const File = require('../models/file');
 const bcrypt = require('bcrypt');
 const Mailer = require ('../mailer/mailer');
+const Sms = require('../smsModule/sms');
+const smser = new Sms();
 const mailer = new Mailer("slash.aserv.co.za", 465, "donotreply@conveyfeed.co.za", "D0N0tRep3y@C0nV5yF@ee#d@2018@!");
 const async = require('async');
+
 
 // ============================ ADMIN ROUTES ===========================
 userRoutes.route('/addUser').post((req, res, next) => { // todo: sort out unique emails in contacts and users. Change in Schema
@@ -95,6 +98,7 @@ userRoutes.route('/user/:id').get((req, res, next) => {
 });
 userRoutes.route('/login').post((req, res, next) => {
   let user = req.body;
+  console.log(user);
   User.findOne({email : user.email}, '_id name surname passwordHash email company companyAdmin', (err, usr) => {
     if (err) return next(err);
     if (usr) {
@@ -954,8 +958,17 @@ userRoutes.route('/completeMilestone').post((req, res, next) => {
                 contactName: ct.name
               };
               const emailBody = buildMessage(emailMessage, emailContext);
-              if (callback.milestone.sendEmail) {
+              if (callback.milestone.sendEmail) { // send email
                 mailer.sendEmail(email, emailBody, url, milestoneName + ' milestone has been completed.');
+              }
+              if (callback.milestone.sendSMS) { // send sms
+                smser.send(ct.cell, buildMessage(smsMessage, emailContext))
+                  .then(res => {
+                    console.log(res);
+                  }, (error) => {
+                    console.log(error);
+                    res.send(false);
+                  });
               }
             });
             res.send({

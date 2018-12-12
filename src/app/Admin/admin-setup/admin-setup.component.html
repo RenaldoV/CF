@@ -103,22 +103,22 @@
                             <div class="btn-group placeholderButtons" role="group" aria-label="action buttons">
                               <button
                                 class="btn btn-outline-secondary btn-sm"
-                                (click)="insertNoti($event, i, k, ' *contact_name*','smsMessage'); onMilestoneChange(i,k); onListChange(i)">
+                                (click)="insertNoti($event, i, k, '*contact_name*','smsMessage'); onMilestoneChange(i,k); onListChange(i)">
                                 Contact's Name
                               </button>
                               <button
                                 class="btn btn-outline-secondary btn-sm"
-                                (click)="insertNoti($event, i, k, ' *property_description*', 'smsMessage'); onMilestoneChange(i,k); onListChange(i)">
+                                (click)="insertNoti($event, i, k, '*property_description*', 'smsMessage'); onMilestoneChange(i,k); onListChange(i)">
                                 Prop Description
                               </button>
                               <button
                                 class="btn btn-outline-secondary btn-sm"
-                                (click)="insertNoti($event, i, k, ' *deeds_office*', 'smsMessage'); onMilestoneChange(i,k); onListChange(i)">
+                                (click)="insertNoti($event, i, k, '*deeds_office*', 'smsMessage'); onMilestoneChange(i,k); onListChange(i)">
                                 Deeds Office
                               </button>
                               <button
                                 class="btn btn-outline-secondary btn-sm"
-                                (click)="insertNoti($event, i, k, ' *my_name*', 'smsMessage'); onMilestoneChange(i,k); onListChange(i)">
+                                (click)="insertNoti($event, i, k, '*my_name*', 'smsMessage'); onMilestoneChange(i,k); onListChange(i)">
                                 My Name
                               </button>
                             </div>
@@ -315,8 +315,17 @@
                       <br>
                       <mat-form-field class="innerFormFields">
                         <input matInput placeholder="Cell number" formControlName="cell" required>
-                        <mat-error>
+                        <mat-error *ngIf="c.get('cell').hasError('required')">
                           Cell number is required.
+                        </mat-error>
+                        <mat-error *ngIf="c.get('cell').hasError('length')">
+                          A valid cell must be 10 digits long.
+                        </mat-error>
+                        <mat-error *ngIf="c.get('cell').hasError('numbers')">
+                          A valid cell must consist of only numbers.
+                        </mat-error>
+                        <mat-error *ngIf="c.get('cell').hasError('firstZero')">
+                          A valid cell must start with a 0.
                         </mat-error>
                       </mat-form-field>
                       <br>
@@ -407,8 +416,17 @@
                       <br>
                       <mat-form-field class="innerFormFields">
                         <input matInput placeholder="Cell number" formControlName="cell" required>
-                        <mat-error>
+                        <mat-error *ngIf="u.get('cell').hasError('required')">
                           Cell number is required.
+                        </mat-error>
+                        <mat-error *ngIf="u.get('cell').hasError('length')">
+                          A valid cell must be 10 digits long.
+                        </mat-error>
+                        <mat-error *ngIf="u.get('cell').hasError('numbers')">
+                          A valid cell must consist of only numbers.
+                        </mat-error>
+                        <mat-error *ngIf="u.get('cell').hasError('firstZero')">
+                          A valid cell must start with a 0.
                         </mat-error>
                       </mat-form-field>
                       <br>

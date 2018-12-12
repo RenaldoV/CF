@@ -13,6 +13,7 @@ import {LoaderService} from '../../Common/Loader';
 import {AuthService} from '../../auth/auth.service';
 import {computeStyle} from '@angular/animations/browser/src/util';
 import {MatSnackBar} from '@angular/material';
+import {GlobalValidators} from '../../Common/Validators/globalValidators';
 
 @Component({
   selector: 'app-admin-setup',
@@ -514,7 +515,7 @@ export class AdminSetupComponent implements OnInit {
     const ct = this.fb.group({
       _id: [''],
       name: ['', Validators.required],
-      cell: ['', Validators.required],
+      cell: ['', [Validators.required, GlobalValidators.cellRegex]],
       email: ['', [Validators.required, Validators.email],
         existing ? null : this.shouldBeUniqueContact.bind(this)],
       updatedBy: [existing ? 'existing' : 'new'],
@@ -645,7 +646,7 @@ export class AdminSetupComponent implements OnInit {
       _id: [''],
       surname: ['', Validators.required],
       name: ['', Validators.required],
-      cell: ['', Validators.required],
+      cell: ['', [Validators.required, GlobalValidators.cellRegex]],
       email: ['', [Validators.required, Validators.email],
         existing ? null : this.shouldBeUniqueUser.bind(this)],
       updatedBy: [existing ? 'existing' : 'new'],
@@ -670,7 +671,7 @@ export class AdminSetupComponent implements OnInit {
       }, 100);
     });
     return q;
-  } // TODO: check user email uniqueness
+  }
   removeUser(e, i) {
     e.stopPropagation();
     e.preventDefault();
@@ -702,7 +703,7 @@ export class AdminSetupComponent implements OnInit {
           });
       }
     }
-  } // TODO: delete user from db
+  }
   onUserChange(i) {
     const u = this.users.at(i);
     if (u.value.updatedBy === 'existing') {

@@ -32,7 +32,7 @@ export class AddContactDialogComponent implements OnInit {
   createContactsForm() {
     this.contactForm = this.fb.group({
       name: ['', Validators.required],
-      cell: ['', Validators.required],
+      cell: ['', [Validators.required, GlobalValidators.cellRegex]],
       email: ['', [
         Validators.required,
         GlobalValidators.validEmail

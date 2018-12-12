@@ -14,8 +14,17 @@
       <mat-error *ngIf="cell.hasError('required')">
         Cell number is required.
       </mat-error>
-      <mat-error *ngIf="cell.hasError('invalidCell')">
-        Cell number is invalid.
+      <mat-error *ngIf="cell.hasError('required')">
+        Cell number is required.
+      </mat-error>
+      <mat-error *ngIf="cell.hasError('length')">
+        A valid cell must be 10 digits long.
+      </mat-error>
+      <mat-error *ngIf="cell.hasError('numbers')">
+        A valid cell must consist of only numbers.
+      </mat-error>
+      <mat-error *ngIf="cell.hasError('firstZero')">
+        A valid cell must start with a 0.
       </mat-error>
     </mat-form-field>
     <br>

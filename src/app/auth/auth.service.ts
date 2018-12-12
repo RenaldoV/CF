@@ -49,9 +49,10 @@ export class AuthService {
     return !!JSON.parse(localStorage.getItem('user')).company; // TODO: check this on backend for more security
   }
   loginUser (user) {
+    console.log('logging in user: ' + user);
     const headers = new HttpHeaders();
     headers.set('Content-Type', 'application/json');
-    this.http.post<IUser>(`${this.host}/login`, user)
+    this.http.post<any>(`${this.host}/login`, user)
       .subscribe(res => {
         if (res) {
           this.saveUser(res);

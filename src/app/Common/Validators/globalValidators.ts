@@ -5,50 +5,25 @@ import {SelectorValidatorWalker} from 'codelyzer/selectorNameBase';
 
 export class GlobalValidators {
 
-  static validCellNo(): ValidatorFn {
-    return (control: AbstractControl): { [key: string]: any } | null => {
-      const cellNumber = control.value as string;
-      if (cellNumber) {
-        if (cellNumber.length < 10 || cellNumber.length > 12) {
-          return {
-            invalidCell: true
-          };
-        } else if (cellNumber.length > 10 && cellNumber.substr(0, 3) !== '+27') { // check +27 format
-          return {
-            invalidCell: true
-          };
-        } else if (cellNumber.length === 9 && cellNumber[0] !== '0') { // check 078 format
-          return {
-            invalidCell: true
-          };
-        } else {
-          for (let i = 1; i < cellNumber.length; i++) { // not alphanumeric
-            if (isNaN(cellNumber[i] as any)) {
-              return {
-                invalidCell: true
-              };
-            }
-          }
-          return null;
-        }
-      }
-    };
+  static cellRegex (control: AbstractControl) {
+    if (control.value as string === '' || control.value === null) {
+      return null;
+    } else if (!(/^\d+$/.test(control.value as string))) {
+      return {
+        numbers: true
+      };
+    } else if ((control.value as string).length !== 10) {
+      return {
+        length: true
+      };
+    } else if ((control.value as string)[0] !== '0') {
+      return {
+        firstZero: true
+      };
+    }
+    return null;
   }
 
-  static validStudentEmail(control: AbstractControl): ValidationErrors | null {
-    let email = control.value as string;
-    let ret = {invalidStudentEmail: true};
-    if (email) {
-      email = email.toLowerCase();
-      const validDomains = ['.edu', '@tuks.co.za', '.ac.za'];
-      for (let i = 0; i < validDomains.length; i++) {
-        if (email.endsWith(validDomains[i])) {
-          ret = null;
-        }
-      }
-    }
-    return ret;
-  }
   static validEmail(control: AbstractControl): {[key: string]: boolean} | null {
     let email = control.value as string;
     if (email) {
@@ -60,10 +35,9 @@ export class GlobalValidators {
         };
       }
     }
-    return null;
   }
 
-  static required(control: AbstractControl): ValidationErrors | null {
+    static required(control: AbstractControl): ValidationErrors | null {
     const val = control.value;
     if (val) {
       return null;
