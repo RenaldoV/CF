@@ -41,7 +41,7 @@ export class AdminLogInComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute
   ) {
-    const u = {
+    /*const u = {
       passwordHash : 'admin',
       company : 'CBI Attorneys',
       email : 'renaldovd@gmail.com',
@@ -54,7 +54,7 @@ export class AdminLogInComponent implements OnInit {
     this.auth.addUser(u)
       .subscribe((res) => {
         console.log(res);
-      });
+      });*/
   }
   createForm() {
     this.loginForm = this.fb.group({
