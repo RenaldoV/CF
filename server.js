@@ -9,19 +9,17 @@ const express = require('express'),
 
 mongoose.Promise = global.Promise;
 const mongooseOptions = {
-  server: {
     auto_reconnect: true,
-    socketOptions: {
+
       keepAlive: 1,
       connectTimeoutMS: 30000,
       socketTimeoutMS : 30000,
-    }
-  },
+
+
   useNewUrlParser: true,
-  replset: {
-    ha: true, // Make sure the high availability checks are on
-    haInterval: 5000, // Run every 5 seconds
-  }
+  ha: true, // Make sure the high availability checks are on
+  haInterval: 5000, // Run every 5 seconds
+
 };
 mongoose.connect(config.DB, mongooseOptions).then(
   () => {console.log('Database is connected') },
