@@ -932,7 +932,7 @@ userRoutes.route('/completeMilestone').post((req, res, next) => {
             let smsMessage = callback.milestone.smsMessage;
             const milestoneName = callback.milestone.name;
             callback.contacts.forEach(ct => {
-              const url = req.protocol + '://' + req.get('host') + '/file' + encodeURI(fileID) + '/' + encodeURI(ct._id);
+              const url = req.protocol + '://' + req.get('host') + '/file/' + encodeURI(fileID) + '/' + encodeURI(ct._id);
               const email = ct.email;
               const emailContext = {
                 deedsOffice: newFile.deedsOffice,
@@ -987,7 +987,7 @@ userRoutes.route('/addComment').post((req, res, next) => {
       User.findById(comment.user, 'name email', (er, user) => {
         comment.user = user;
         result.contacts.forEach(ct => {
-          const url = req.protocol + '://' + req.get('host') + '/file' + encodeURI(fileID) + '/' + encodeURI(ct._id);
+          const url = req.protocol + '://' + req.get('host') + '/file/' + encodeURI(fileID) + '/' + encodeURI(ct._id);
           mailer.commentMade(user.name, ct.email, comment.comment, url);
           smser.commentMade(ct.cell, comment.comment, user.name);
         });
