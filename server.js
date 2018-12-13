@@ -8,7 +8,22 @@ const express = require('express'),
   config = require('./config/DB');
 
 mongoose.Promise = global.Promise;
-mongoose.connect(config.DB, {useNewUrlParser: true}).then(
+const mongooseOptions = {
+  server: {
+    auto_reconnect: true,
+    socketOptions: {
+      keepAlive: 1,
+      connectTimeoutMS: 30000,
+      socketTimeoutMS : 30000,
+    }
+  },
+  useNewUrlParser: true,
+  replset: {
+    ha: true, // Make sure the high availability checks are on
+    haInterval: 5000, // Run every 5 seconds
+  }
+};
+mongoose.connect(config.DB, mongooseOptions).then(
   () => {console.log('Database is connected') },
   err => { console.log('Can not connect to the database'+ err)}
 );
