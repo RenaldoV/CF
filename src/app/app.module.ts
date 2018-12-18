@@ -32,6 +32,12 @@ import { AddCommentDialogComponent } from './Files/add-comment-dialog/add-commen
 import { ContactLogInComponent } from './Contact/contact-log-in/contact-log-in.component';
 import { FileComponent } from './Files/file/file.component';
 import { ContactNavComponent } from './Contact/contact-nav/contact-nav.component';
+import { ForgotPasswordComponent } from './Common/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './Common/reset-password/reset-password.component';
+import { AdminForgotPasswordComponent } from './Admin/admin-forgot-password/admin-forgot-password.component';
+import { AdminResetPasswordComponent } from './Admin/admin-reset-password/admin-reset-password.component';
+import { ContactResetPasswordComponent } from './Contact/contact-reset-password/contact-reset-password.component';
+import { ContactForgotPasswordComponent } from './Contact/contact-forgot-password/contact-forgot-password.component';
 
 
 
@@ -50,7 +56,13 @@ import { ContactNavComponent } from './Contact/contact-nav/contact-nav.component
     AddCommentDialogComponent,
     ContactLogInComponent,
     FileComponent,
-    ContactNavComponent
+    ContactNavComponent,
+    ForgotPasswordComponent,
+    ResetPasswordComponent,
+    AdminForgotPasswordComponent,
+    AdminResetPasswordComponent,
+    ContactResetPasswordComponent,
+    ContactForgotPasswordComponent
   ],
   imports: [
     MatInputModule,

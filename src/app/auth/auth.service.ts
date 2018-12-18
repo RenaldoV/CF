@@ -31,6 +31,9 @@ export class AuthService {
     const url = `${this.host}/users/` + this.getID();
     return this.http.get(url);
   }
+  checkEmail(email) {
+    return this.http.post('/api/checkEmail', {email: email});
+  }
   getUserById(id): Observable<any> { // get non top level user by id
     const url = `${this.host}/user/` + id;
     return this.http.get(url);

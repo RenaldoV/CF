@@ -10,6 +10,7 @@ const File = require('../models/file');
 const bcrypt = require('bcrypt');
 const Mailer = require ('../mailer/mailer');
 const Sms = require('../smsModule/sms');
+const crypto = require('crypto');
 const smser = new Sms();
 const mailer = new Mailer("slash.aserv.co.za", 465, "donotreply@conveyfeed.co.za", "D0N0tRep3y@C0nV5yF@ee#d@2018@!");
 const async = require('async');
@@ -174,6 +175,44 @@ userRoutes.route('/deleteUser').post((req, res, next) => {
     }
     else if (result) {
       res.send(true);
+    } else {
+      res.send(false);
+    }
+  });
+});
+// Forgot Password
+userRoutes.route.post('/checkEmailUser', (req,res,next) => {
+  let email = req.body.email;
+  User.findOne({email : email}, (err, usr) => {
+    if (err) return next(err);
+    if (usr) {
+      usr = usr.toObject();
+      if (usr.verified) {
+        crypto.randomBytes(20, (er, buf) => {
+          if (err) return next(err);
+          let token = buf.toString('hex');
+
+          User.update({_id: usr._id},
+            {'forgotPassword.token': token, 'forgotPassword.expiry': Date.now() + 1800000 /*30 min in epoch*/},
+            (e, data) => {
+              if (e) return next(e);
+              else {
+                // sendmail with link
+                const link = req.protocol + '://' + req.get('host') + '/reset-password/' + token;
+                mailer.forgotPassword(usr.name, link, usr.email)
+                  .then(res=>{
+                    // console.log(res);
+                  }).catch(err =>{
+                  console.error(err);
+                });
+              }
+            }
+          )
+        });
+        res.send(true);
+      } else {
+        res.send(false);
+      }
     } else {
       res.send(false);
     }
