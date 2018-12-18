@@ -22,7 +22,7 @@ export class PasswordValidators {
             lengthRegex = RegExp('(?=.{6,})');
       if (control.value as string === '' || control.value === null) {
         return null;
-      }else if (lowerCaseRegex.exec((control.value as string)) === null) {
+      } else if (lowerCaseRegex.exec((control.value as string)) === null) {
         return {
           lowerCase: true
         };

@@ -127,7 +127,7 @@ class Mailer {
     };
     let that = this;
     return new Promise((resolve, reject) => {
-      that.send("forgotPassword", context, email, 'O-Link Password Reset Requested').then(res => {
+      that.send("forgotPassword", context, email, 'ConveyFeed Password Reset Requested').then(res => {
         resolve(res);
       }).catch(err => {
         reject(err);

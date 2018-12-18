@@ -32,7 +32,13 @@ export class AuthService {
     return this.http.get(url);
   }
   checkEmail(email) {
-    return this.http.post('/api/checkEmail', {email: email});
+    return this.http.post(`${this.host}/checkEmailUser`, {email: email});
+  }
+  checkResetToken(token) {
+    return this.http.post(`${this.host}/checkResetToken`, {token: token});
+  }
+  updatePassword(token, pw) {
+    return this.http.post(`${this.host}/updatePassword`, {passwordHash: pw, uid: this.getID(), token: token});
   }
   getUserById(id): Observable<any> { // get non top level user by id
     const url = `${this.host}/user/` + id;

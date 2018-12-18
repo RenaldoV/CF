@@ -181,35 +181,44 @@ userRoutes.route('/deleteUser').post((req, res, next) => {
   });
 });
 // Forgot Password
-userRoutes.route.post('/checkEmailUser', (req,res,next) => {
+userRoutes.route('/checkEmailUser').post((req ,res, next) => {
   let email = req.body.email;
   User.findOne({email : email}, (err, usr) => {
-    if (err) return next(err);
+    if (err) {
+      console.log(err);
+      res.send(false);
+    }
     if (usr) {
-      usr = usr.toObject();
+      console.log('user found:' + usr);
       if (usr.verified) {
+        console.log('User is verified');
         crypto.randomBytes(20, (er, buf) => {
-          if (err) return next(err);
+          if (er) {
+            console.log(er);
+            res.send(false);
+          }
           let token = buf.toString('hex');
-
           User.update({_id: usr._id},
             {'forgotPassword.token': token, 'forgotPassword.expiry': Date.now() + 1800000 /*30 min in epoch*/},
             (e, data) => {
-              if (e) return next(e);
+              if (e) {
+                console.log(e);
+                res.send(false);
+              }
               else {
                 // sendmail with link
-                const link = req.protocol + '://' + req.get('host') + '/reset-password/' + token;
+                const link = req.protocol + '://' + req.get('host') + '/admin-reset/' + token;
                 mailer.forgotPassword(usr.name, link, usr.email)
-                  .then(res=>{
-                    // console.log(res);
-                  }).catch(err =>{
+                  .then(result => {
+                    res.send(true);
+                  }).catch(err => {
                   console.error(err);
+                  res.send(false);
                 });
               }
             }
           )
         });
-        res.send(true);
       } else {
         res.send(false);
       }
@@ -217,6 +226,37 @@ userRoutes.route.post('/checkEmailUser', (req,res,next) => {
       res.send(false);
     }
   });
+});
+userRoutes.route('/checkResetToken').post((req,res,next) => {
+  let token = req.body.token;
+  User.findOne({'forgotPassword.token': token, 'forgotPassword.expiry': { $gt: Date.now() } }, function(err, user) {
+    if(err) {
+      console.log(err);
+      res.send(false);
+    }
+    if (user) {
+      res.send(true);
+    } else {
+      res.send(false);
+    }
+  });
+});
+userRoutes.route('/updatePassword').post((req, res, next) => {
+  User.findOneAndUpdate(
+    {'forgotPassword.token': req.body.token},
+    {
+      $unset: {'forgotPassword.token': "", 'forgotPassword.expiry': ""},
+      $set: {passwordHash: passwordHash.generate(req.body.passwordHash)}
+    },
+    (err, user) => {
+      if(err) return next(err);
+      if (!user) {
+        res.send(false);
+      }
+      else {
+        res.send(true);
+      }
+    });
 });
 // ============================ ADMIN ROUTES ===========================
 // ============================ MILESTONE LIST ROUTES  =================

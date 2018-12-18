@@ -29,12 +29,12 @@ export class ForgotPasswordComponent implements OnInit {
       email: [this.emailParam, [Validators.required, GlobalValidators.validEmail]]
     });
   }
-  email() {
+  get email () {
     return this.forgotForm.get('email');
   }
   submit() {
     if (this.forgotForm.valid) {
-      this._submit.emit(this.email().value);
+      this._submit.emit(this.email.value);
     }
   }
 
