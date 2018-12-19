@@ -139,10 +139,23 @@ class Mailer {
     const subject = 'You were added as a ConveyFeed admin user / secretary';
     this.sendEmail(email, message, link, subject, 'Register');
   }
-  commentMade(adminName, email, comment, link) {
-    const message = 'Comment: ' + comment;
-    const subject = 'Comment was made by ' + adminName;
-    this.sendEmail(email, message, link, subject);
+  commentMade(adminName, email, comment, propDesc, milestone, link) {
+    const context = {
+      name: adminName,
+      comment: comment,
+      propDesc: propDesc,
+      milestone: milestone,
+      link: link
+    };
+    const subject = 'New comment made by ' + adminName;
+    console.log(subject);
+    return new Promise((resolve, reject) => {
+      this.send('comment', context, email, subject).then(res => {
+        resolve(res);
+      }).catch(err => {
+        reject(err);
+      });
+    });
   }
 }
 

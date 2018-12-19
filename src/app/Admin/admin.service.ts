@@ -156,8 +156,15 @@ export class AdminService {
     return this.http.get(url);
   }
   getContactByEmail(email): Observable<any> {
-    const url = `${this.host}/contact/` + email + '/' + this.auth.getID();
-    return this.http.get(url);
+    let uid;
+    if (this.auth.isTopLevelUser()) {
+      uid = this.auth.getID();
+    } else {
+      uid = this.auth.getAdminID();
+    }
+    const headers = new HttpHeaders();
+    headers.set('Content-Type', 'application/json');
+    return this.http.post<any>(`${this.host}/contact`, {email: email, uid: uid});
   }
   deleteContact(id) {
     let uid;

@@ -38,6 +38,7 @@ import { AdminForgotPasswordComponent } from './Admin/admin-forgot-password/admi
 import { AdminResetPasswordComponent } from './Admin/admin-reset-password/admin-reset-password.component';
 import { ContactResetPasswordComponent } from './Contact/contact-reset-password/contact-reset-password.component';
 import { ContactForgotPasswordComponent } from './Contact/contact-forgot-password/contact-forgot-password.component';
+import {MomentModule} from 'ngx-moment';
 
 
 
@@ -83,6 +84,7 @@ import { ContactForgotPasswordComponent } from './Contact/contact-forgot-passwor
     MatSortModule,
     MatTableModule,
     MatCardModule,
+    MomentModule,
     DragDropModule,
     BrowserModule,
     HttpClientModule,
@@ -96,7 +98,7 @@ import { ContactForgotPasswordComponent } from './Contact/contact-forgot-passwor
     AuthService,
     FileService,
     WINDOW_PROVIDERS,
-    {provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue:  {duration: 3000}}
+    {provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue:  {duration: 4000}}
   ],
   bootstrap: [AppComponent],
   entryComponents: [

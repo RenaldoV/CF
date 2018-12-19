@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {AuthService} from '../../auth/auth.service';
-import {subscribeOn} from 'rxjs/operators';
 import {MatSnackBar} from '@angular/material';
 
 @Component({
@@ -37,7 +36,20 @@ export class AdminResetPasswordComponent implements OnInit {
   }
 
   submit(e) {
-    console.log('outside component' + e);
+    this.auth.updateForgotPassword(this.token, e)
+      .subscribe(res => {
+        if (res) {
+          const sb = this.matSnack.open('Password successfully changed', 'ok');
+          sb.afterDismissed().subscribe(() => {
+            this.auth.loginUser({email: res.email, password: e});
+          });
+        } else {
+          const sb = this.matSnack.open('Unsuccessful', 'retry');
+          sb.afterDismissed().subscribe(() => {
+            this.submit(e);
+          });
+        }
+      });
   }
 
 }

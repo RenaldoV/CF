@@ -37,7 +37,7 @@
       <div class="col-12"><hr></div>
     </div>
     <div class="row card-cols" *ngIf="file">
-      <div class="col-sm-12 col-md-6 col-lg{{numCards()}}">
+      <div *ngIf="file.companyAdmin" class="col-sm-12 col-md-6 col-lg{{numCards()}}">
         <mat-card>
           <mat-card-header>
             <mat-card-title><i class="far fa-building"></i> {{getCompanyInfo().company}}</mat-card-title>
@@ -95,7 +95,7 @@
             <i class="fas fa-user-tie"></i> <span
             style="font-weight: bold; color: darkslategray"> {{c.user.name}}</span>
             <span class="speech">
-              {{c.comment}}<small style="color: #888888">&nbsp</small>
+              {{c.comment}}<small style="color: #888888"> {{c.timestamp | amTimeAgo}}</small>
             </span>
           </div>
 

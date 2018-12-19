@@ -100,7 +100,10 @@ userRoutes.route('/user/:id').get((req, res, next) => {
 userRoutes.route('/login').post((req, res, next) => {
   let user = req.body;
   User.findOne({email : user.email}, '_id name surname passwordHash email company companyAdmin', (err, usr) => {
-    if (err) return next(err);
+    if (err) {
+      console.log(err);
+      res.send(false);
+    };
     if (usr) {
       usr = usr.toObject();
       bcrypt.compare(user.password, usr.passwordHash, (err, pwMatch) => {
@@ -189,9 +192,7 @@ userRoutes.route('/checkEmailUser').post((req ,res, next) => {
       res.send(false);
     }
     if (usr) {
-      console.log('user found:' + usr);
       if (usr.verified) {
-        console.log('User is verified');
         crypto.randomBytes(20, (er, buf) => {
           if (er) {
             console.log(er);
@@ -212,7 +213,7 @@ userRoutes.route('/checkEmailUser').post((req ,res, next) => {
                   .then(result => {
                     res.send(true);
                   }).catch(err => {
-                  console.error(err);
+                  console.log(err);
                   res.send(false);
                 });
               }
@@ -241,22 +242,34 @@ userRoutes.route('/checkResetToken').post((req,res,next) => {
     }
   });
 });
-userRoutes.route('/updatePassword').post((req, res, next) => {
-  User.findOneAndUpdate(
-    {'forgotPassword.token': req.body.token},
-    {
-      $unset: {'forgotPassword.token': "", 'forgotPassword.expiry': ""},
-      $set: {passwordHash: passwordHash.generate(req.body.passwordHash)}
-    },
-    (err, user) => {
-      if(err) return next(err);
-      if (!user) {
-        res.send(false);
-      }
-      else {
-        res.send(true);
-      }
-    });
+userRoutes.route('/updateForgotPassword').post((req, res, next) => {
+  let saltRounds = 10;
+  let user = req.body;
+  bcrypt.hash(user.passwordHash, saltRounds, (er, hash) => {
+    if(er) {
+      console.log(er);
+      res.send(false);
+    }else {
+      User.findOneAndUpdate(
+        {'forgotPassword.token': req.body.token},
+        {
+          $unset: {'forgotPassword.token': "", 'forgotPassword.expiry': ""},
+          $set: {passwordHash: hash}
+        },
+        (err, user) => {
+          if(err) {
+            console.log(err);
+            res.send(false);
+          }
+          if (user) {
+            res.send(user);
+          }
+          else {
+            res.send(false);
+          }
+        });
+    }
+  });
 });
 // ============================ ADMIN ROUTES ===========================
 // ============================ MILESTONE LIST ROUTES  =================
@@ -720,11 +733,10 @@ userRoutes.route('/contacts/:uid/:search').get((req, res, next) => {
     }
   });
 });
-userRoutes.route('/contact/:email/:uid').get((req, res, next) => {
+userRoutes.route('/contact').post((req, res, next) => {
   // get user's contacts
-  const uid = req.params.uid;
-  const email = req.params.email;
-
+  const uid = req.body.uid;
+  const email = req.body.email;
   User.findById(uid, 'contacts').populate('contacts', 'name email cell type').exec((err, user) => {
     if(err) {
       console.log(err);
@@ -800,6 +812,95 @@ userRoutes.route('/loginContact').post((req, res, next) => {
           res.send(false);
         }
       });
+    }
+  });
+});
+userRoutes.route('/checkEmailContact').post((req ,res, next) => {
+  let email = req.body.email;
+  Contact.findOne({email : email}, (err, usr) => {
+    if (err) {
+      console.log(err);
+      res.send(false);
+    }
+    if (usr) {
+      if (usr.verified) {
+        crypto.randomBytes(20, (er, buf) => {
+          if (er) {
+            console.log(er);
+            res.send(false);
+          }
+          let token = buf.toString('hex');
+          Contact.update({_id: usr._id},
+            {'forgotPassword.token': token, 'forgotPassword.expiry': Date.now() + 1800000 /*30 min in epoch*/},
+            (e, data) => {
+              if (e) {
+                console.log(e);
+                res.send(false);
+              }
+              else {
+                // sendmail with link
+                const link = req.protocol + '://' + req.get('host') + '/contact-reset/' + token;
+                mailer.forgotPassword(usr.name, link, usr.email)
+                  .then(result => {
+                    res.send(true);
+                  }).catch(err => {
+                  console.log(err);
+                  res.send(false);
+                });
+              }
+            }
+          )
+        });
+      } else {
+        res.send(false);
+      }
+    } else {
+      res.send(false);
+    }
+  });
+});
+userRoutes.route('/checkResetTokenContact').post((req,res,next) => {
+  let token = req.body.token;
+  console.log(token);
+  Contact.findOne({'forgotPassword.token': token, 'forgotPassword.expiry': { $gt: Date.now() } }, function(err, user) {
+    if(err) {
+      console.log(err);
+      res.send(false);
+    }
+    if (user) {
+      console.log(user);
+      res.send(true);
+    } else {
+      res.send(false);
+    }
+  });
+});
+userRoutes.route('/updateForgotPasswordContact').post((req, res, next) => {
+  let saltRounds = 10;
+  let user = req.body;
+  bcrypt.hash(user.passwordHash, saltRounds, (er, hash) => {
+    if(er) {
+      console.log(er);
+      res.send(false);
+    }else {
+      Contact.findOneAndUpdate(
+        {'forgotPassword.token': req.body.token},
+        {
+          $unset: {'forgotPassword.token': "", 'forgotPassword.expiry': ""},
+          $set: {passwordHash: hash}
+        },
+        (err, user) => {
+          if(err) {
+            console.log(err);
+            res.send(false);
+          }
+          if (user) {
+            res.send(user);
+          }
+          else {
+            res.send(false);
+          }
+        });
     }
   });
 });
@@ -1054,9 +1155,10 @@ userRoutes.route('/addComment').post((req, res, next) => {
   File.findOneAndUpdate(
     {_id: fileID, 'milestoneList.milestones._id': milestoneID},
     { $push: {'milestoneList.milestones.$.comments': comment}},
-    {fields: 'milestoneList.milestones.$.comments'})
+    {fields: 'milestoneList.milestones.$.comments propertyDescription'})
     .populate('milestoneList.milestones.comments.user', 'name')
     .populate('contacts', 'cell email')
+    .populate('milestoneList.milestones._id', 'name')
     .exec((err, result) => {
     if (err) {
       console.log(err);
@@ -1066,9 +1168,9 @@ userRoutes.route('/addComment').post((req, res, next) => {
       User.findById(comment.user, 'name email', (er, user) => {
         comment.user = user;
         result.contacts.forEach(ct => {
-          const url = req.protocol + '://' + req.get('host') + '/file/' + encodeURI(fileID) + '/' + encodeURI(ct._id);
-          mailer.commentMade(user.name, ct.email, comment.comment, url);
-          smser.commentMade(ct.cell, comment.comment, user.name);
+          const url = req.protocol + '://' + req.get('host') + '/file/' + encodeURI(fileID);
+          mailer.commentMade(user.name, ct.email, comment.comment, result.propertyDescription, result.milestoneList.milestones[0]._id.name, url);
+          smser.commentMade(ct.cell, comment.comment, user.name, result.propertyDescription, result.milestoneList.milestones[0]._id.name, url);
         });
         res.send(comment);
       });

@@ -100,7 +100,7 @@
             <div class="comment" *ngFor="let c of milestone.comments">
               <i class="fas fa-user-tie"></i> <span style="font-weight: bold; color: darkslategray"> {{c.user.name}}</span>
               <span class="speech">
-                {{c.comment}}<small style="color: #888888"></small>
+                {{c.comment}}<small style="color: #888888"> {{c.timestamp | amTimeAgo}}</small>
               </span>
             </div>
 

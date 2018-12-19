@@ -36,4 +36,13 @@ export class ContactService {
     headers.set('Content-Type', 'application/json');
     return this.http.post<any>(`${this.host}/loginContact`, ct);
   }
+  checkEmail(email) {
+    return this.http.post(`${this.host}/checkEmailContact`, {email: email});
+  }
+  checkResetToken(token) {
+    return this.http.post(`${this.host}/checkResetTokenContact`, {token: token});
+  }
+  updateForgotPassword(token, pw) {
+    return this.http.post<any>(`${this.host}/updateForgotPasswordContact`, {passwordHash: pw, token: token});
+  }
 }

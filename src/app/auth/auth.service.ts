@@ -37,8 +37,8 @@ export class AuthService {
   checkResetToken(token) {
     return this.http.post(`${this.host}/checkResetToken`, {token: token});
   }
-  updatePassword(token, pw) {
-    return this.http.post(`${this.host}/updatePassword`, {passwordHash: pw, uid: this.getID(), token: token});
+  updateForgotPassword(token, pw) {
+    return this.http.post<any>(`${this.host}/updateForgotPassword`, {passwordHash: pw, token: token});
   }
   getUserById(id): Observable<any> { // get non top level user by id
     const url = `${this.host}/user/` + id;
