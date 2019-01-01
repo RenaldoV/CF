@@ -131,6 +131,10 @@
                             <mat-checkbox (change)="onMilestoneChange(i, k); onListChange(i)" formControlName="sendSMS">
                               SMS to all parties</mat-checkbox>
                           </div>
+                          <div class="col-12">
+                            <mat-checkbox (change)="onMilestoneChange(i, k); onListChange(i)" formControlName="alwaysAsk">
+                              Always Ask</mat-checkbox>
+                          </div>
                         </div>
                       </mat-expansion-panel>
                       </mat-accordion>

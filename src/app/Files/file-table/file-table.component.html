@@ -29,7 +29,7 @@
       <mat-header-cell *matHeaderCellDef mat-sort-header> Created </mat-header-cell>
       <mat-cell *matCellDef="let element">
         <small style="color: darkgrey">
-          {{convertDate('yyyy/mm/dd', element.createdAt)}} <br>by {{element.createdBy.name}}
+          {{convertDate('yyyy/mm/dd', element.createdAt)}} <br>by {{element.createdBy?.name}}
         </small>
       </mat-cell>
     </ng-container>
@@ -64,7 +64,17 @@
 <ng-template #tpl let-element>
   <div class="mat-row detail-row" [@detailExpand] style="overflow: hidden">
     <div class="contactsBox row">
-      <div class="col-sm-12 col-md-6 col-lg{{element.contacts.length <= 4 ? '' : '-3'}}" *ngFor="let ct of element.contacts; let i = index">
+      <div class="col-sm-12 col-md-6 col-lg{{numCards(element)}}">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title><i class="fas fa-home"></i> Property Description</mat-card-title>
+            <mat-card-subtitle>
+              <small style="white-space: pre-wrap;">{{element.propertyDescription}}</small><br>
+            </mat-card-subtitle>
+          </mat-card-header>
+        </mat-card>
+      </div>
+      <div class="col-sm-12 col-md-6 col-lg{{numCards(element)}}" *ngFor="let ct of element.contacts; let i = index">
         <mat-card>
           <mat-card-header>
             <mat-card-title><i class="far fa-id-card"></i> {{ct.name}}</mat-card-title>

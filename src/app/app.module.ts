@@ -39,6 +39,7 @@ import { AdminResetPasswordComponent } from './Admin/admin-reset-password/admin-
 import { ContactResetPasswordComponent } from './Contact/contact-reset-password/contact-reset-password.component';
 import { ContactForgotPasswordComponent } from './Contact/contact-forgot-password/contact-forgot-password.component';
 import {MomentModule} from 'ngx-moment';
+import { AlwaysAskNotificationsComponent } from './Files/always-ask-notifications/always-ask-notifications.component';
 
 
 
@@ -63,7 +64,8 @@ import {MomentModule} from 'ngx-moment';
     AdminForgotPasswordComponent,
     AdminResetPasswordComponent,
     ContactResetPasswordComponent,
-    ContactForgotPasswordComponent
+    ContactForgotPasswordComponent,
+    AlwaysAskNotificationsComponent
   ],
   imports: [
     MatInputModule,
@@ -103,7 +105,8 @@ import {MomentModule} from 'ngx-moment';
   bootstrap: [AppComponent],
   entryComponents: [
     AddContactDialogComponent,
-    AddCommentDialogComponent
+    AddCommentDialogComponent,
+    AlwaysAskNotificationsComponent
   ]
 })
 export class AppModule { }

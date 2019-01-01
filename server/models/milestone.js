@@ -10,6 +10,7 @@ const Milestone = new Schema({
   smsMessage: String,
   sendEmail: Boolean,
   sendSMS: Boolean,
+  alwaysAsk: Boolean,
   updatedBy: {type: Schema.Types.ObjectId, ref: 'User'}
 },
 {

@@ -78,6 +78,7 @@ export class AdminSetupComponent implements OnInit {
       smsMessage: ['', Validators.required],
       sendEmail: [false],
       sendSMS: [false],
+      alwaysAsk: [false],
       updatedBy: ['new']
     });
     const arrayControl = <FormArray>this.list.at(i).get('milestones');
@@ -175,6 +176,7 @@ export class AdminSetupComponent implements OnInit {
           smsMessage: ['', Validators.required],
           sendEmail: [false],
           sendSMS: [false],
+          alwaysAsk: [false],
           updatedBy: ['']
         });
         const mArrayControl = <FormArray>msl.get('milestones');

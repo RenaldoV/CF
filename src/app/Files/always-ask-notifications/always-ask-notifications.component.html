@@ -1,0 +1,22 @@
+<h2 mat-dialog-title>Notify all parties of Milestone ({{data.name}}) completion via: </h2>
+
+<mat-dialog-content [formGroup]="notiPropsForm">
+  <div style="margin-bottom: 10px;">
+    <div class="col-12">
+      <mat-checkbox formControlName="sendSMS">
+        SMS</mat-checkbox>
+    </div>
+    <div class="col-12">
+      <mat-checkbox formControlName="sendEmail">
+        Email</mat-checkbox>
+    </div>
+    <br>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <button class="btn btn-outline-secondary btn-sm closeBtn"(click)="close()">Close</button>
+  <button [disabled]="notiPropsForm.invalid" class="btn btn-primary btn-sm" (click)="submit()">
+    <span><i class="far fa-save"></i> Complete Milestone</span>
+  </button>
+</mat-dialog-actions>

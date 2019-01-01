@@ -128,7 +128,7 @@ userRoutes.route('/getRole').post((req, res, next) => {
     if (result) {
       res.send(result);
     }else {
-      res.send(false);
+      res.end('Cannot ' + req.method + ' ' + req.url);
     }
   })
 });
@@ -1066,7 +1066,8 @@ userRoutes.route('/fileRef/:id').get((req, res, next) => {
 userRoutes.route('/completeMilestone').post((req, res, next) => {
   let fileID = req.body.fileID;
   let milestoneID = req.body.milestoneID;
-  let uid = req.body.uid;
+  let uid = req.body.uid; // can be top level or secretary
+  let notiProps = req.body.notiProps;
   File.findOneAndUpdate(
     {_id: fileID, 'milestoneList.milestones._id': milestoneID},
     {$set: {
@@ -1089,13 +1090,7 @@ userRoutes.route('/completeMilestone').post((req, res, next) => {
           },
           adminUser: (callback) => {
             User.findById(uid, (er, user) => { // get me
-              if (user.companyAdmin) {
-                User.findById(user.companyAdmin).exec((error, comAdmin) => { // get top level user if applicable
-                  callback(error, comAdmin);
-                });
-              } else {
-                callback(er, user);
-              }
+              callback(er, user);
             });
           },
           milestone: (callback) => {
@@ -1121,26 +1116,40 @@ userRoutes.route('/completeMilestone').post((req, res, next) => {
                 contactName: ct.name
               };
               const emailBody = buildMessage(emailMessage, emailContext);
-              if (callback.milestone.sendEmail) { // send email
-                mailer.sendEmail(email, emailBody, url, milestoneName + ' milestone has been completed.');
-              }
-              if (callback.milestone.sendSMS) { // send sms
-                smser.send(ct.cell, buildMessage(smsMessage, emailContext))
-                  .then(res => {}, (error) => {
-                    console.log(error);
-                    res.send(false);
-                  });
+              // check if always ask for noti props is activated
+              if (callback.milestone.alwaysAsk) {
+                if (notiProps.sendEmail) { // send email
+                  mailer.sendEmail(email, emailBody, url, milestoneName + ' milestone has been completed.');
+                }
+                if (notiProps.sendSMS) { // send sms
+                  smser.send(ct.cell, buildMessage(smsMessage, emailContext))
+                    .then(res => {}, (error) => {
+                      console.log(error);
+                      res.send(false);
+                    });
+                }
+              } else {
+                if (callback.milestone.sendEmail) { // send email
+                  mailer.sendEmail(email, emailBody, url, milestoneName + ' milestone has been completed.');
+                }
+                if (callback.milestone.sendSMS) { // send sms
+                  smser.send(ct.cell, buildMessage(smsMessage, emailContext))
+                    .then(res => {}, (error) => {
+                      console.log(error);
+                      res.send(false);
+                    });
+                }
               }
             });
             res.send({
               message: 'Milestone successfully marked as complete' + (callback.milestone.sendEmail || callback.milestone.sendSMS ? ', and all parties notified.' : '.')
             });
           } else {
-            res.send(false);
+            res.end(false);
           }
         });
       } else {
-        res.send(false);
+        res.end(false);
       }
   })
 });
@@ -1154,7 +1163,12 @@ userRoutes.route('/addComment').post((req, res, next) => {
   };
   File.findOneAndUpdate(
     {_id: fileID, 'milestoneList.milestones._id': milestoneID},
-    { $push: {'milestoneList.milestones.$.comments': comment}},
+    { $push: {'milestoneList.milestones.$.comments': comment},
+      updatedBy: comment.user,
+      updatedAt: new Date(),
+      'milestoneList.milestones.$.updatedBy': comment.user,
+      'milestoneList.milestones.$.updatedAty': new Date()
+    },
     {fields: 'milestoneList.milestones.$.comments propertyDescription'})
     .populate('milestoneList.milestones.comments.user', 'name')
     .populate('contacts', 'cell email')

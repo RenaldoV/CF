@@ -4,6 +4,7 @@ import {MatTableDataSource, MatSort, MatPaginator, MatSnackBar, MatDialogConfig,
 import {FileService} from '../file.service';
 import {LoaderService} from '../../Common/Loader';
 import {AddCommentDialogComponent} from '../add-comment-dialog/add-comment-dialog.component';
+import {AlwaysAskNotificationsComponent} from '../always-ask-notifications/always-ask-notifications.component';
 
 
 @Component({
@@ -104,7 +105,9 @@ export class FileTableComponent implements OnInit {
   return matchFilter.every(Boolean);
 };
   }
-
+  numCards(file) {
+    return file.contacts.length + 1 <= 4 ? '' : '-3';
+  }
   applyFilter(filterValue: string) {
     filterValue = filterValue.trim(); // Remove whitespace
     filterValue = filterValue.toLowerCase(); // Datasource defaults to lowercase matches
@@ -115,19 +118,46 @@ export class FileTableComponent implements OnInit {
   }
   markMilestone(e, m, fileID, chBx) {
     if (e.checked) {
-      if (confirm('Are you sure you want to mark this milestone as done?')) {
-        console.log('mark milestone ' + m._id + ' as completed: ' + e.checked);
-        this.fileService.completeMilestone(fileID, m._id)
-          .subscribe(res => {
-            if (res.message) {
+      if (m._id.alwaysAsk) { // check always ask for notifications property
+        // bring up popup modal
+        console.log(m._id);
+        const dialConfig = new MatDialogConfig();
+        dialConfig.disableClose = true;
+        dialConfig.autoFocus = true;
+        dialConfig.minWidth = 300;
+        dialConfig.data = m._id;
+        const dialogRef = this.dialog.open(AlwaysAskNotificationsComponent, dialConfig);
+        dialogRef.afterClosed().subscribe(notiProps => {
+          if (notiProps) {
+            if (confirm('Are you sure you want to mark this milestone as done?')) {
+              this.fileService.completeMilestone(fileID, m._id, notiProps)
+                .subscribe(res => {
+                  if (res.message) {
+                    m.completed = e.checked;
+                    this.matSnack.open(res.message);
+                  }
+                });
+            } else {
+              e.checked = !e.checked;
               m.completed = e.checked;
-              this.matSnack.open(res.message);
+              chBx.checked = false;
             }
-          });
+          }
+        });
       } else {
-        e.checked = !e.checked;
-        m.completed = e.checked;
-        chBx.checked = false;
+        if (confirm('Are you sure you want to mark this milestone as done?')) {
+          this.fileService.completeMilestone(fileID, m._id)
+            .subscribe(res => {
+              if (res.message) {
+                m.completed = e.checked;
+                this.matSnack.open(res.message);
+              }
+            });
+        } else {
+          e.checked = !e.checked;
+          m.completed = e.checked;
+          chBx.checked = false;
+        }
       }
     } /*else {
       if (confirm('Are you sure you want to mark this milestone as not done?')) {
