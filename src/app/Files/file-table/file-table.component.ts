@@ -120,7 +120,6 @@ export class FileTableComponent implements OnInit {
     if (e.checked) {
       if (m._id.alwaysAsk) { // check always ask for notifications property
         // bring up popup modal
-        console.log(m._id);
         const dialConfig = new MatDialogConfig();
         dialConfig.disableClose = true;
         dialConfig.autoFocus = true;

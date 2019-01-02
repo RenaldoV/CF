@@ -93,6 +93,7 @@ export class ContactLogInComponent implements OnInit {
       _id: this.contactID,
       password: this.loginPassword.value
     }).subscribe(res => {
+      console.log('login server result: ' + res);
       if (res) {
         this.auth.saveUser({
           _id: res._id,
@@ -103,7 +104,7 @@ export class ContactLogInComponent implements OnInit {
         });
         this.router.navigate(['/file', this.fileID]);
       } else {
-        this.matSnack.open('Registration failed, please try again later');
+        this.matSnack.open('Login failed, invalid username and password combination');
       }
     });
   }

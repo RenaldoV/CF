@@ -21,7 +21,6 @@ export class AlwaysAskNotificationsComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log(this.data);
   }
 
   close() {

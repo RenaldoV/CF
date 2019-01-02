@@ -793,6 +793,7 @@ userRoutes.route('/registerContact').post((req, res, next) => {
 });
 userRoutes.route('/loginContact').post((req, res, next) => {
   let ct = req.body;
+  console.log(ct);
   Contact.findById(ct._id, '_id name passwordHash email', (err, resCt) => {
     if (err) {
       console.log(err);
@@ -800,6 +801,7 @@ userRoutes.route('/loginContact').post((req, res, next) => {
     }
     if (resCt) {
       resCt = resCt.toObject();
+      console.log(resCt);
       bcrypt.compare(ct.password, resCt.passwordHash, (err, pwMatch) => {
         if (err) {
           console.log(err);
@@ -1107,7 +1109,7 @@ userRoutes.route('/completeMilestone').post((req, res, next) => {
             let smsMessage = callback.milestone.smsMessage;
             const milestoneName = callback.milestone.name;
             callback.contacts.forEach(ct => {
-              const url = req.protocol + '://' + req.get('host') + '/file/' + encodeURI(fileID) + '/' + encodeURI(ct._id);
+              const url = req.protocol + '://' + req.get('host') + '/login/' + encodeURI(fileID) + '/' + encodeURI(ct._id);
               const email = ct.email;
               const emailContext = {
                 deedsOffice: newFile.deedsOffice,

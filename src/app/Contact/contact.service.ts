@@ -20,7 +20,6 @@ export class ContactService {
   }
 
   getContact(id): Observable<any> {
-    console.log('getting contact');
     const url = `${this.host}/contact/` + id;
     return this.http.get(url);
   }

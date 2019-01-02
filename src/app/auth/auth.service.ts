@@ -107,7 +107,6 @@ export class AuthService {
   isAdmin() {
     return new Promise((resolve, reject) => {
       const user = JSON.parse(localStorage.getItem('user'));
-      console.log(user._id);
       this.http.post<any>(`${this.host}/getRole`, user)
         .toPromise()
         .then(res => {
