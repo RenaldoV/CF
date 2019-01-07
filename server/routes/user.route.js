@@ -123,12 +123,17 @@ userRoutes.route('/getRole').post((req, res, next) => {
   let id = req.body._id;
   User.findById(id, 'role', (err, result) => {
     if (err) {
+      console.log(err);
       res.send(false);
     }
     if (result) {
-      res.send(result);
+      if(result.role) {
+        res.send(result);
+      }else {
+        res.end(false);
+      }
     }else {
-      res.end('Cannot ' + req.method + ' ' + req.url);
+      res.end(false);
     }
   })
 });
@@ -1012,6 +1017,7 @@ userRoutes.route('/files/:id').get((req, res, next) => {
         .populate('milestoneList.milestones.comments.user', 'name')
         .populate('createdBy', 'name')
         .populate('updatedBy', 'name')
+        .sort({createdAt: -1})
         .exec((er, files) => {
         if (er) {
           console.log(er);
@@ -1184,7 +1190,7 @@ userRoutes.route('/addComment').post((req, res, next) => {
       User.findById(comment.user, 'name email', (er, user) => {
         comment.user = user;
         result.contacts.forEach(ct => {
-          const url = req.protocol + '://' + req.get('host') + '/file/' + encodeURI(fileID);
+          const url = req.protocol + '://' + req.get('host') + '/login/' + encodeURI(fileID) + '/' + encodeURI(ct._id);
           mailer.commentMade(user.name, ct.email, comment.comment, result.propertyDescription, result.milestoneList.milestones[0]._id.name, url);
           smser.commentMade(ct.cell, comment.comment, user.name, result.propertyDescription, result.milestoneList.milestones[0]._id.name, url);
         });

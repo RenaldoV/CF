@@ -110,9 +110,12 @@ export class AuthService {
       this.http.post<any>(`${this.host}/getRole`, user)
         .toPromise()
         .then(res => {
-          if (res.role === 'admin') {
-            resolve(res.role === 'admin');
+          if (res) {
+            resolve(true);
           } else {
+            // clear user cache in case a user is logged in and not found in database
+            this.destroySession();
+            this.router.navigate(['/admin-login']);
             reject();
           }
         }, err => {
