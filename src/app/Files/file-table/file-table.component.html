@@ -21,8 +21,8 @@
     </ng-container>
 
     <ng-container matColumnDef="secretary">
-      <mat-header-cell *matHeaderCellDef mat-sort-header> Secretary </mat-header-cell>
-      <mat-cell *matCellDef="let element"> {{element.refUser}} </mat-cell>
+      <mat-header-cell *matHeaderCellDef mat-sort-header> Secretaries </mat-header-cell>
+      <mat-cell *matCellDef="let element"> {{secretaryString(element.refUser)}} </mat-cell>
     </ng-container>
 
     <ng-container matColumnDef="created">

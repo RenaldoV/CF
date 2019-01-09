@@ -52,7 +52,7 @@
       <div class="col-sm-12 col-md-6 col-lg{{numCards()}}">
         <mat-card>
           <mat-card-header>
-            <mat-card-title><i class="fas fa-home"></i></mat-card-title>
+            <mat-card-title><i class="fas fa-home"></i> Property Description</mat-card-title>
             <mat-card-subtitle>
               <small style="white-space: pre-wrap;">{{file.propertyDescription}}</small><br>
             </mat-card-subtitle>
@@ -63,7 +63,7 @@
            class="col-sm-12 col-md-6 col-lg{{numCards()}}">
         <mat-card>
           <mat-card-header>
-            <mat-card-title><i class="fas fa-user-tie"></i> {{ct.name}}</mat-card-title>
+            <mat-card-title><i class="fas fa-user{{ct.type === 'Agent' ? 'tie' : ''}}"></i> {{ct.name}}</mat-card-title>
             <mat-card-subtitle>
               <small><i class="fas fa-user-friends"></i> {{ct?.type}}</small><br>
               <small><i class="far fa-envelope"></i> {{ ct?.email }}</small><br>
@@ -72,16 +72,30 @@
           </mat-card-header>
         </mat-card>
       </div>
+      <div *ngFor="let s of file.refUser"
+           class="col-sm-12 col-md-6 col-lg{{numCards()}}">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title><i class="fas fa-user-tie"></i> {{s.name}}</mat-card-title>
+            <mat-card-subtitle>
+              <small><i class="fas fa-user-friends"></i> Secretary</small><br>
+              <small><i class="far fa-envelope"></i> {{ s?.email }}</small><br>
+              <small><i class="fas fa-phone-square"></i> {{ s?.cell }}</small>
+            </mat-card-subtitle>
+          </mat-card-header>
+        </mat-card>
+      </div>
     </div>
     <br>
     <mat-accordion *ngIf="file">
+      <p class="text-center" style="color: #888888" *ngIf="file.milestoneList.milestones.length < 1">No milestones have been completed</p>
+      <h5 class="text-center" style="color: #888888" *ngIf="file.milestoneList.milestones.length > 0"><i class="fas fa-flag-checkered"></i>  Completed milestones</h5>
       <mat-expansion-panel *ngFor="let milestone of file.milestoneList.milestones; let i = index" hideToggle>
         <mat-expansion-panel-header>
-          <mat-panel-title [style.text-decoration]="milestone.completed ? 'line-through' : 'none'">
-            Milestone {{i + 1}}
+          <mat-panel-title>
+            {{ milestone._id.name }}
           </mat-panel-title>
           <mat-panel-description>
-            {{ milestone._id.name }}
             <small style="color: darkgrey">
               Last Updated: {{convertDate('dd/mm/yyyy', milestone.updatedAt)}} <br>by {{milestone.updatedBy.name}}
             </small>

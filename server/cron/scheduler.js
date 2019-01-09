@@ -29,6 +29,7 @@ class Scheduler {
           File.find({})
             .populate('contacts')
             .populate('milestoneList._id', 'title')
+            .populate('refUser', 'email name')
             .exec((err, files) => { // TODO: only add non-archived files in report
               if(err) {
                 cb(err);
@@ -46,12 +47,12 @@ class Scheduler {
               async.each(file.contacts,
                 (ct, innerCb) => {
                   const url = host + '/login/' + encodeURI(file._id) + '/' + encodeURI(ct._id);
-                  mailer.weeklyUpdate(ct.email,ct.name,url,file.milestoneList._id.title,file.fileRef)
+                  /*mailer.weeklyUpdate(ct.email,ct.name,url,file.milestoneList._id.title,file.fileRef)
                     .then(res => {
                       innerCb();
                     }, (innerError) => {
                       innerCb(innerError);
-                    });
+                    });*/
                   // console.log('contact name: ' + ct.name + '\n');
                 }, (err) => {
                   if (err) {
@@ -62,14 +63,29 @@ class Scheduler {
                 });
             }, (err) => {
               if(err) {
-                console.log('Cron job completed with errors');
+                console.log('Cron job completed with errors: ' + err);
+                callback(err);
               }else {
                 console.log('All contacts successfully updated with weekly report');
+                callback(null, files);
               }
             });
         }
 
       ], (err, result) => {
+        if(err) {
+          console.log(err)
+        }
+        if(result) {
+          const users = result.map(f => f.refUser);
+          let distinctUsers = [];
+          users.forEach(u => {
+            if (distinctUsers.indexOf(u) < 0) {
+              distinctUsers.push(u);
+            }
+          });
+          console.log(distinctUsers);
+        }
       });
     });
     /*cron.schedule('* * * * *', function() {

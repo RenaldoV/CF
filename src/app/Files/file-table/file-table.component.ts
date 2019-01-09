@@ -43,9 +43,12 @@ export class FileTableComponent implements OnInit {
     this.dataSource.sort = this.sort;
     this.dataSource.sortingDataAccessor = (item, property) => {
       switch (property) {
-        case 'created': return new Date(item.createdAt);
-        case 'updated': return new Date(item.updatedAt);
-        default: return item[property];
+        case 'created':
+          return new Date(item.createdAt);
+        case 'updated':
+          return new Date(item.updatedAt);
+        default:
+          return item[property];
       }
     };
     /*this.dataSource.filterPredicate =
@@ -94,16 +97,16 @@ export class FileTableComponent implements OnInit {
         // console.log(columns);
         // Main
         filterArray.forEach(filter => {
-        const customFilter = [];
-        columns.forEach(column => {
-          if (column && typeof column === 'string') {
-            customFilter.push(column.toLowerCase().includes(filter));
-          }
+          const customFilter = [];
+          columns.forEach(column => {
+            if (column && typeof column === 'string') {
+              customFilter.push(column.toLowerCase().includes(filter));
+            }
+          });
+          matchFilter.push(customFilter.some(Boolean)); // OR
         });
-        matchFilter.push(customFilter.some(Boolean)); // OR
-      });
-  return matchFilter.every(Boolean);
-};
+        return matchFilter.every(Boolean);
+      };
   }
   numCards(file) {
     return file.contacts.length + 1 <= 4 ? '' : '-3';
@@ -213,7 +216,9 @@ export class FileTableComponent implements OnInit {
       }
     }
   }
-
+  secretaryString(secs) {
+    return secs.map(s => s.name).toString().replace(',', ', ');
+  }
   flatten(arr) {
     const newObj = {};
     this.dive('', arr, newObj);

@@ -82,6 +82,21 @@ userRoutes.route('/users/:id').get((req, res, next) => {
     }
   });
 });
+userRoutes.route('/allUserNames').get((req, res, next) => {
+  // get all  user names
+  User.find({}, {name: 1}).exec((er, users) => {
+    if (er) {
+      console.log(er);
+      res.send(false);
+    }
+    if (users) {
+      console.log(users);
+      res.send(users);
+    } else {
+      res.end(false);
+    }
+  });
+});
 userRoutes.route('/user/:id').get((req, res, next) => {
   // get me
   const myId = req.params.id;
@@ -1017,6 +1032,7 @@ userRoutes.route('/files/:id').get((req, res, next) => {
         .populate('milestoneList.milestones.comments.user', 'name')
         .populate('createdBy', 'name')
         .populate('updatedBy', 'name')
+        .populate('refUser', 'name')
         .sort({createdAt: -1})
         .exec((er, files) => {
         if (er) {
@@ -1040,6 +1056,7 @@ userRoutes.route('/file/:id').get((req, res, next) => {
     .populate('milestoneList._id', 'title')
     .populate('milestoneList.milestones.updatedBy', 'name')
     .populate('contacts')
+    .populate('refUser', 'name surname cell email')
     .populate('milestoneList.milestones.comments.user', 'name')
     .populate({
       path: 'createdBy',
@@ -1055,6 +1072,8 @@ userRoutes.route('/file/:id').get((req, res, next) => {
       res.send(false);
     }
     if(file) {
+      file.milestoneList.milestones = file.milestoneList.milestones.filter(m => m.completed === true);
+      console.log(file);
       res.send(file);
     }
   });

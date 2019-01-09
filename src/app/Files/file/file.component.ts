@@ -76,9 +76,9 @@ export class FileComponent implements OnInit {
   }
   numCards() {
     if (this.iAmAgent()) {
-      return this.file.contacts.length + 1 <= 4 ? '' : '-3';
+      return this.file.contacts.length + 1 + this.file.refUser.length <= 4 ? '' : '-3';
     } else {
-      return this.file.contacts.length + 1 - this.file.contacts.filter(ct => ct.type === 'Agent').length <= 4 ? '' : '-3';
+      return this.file.contacts.length + 1 + this.file.refUser.length - this.file.contacts.filter(ct => ct.type === 'Agent').length <= 4 ? '' : '-3';
     }
   }
 

@@ -11,7 +11,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {
   MAT_CHECKBOX_CLICK_ACTION,
   MAT_SNACK_BAR_DEFAULT_OPTIONS,
-  MatAutocompleteModule, MatCardModule, MatCheckboxModule, MatDialogModule, MatExpansionModule,
+  MatAutocompleteModule, MatCardModule, MatCheckboxModule, MatChipsModule, MatDialogModule, MatExpansionModule,
   MatFormFieldModule, MatIconModule,
   MatInputModule, MatMenuModule, MatPaginatorModule, MatRadioModule,
   MatSelectModule, MatSnackBarModule, MatSortModule,
@@ -84,6 +84,7 @@ import { AlwaysAskNotificationsComponent } from './Files/always-ask-notification
     MatExpansionModule,
     MatIconModule,
     MatSortModule,
+    MatChipsModule,
     MatTableModule,
     MatCardModule,
     MomentModule,

@@ -31,6 +31,10 @@ export class AuthService {
     const url = `${this.host}/users/` + this.getID();
     return this.http.get(url);
   }
+  getUserNames() {
+    const url = `${this.host}/allUserNames`;
+    return this.http.get<any>(url);
+  }
   checkEmail(email) {
     return this.http.post(`${this.host}/checkEmailUser`, {email: email});
   }

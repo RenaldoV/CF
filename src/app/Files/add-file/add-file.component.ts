@@ -1,11 +1,19 @@
-import {Component, OnChanges, OnInit} from '@angular/core';
+import {COMMA, ENTER} from '@angular/cdk/keycodes';
+import {Component, OnChanges, OnInit, ElementRef, ViewChild} from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import {Observable, Subject} from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { AuthService } from '../../auth/auth.service';
 import { AdminService } from '../../Admin/admin.service';
 import { CdkDragDrop , moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
-import {MatDialog, MatDialogConfig, MatSnackBar} from '@angular/material';
+import {
+  MatDialog,
+  MatDialogConfig,
+  MatSnackBar,
+  MatAutocompleteSelectedEvent,
+  MatChipInputEvent,
+  MatAutocomplete, MatAutocompleteTrigger, ErrorStateMatcher
+} from '@angular/material';
 import {AddContactDialogComponent} from '../add-contact-dialog/add-contact-dialog.component';
 import {Router} from '@angular/router';
 import {LoaderService} from '../../Common/Loader';
@@ -29,6 +37,19 @@ export class AddFileComponent implements OnInit {
   filteredContacts: any[] = [];
   fileContactsList: any[] = [];
   searchTerm$ = new Subject<string>();
+  // Chips autocomplete
+  visible = true;
+  selectable = true;
+  removable = true;
+  addOnBlur = true;
+  separatorKeysCodes: number[] = [ENTER, COMMA];
+  filteredSecretaries: Observable<any[]>;
+  allSecretaries: any[] = [];
+  secretaries: any[] = [];
+  matcher = new ErrorStateMatcher();
+  @ViewChild('secInput') secretaryInput: ElementRef<HTMLInputElement>;
+  @ViewChild('auto') secretaryAutoComp: MatAutocomplete;
+  @ViewChild(MatAutocompleteTrigger) secInput: MatAutocompleteTrigger;
   constructor(
     private fb: FormBuilder,
     private auth: AuthService,
@@ -41,6 +62,16 @@ export class AddFileComponent implements OnInit {
   ) {
     this.createFileForm();
     this.createPropertyForm();
+    this.auth.getUserNames()
+      .subscribe(res => {
+        if (res) {
+          this.secretaries = res.filter(s => s.name === this.auth.getName());
+          this.allSecretaries = res;
+          this.secChips.setValue(this.secretaries);
+        }
+      }, err => {
+        console.log(err);
+      });
     this.adminService.getProperties()
       .subscribe(res => {
         if (res) {
@@ -92,11 +123,14 @@ export class AddFileComponent implements OnInit {
         });
       });
     // TODO: get all my contact initially
+    this.filteredSecretaries = this.refUser.valueChanges.pipe(
+      startWith(null),
+      map((sec: string | null) => sec ? this._filterSecretaries(sec) : this._filterSecretaries('')));
   }
   ngOnInit() {}
   // ======= File Form functions ===============
 
-    // ====auto complete functions=======
+  // ====auto complete functions=======
   /*filterProps(val: string) {
     let results = this.propTypes.filter(prop =>
       prop.toLowerCase().indexOf(val.toLowerCase()) === 0);
@@ -199,7 +233,8 @@ export class AddFileComponent implements OnInit {
     this.fileForm = this.fb.group({
       fileRef: ['', Validators.required],
       /*action: ['', Validators.required],*/
-      refUser: [this.auth.getName(), Validators.required],
+      refUser: [''],
+      secChips: ['', Validators.required],
       milestoneList: ['', Validators.required] // TODO: get milestone lists from DB
     });
   }
@@ -211,6 +246,9 @@ export class AddFileComponent implements OnInit {
   }*/
   get refUser () {
     return this.fileForm.get('refUser');
+  }
+  get secChips () {
+    return this.fileForm.get('secChips');
   }
   get milestoneList () {
     return this.fileForm.get('milestoneList');
@@ -266,9 +304,36 @@ export class AddFileComponent implements OnInit {
     });
   }
   // TODO: add guard to prevent user navigating away if form is Dirty.
+  // Chips autocomplete functions
+  remove(sec): void {
+    const index = this.secretaries.indexOf(sec);
 
+    if (index >= 0) {
+      this.secretaries.splice(index, 1);
+      this.secChips.setValue(this.secretaries);
+    }
+  }
+  selected(event: MatAutocompleteSelectedEvent): void {
+    const selectedSec = {_id: event.option.value, name: event.option.viewValue};
+    this.secretaries.push(selectedSec);
+    this.secretaryInput.nativeElement.value = '';
+    this.refUser.setValue(null);
+    this.secChips.setValue(this.secretaries);
+  }
+  private _filterSecretaries(value: string): string[] {
+    const secNames = this.secretaries.map(s => s.name);
+    const filterValue = value.toLowerCase();
+    return this.allSecretaries.filter(sec => sec.name.toLowerCase().indexOf(filterValue) === 0 && secNames.indexOf(sec.name) === -1);
+  }
+  onFocus() {
+    this.secInput._onChange('');
+    this.secInput.openPanel();
+  }
   submitFile() {
     if (this.propForm.valid && this.fileForm.valid) {
+      this.propForm.value.refUser = this.secretaries.map(s => s._id);
+      delete this.propForm.value.secChips;
+      console.log(this.propForm.value);
       const file = {...this.fileForm.value, ...this.propForm.value, ...{'contacts': this.fileContactsList.map(ct => ct._id)}};
       this.fileService.createFile(file)
         .subscribe(res => {

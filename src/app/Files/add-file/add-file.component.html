@@ -25,12 +25,36 @@
                     </mat-option>
                   </mat-autocomplete>
                 </mat-form-field><br>-->
-                <mat-form-field>
-                  <input matInput placeholder="Secretary Name" formControlName="refUser" required>
-                  <mat-error *ngIf="refUser.hasError('required')">
-                    Secretary is required.
-                  </mat-error>
-                </mat-form-field><br>
+                <mat-form-field class="example-chip-list">
+                  <mat-chip-list #chipList ngDefaultControl [errorStateMatcher]="matcher" [formControl]="secChips">
+                    <mat-chip
+                      *ngFor="let sec of secretaries"
+                      [selectable]="selectable"
+                      [removable]="removable"
+                      (removed)="remove(sec)">
+                      {{sec.name}}
+                      <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+                    </mat-chip>
+                    <input
+                      placeholder="Secretary Name/s *"
+                      #secInput
+                      formControlName="refUser"
+                      (focus)="onFocus()"
+                      (click)="onFocus()"
+                      [matAutocomplete]="auto"
+                      [matChipInputFor]="chipList"
+                      [matChipInputSeparatorKeyCodes]="separatorKeysCodes">
+                    <span *ngIf="loaderService.isLoading | async" matSuffix>
+                      <i class="fas fa-spinner fa-spin"></i>
+                    </span>
+                  </mat-chip-list>
+                  <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
+                    <mat-option *ngFor="let sec of filteredSecretaries | async" [value]="sec._id">
+                      {{sec.name}}
+                    </mat-option>
+                  </mat-autocomplete>
+                  <mat-error>Select atleast one secretary as a reference.</mat-error>
+                </mat-form-field>
                 <mat-form-field>
                   <mat-select placeholder="Milestone Process" [formControl]="milestoneList" required>
                     <mat-option *ngFor="let ml of milestonesLists" [value]="ml._id">
