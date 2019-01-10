@@ -167,6 +167,22 @@ class Mailer {
       });
     });
   }
+  weeklyUpdateSec(email, name, link, counts) {
+    const subject = 'Weekly scheduled reports have been sent out successfully.';
+    const context = {
+      name: name,
+      link: link,
+      counts: counts
+    };
+    return new Promise((resolve, reject) => {
+      this.send('weeklyUpdateSec', context, email, subject)
+        .then(res => {
+        resolve(res);
+      }).catch(err => {
+        reject(err);
+      });
+    });
+  }
 }
 
 module.exports = Mailer;
