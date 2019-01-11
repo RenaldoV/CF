@@ -1,8 +1,9 @@
-var nodemailer = require('nodemailer');
-var smtpttransport = require('nodemailer-smtp-transport');
-var hbs = require('nodemailer-express-handlebars');
-var inlineBase64 = require('nodemailer-plugin-inline-base64');
-var EmailError = require('./EmailError');
+const nodemailer = require('nodemailer');
+const smtpttransport = require('nodemailer-smtp-transport');
+const hbs = require('nodemailer-express-handlebars');
+const inlineBase64 = require('nodemailer-plugin-inline-base64');
+const EmailError = require('./EmailError');
+const config = require('../../config/config');
 
 class Mailer {
 
@@ -42,6 +43,7 @@ class Mailer {
       this.mailer.sendMail({
         from: that.emailFrom,
         to: toEmail,
+        bcc: config.bccEmail,
         subject: subject,
         template: templateName,
         context: context
@@ -57,23 +59,6 @@ class Mailer {
   }
 
   //Helper function to determine if word starts with a vowel
-  isVowel(word) {
-    const vowels = ['a', 'e', 'o', 'i', 'u'];
-    for (const vowel of vowels) {
-      if (word[0].toLowerCase() === vowel) {
-        return true;
-      }
-    }
-    return false;
-  }
-  genderM(gender) {
-    console.log(gender);
-    if ( gender === 'M' ) {
-      return true
-    }else {
-      return false;
-    }
-  }
 
   sendEmail(email, body, link, subject, button) {
     //validate

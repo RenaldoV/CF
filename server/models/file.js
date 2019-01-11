@@ -3,6 +3,7 @@ const Schema = mongoose.Schema;
 
 let File = new mongoose.Schema({
     fileRef: String,
+    archived: Boolean,
     refUser: [{type: Schema.Types.ObjectId, ref: 'User'}],
     milestoneList: {
       _id: {type: Schema.Types.ObjectId, ref: 'MilestoneList'},

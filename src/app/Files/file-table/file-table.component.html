@@ -2,6 +2,9 @@
   <mat-form-field>
     <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Search">
   </mat-form-field>
+  <div class="archivedCB">
+    <mat-checkbox [checked]="archived" (change)="archived = !archived; archived ? showArchived() : hideArchived()"><small style="color: gray">Show Archived</small></mat-checkbox>
+  </div>
 </div>
 
 <div class="example-container mat-elevation-z8">
@@ -12,12 +15,12 @@
 
     <ng-container matColumnDef="fileRef">
       <mat-header-cell *matHeaderCellDef mat-sort-header> File Ref </mat-header-cell>
-      <mat-cell *matCellDef="let element"> {{element.fileRef}} </mat-cell>
+      <mat-cell *matCellDef="let element">{{element.fileRef}} </mat-cell>
     </ng-container>
 
     <ng-container matColumnDef="action">
       <mat-header-cell *matHeaderCellDef mat-sort-header> Cause of Action </mat-header-cell>
-      <mat-cell *matCellDef="let element"> {{element.milestoneList._id.title}} </mat-cell>
+      <mat-cell *matCellDef="let element"><i class="fas fa-archive" *ngIf="element.archived"> </i>&nbsp;  {{element.milestoneList._id.title}} </mat-cell>
     </ng-container>
 
     <ng-container matColumnDef="secretary">
@@ -43,19 +46,20 @@
       </mat-cell>
     </ng-container>
 
-    <!--<ng-container matColumnDef="actions">
+    <ng-container matColumnDef="actions">
       <mat-header-cell *matHeaderCellDef mat-sort-header> Actions </mat-header-cell>
       <mat-cell *matCellDef="let element">
         <i class="fas fa-ellipsis-h" [matMenuTriggerFor]="actionsMenu" (click)="$event.stopPropagation()"></i>
         <mat-menu #actionsMenu="matMenu">
-          <button mat-menu-item><i class="far fa-edit"></i></button>
-          <button mat-menu-item><i class="far fa-trash-alt"></i></button>
+          <!--<button mat-menu-item><i class="far fa-edit"></i> Edit</button>-->
+          <button mat-menu-item (click)="archiveFile(element)"><i class="fas fa-archive"></i> {{element.archived ? 'Restore' : 'Archive'}}</button>
         </mat-menu>
       </mat-cell>
-    </ng-container>-->
+    </ng-container>
 
     <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-    <mat-row *matRowDef="let row; columns: displayedColumns;" matRipple class="element-row" [cdkDetailRow]="row" [cdkDetailRowTpl]="tpl">
+    <mat-row *matRowDef="let row; columns: displayedColumns;" matRipple class="element-row"
+             [cdkDetailRow]="row" [cdkDetailRowTpl]="tpl" [ngClass]="{'archived': row.archived}">
     </mat-row>
   </mat-table>
   <mat-paginator [pageSizeOptions]="[100, 150, 200, 250]"></mat-paginator>

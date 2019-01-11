@@ -12,7 +12,11 @@
 
 .mat-form-field {
   font-size: 14px;
-  width: 100%;
+  width: 80%;
+}
+.archivedCB {
+  width: 20%;
+  float: right;
 }
 
 .mat-table {
@@ -64,5 +68,12 @@ mat-accordion .mat-expansion-panel-header-description {
   color: black;
   border-radius: 10px;
   padding: 7px;
+}
+
+mat-row.archived {
+  background-color: lightgray;
+}
+mat-row.archived:hover {
+  background-color: darkgrey;
 }
 

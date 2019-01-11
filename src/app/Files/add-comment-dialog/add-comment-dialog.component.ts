@@ -29,7 +29,9 @@ export class AddCommentDialogComponent implements OnInit {
   }
   createCommentForm() {
     this.commentForm = this.fb.group({
-      comment: ['', Validators.required]
+      comment: ['', Validators.required],
+      sendSMS: [''],
+      sendEmail: ['']
     });
   }
   get comment() {
@@ -37,7 +39,7 @@ export class AddCommentDialogComponent implements OnInit {
   }
   submitComment() {
     if (this.commentForm.valid) {
-      this.dialogRef.close(this.commentForm.value.comment);
+      this.dialogRef.close(this.commentForm.value);
     }
   }
 

@@ -46,7 +46,8 @@ export class FileService {
     const headers = new HttpHeaders();
     headers.set('Content-Type', 'application/json');
     return this.http.post<any>(`${this.host}/addComment`, {
-      fileID: fileID, milestoneID: milestoneID, uid: uid, comment: comment
+      fileID: fileID, milestoneID: milestoneID, uid: uid, comment: comment.comment,
+      sendNoti: {sms : comment.sendSMS, email: comment.sendEmail}
     });
   }
   getFileRef(id): Observable<any> {
@@ -56,6 +57,9 @@ export class FileService {
   getFile(id) {
     const url = `${this.host}/file/` + id;
     return this.http.get(url);
+  }
+  updateFile(f) {
+    return this.http.post<any>(`${this.host}/updateFile`, f);
   }
 
 }

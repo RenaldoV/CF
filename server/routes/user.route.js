@@ -933,6 +933,7 @@ userRoutes.route('/addFile').post((req, res, next) => {
   let uid = req.body.uid;
   file.createdBy = uid;
   file.updatedBy = uid;
+  file.archived = false;
   async.waterfall([
     (callback) => { // first method: Get milestone list associated to file and build new file with milestones array
       List.findById(file.milestoneList, 'milestones').exec((error, list) => {
@@ -1014,6 +1015,20 @@ userRoutes.route('/addFile').post((req, res, next) => {
       res.send(result);
     }
   });
+});
+userRoutes.route('/updateFile').post((req, res, next) => {
+  const f = req.body;
+  File.findByIdAndUpdate(f._id, f, {new: true}, (er, fRes) => {
+    if(er) {
+      console.log(er);
+      res.send(false);
+    }
+    if(fRes) {
+      res.send(fRes);
+    }else {
+      res.end(false);
+    }
+  })
 });
 userRoutes.route('/files/:id').get((req, res, next) => {
   // get user's Files
@@ -1188,6 +1203,7 @@ userRoutes.route('/addComment').post((req, res, next) => {
     comment: req.body.comment,
     timestamp: new Date()
   };
+  let sendNoti = req.body.sendNoti;
   File.findOneAndUpdate(
     {_id: fileID, 'milestoneList.milestones._id': milestoneID},
     { $push: {'milestoneList.milestones.$.comments': comment},
@@ -1210,13 +1226,17 @@ userRoutes.route('/addComment').post((req, res, next) => {
         comment.user = user;
         result.contacts.forEach(ct => {
           const url = req.protocol + '://' + req.get('host') + '/login/' + encodeURI(fileID) + '/' + encodeURI(ct._id);
-          mailer.commentMade(user.name, ct.email, comment.comment, result.propertyDescription, result.milestoneList.milestones[0]._id.name, url);
-          smser.commentMade(ct.cell, comment.comment, user.name, result.propertyDescription, result.milestoneList.milestones[0]._id.name, url);
+          if(sendNoti.email) {
+            mailer.commentMade(user.name, ct.email, comment.comment, result.propertyDescription, result.milestoneList.milestones[0]._id.name, url);
+          }
+          if(sendNoti.sms) {
+            smser.commentMade(ct.cell, comment.comment, user.name, result.propertyDescription, result.milestoneList.milestones[0]._id.name, url);
+          }
         });
         res.send(comment);
       });
     } else {
-      res.send(false);
+      res.end(false);
     }
   })
 });

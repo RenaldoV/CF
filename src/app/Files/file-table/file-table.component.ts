@@ -20,9 +20,10 @@ import {AlwaysAskNotificationsComponent} from '../always-ask-notifications/alway
   ],
 })
 export class FileTableComponent implements OnInit {
-  displayedColumns: string[] = ['action', 'fileRef', 'secretary', 'created', 'updated'/*, 'actions'*/];
+  displayedColumns: string[] = ['action', 'fileRef', 'secretary', 'created', 'updated', 'actions'];
   dataSource;
-  timeAgo;
+  archived = false;
+  allFiles: any[];
   @Input() files;
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -37,8 +38,12 @@ export class FileTableComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.dataSource = new MatTableDataSource<File>(this.files);
+    this.allFiles = this.files;
+    this.dataSource = new MatTableDataSource<File>(this.files.filter(f => !f.archived));
     /*console.log(this.files);*/
+    this.initDataSource();
+  }
+  initDataSource() {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
     this.dataSource.sortingDataAccessor = (item, property) => {
@@ -51,22 +56,6 @@ export class FileTableComponent implements OnInit {
           return item[property];
       }
     };
-    /*this.dataSource.filterPredicate =
-      (data: File, filters: string) => {
-        const matchFilter = [];
-        const filterArray = filters.split('+');
-        // const columns = (<any>Object).values(data);
-        console.log(data);
-        // OR be more specific [data.name, data.race, data.color];
-
-        // Main
-        /!*filterArray.forEach(filter => {
-          const customFilter = [];
-          columns.forEach(column => customFilter.push(column.toLowerCase().includes(filter)));
-          matchFilter.push(customFilter.some(Boolean)); // OR
-        });
-        return matchFilter.every(Boolean); // AND*!/
-      };*/
     this.dataSource.filterPredicate =
       (data: File, filters: string) => {
         const matchFilter = [];
@@ -186,8 +175,6 @@ export class FileTableComponent implements OnInit {
         this.fileService.addComment(fileID, mID._id._id, res)
           .subscribe((comment) => {
             if (comment) {
-              console.log(mID);
-              console.log(comment);
               mID.comments.push(comment);
             }
           });
@@ -224,6 +211,47 @@ export class FileTableComponent implements OnInit {
     this.dive('', arr, newObj);
     return newObj;
   }
+  archiveFile(file) {
+    if (!file.archived) {
+      if (confirm('Are you sure you want to archive this file?')) {
+        this.fileService.updateFile({_id: file._id, archived: !file.archived})
+          .subscribe(res => {
+            if (res) {
+              const i = this.allFiles.findIndex(f => f._id === res._id);
+              this.allFiles[i].archived = res.archived;
+              this.dataSource = new MatTableDataSource<File>(this.allFiles.filter(f => !f.archived));
+              this.initDataSource();
+              this.matSnack.open('File has successfully been archived');
+            } else {
+              this.matSnack.open('Archive not successful');
+            }
+          });
+      }
+    } else {
+      if (confirm('Are you sure you want to restore this file?')) {
+        this.fileService.updateFile({_id: file._id, archived: !file.archived})
+          .subscribe(res => {
+            if (res) {
+              const i = this.allFiles.findIndex(f => f._id === res._id);
+              this.allFiles[i].archived = res.archived;
+              this.dataSource = new MatTableDataSource<File>(this.allFiles.filter(f => f.archived));
+              this.initDataSource();
+              this.matSnack.open('File has successfully been restored');
+            } else {
+              this.matSnack.open('Restore not successful');
+            }
+          });
+      }
+    }
+  }
+  showArchived() {
+    this.dataSource = new MatTableDataSource<File>(this.allFiles.filter(f => f.archived));
+    this.initDataSource();
+  }
+  hideArchived() {
+    this.dataSource = new MatTableDataSource<File>(this.allFiles.filter(f => !f.archived));
+    this.initDataSource();
+  }
 }
 
 export interface File {
@@ -238,6 +266,7 @@ export interface File {
   createdBy: any;
   updatedAt: any;
   createdAt: any;
+  archived: boolean;
   _v: any;
 }
 export interface MilestoneList {
