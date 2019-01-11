@@ -40,20 +40,26 @@ class Scheduler {
         },
         (files, callback) => {
           // Iterate Files in parallel
+          let counts = {
+            files: 0,
+            contacts: 0
+          };
           async.each(files,
             (file, cb) => {
-              // console.log('File: ' + file.fileRef + '\n');
+              // increment number of open files
+              counts.files++;
               // iterate contacts in file in parallel
               async.each(file.contacts,
                 (ct, innerCb) => {
                   const url = host + '/login/' + encodeURI(file._id) + '/' + encodeURI(ct._id);
-                  /*mailer.weeklyUpdate(ct.email,ct.name,url,file.milestoneList._id.title,file.fileRef)
+                  mailer.weeklyUpdate(ct.email,ct.name,url,file.milestoneList._id.title,file.fileRef)
                     .then(res => {
+                      // increment number of contacts emailed.
+                      counts.contacts++;
                       innerCb();
                     }, (innerError) => {
                       innerCb(innerError);
-                    });*/
-                  // console.log('contact name: ' + ct.name + '\n');
+                    });
                 }, (err) => {
                   if (err) {
                     cb(err);
@@ -63,34 +69,47 @@ class Scheduler {
                 });
             }, (err) => {
               if(err) {
-                console.log('Cron job completed with errors: ' + err);
+                console.log('Weekly update completed with errors: ' + err);
                 callback(err);
               }else {
-                console.log('All contacts successfully updated with weekly report');
-                callback(null, files);
+                console.log('All contacts successfully updated with weekly report. counts: ');
+                callback(null, files, counts);
               }
             });
         }
 
-      ], (err, result) => {
+      ], (err, result, counts) => {
+        // waterfall main callback
         if(err) {
           console.log(err)
         }
-        if(result) {
+        if(result && counts) {
+          // get distinct list of secretaries who worked on open files
           const users = result.map(f => f.refUser);
-          let distinctUsers = [];
-          users.forEach(u => {
-            if (distinctUsers.indexOf(u) < 0) {
-              distinctUsers.push(u);
-            }
+          const usersArray = [];
+          users.forEach(us => {
+            us.forEach(u => {
+              usersArray.push(u);
+            })
           });
-          console.log(distinctUsers);
+          const distinctUsers = Array.from(new Set(usersArray.map(u => u._id)))
+            .map(id => {
+              return {
+                name: usersArray.find(u => u._id === id).name,
+                email: usersArray.find(u => u._id === id).email
+              }
+            });
+          // mail all secretaries updates
+          distinctUsers.forEach(u => {
+            const link = host + '/admin-login/' + encodeURI(u._id);
+            mailer.weeklyUpdateSec(u.email, u.name, link, counts)
+              .then(res => {}).catch(err => {
+                console.log(err);
+            });
+          });
         }
       });
     });
-    /*cron.schedule('* * * * *', function() {
-      console.log("Every minute");
-    });*/
   }
 }
 
