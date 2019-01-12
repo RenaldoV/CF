@@ -5,7 +5,8 @@ const express = require('express'),
   mongoose = require('mongoose'),
   http = require('http'),
   fallback = require('express-history-api-fallback'),
-  config = require('./config/DB');
+  config = require('./config/DB'),
+  Scheduler = require ('./server/cron/scheduler');
 
 mongoose.Promise = global.Promise;
 const mongooseOptions = {
@@ -24,6 +25,7 @@ mongoose.connect(config.DB, mongooseOptions).then(
 const userRoutes = require('./server/routes/user.route');
 const root = __dirname + '/dist/ConveyFeed';
 const app = express();
+const sheduler = new Scheduler('http://localhost:4000');
 app.use(bodyParser.json());
 app.use(cors());
 const port = process.env.PORT || 4000;
@@ -39,6 +41,7 @@ app.use((err, req, res, next) => {
 app.use('/user', userRoutes);
 app.use(express.static(root));
 app.use(fallback('dist/ConveyFeed/index.html', { root : __dirname}));
+
 
 const server = http.createServer(app);
 server.listen(port, () => {

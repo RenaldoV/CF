@@ -33,6 +33,7 @@
     "moment": "^2.23.0",
     "mongoose": "^5.3.8",
     "ngx-moment": "^3.3.0",
+    "node-cron": "^2.0.3",
     "nodemailer": "^4.7.0",
     "nodemailer-express-handlebars": "^3.0.0",
     "nodemailer-plugin-inline-base64": "^2.1.1",
@@ -57,7 +58,7 @@
     "karma-jasmine": "~1.1.1",
     "karma-jasmine-html-reporter": "^0.2.2",
     "nodemon": "^1.18.8",
-    "protractor": "~5.3.0",
+    "protractor": "^5.4.2",
     "ts-node": "~5.0.1",
     "tslint": "~5.9.1",
     "typescript": "~2.7.2"

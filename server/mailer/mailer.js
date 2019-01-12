@@ -148,9 +148,19 @@ class Mailer {
       link: link
     };
     const subject = 'New comment made by ' + adminName;
-    console.log(subject);
     return new Promise((resolve, reject) => {
       this.send('comment', context, email, subject).then(res => {
+        resolve(res);
+      }).catch(err => {
+        reject(err);
+      });
+    });
+  }
+  weeklyUpdate(email, name, link, fileType, fileRef) {
+    const message = 'Hi ' + name + ', \nhere is your weekly update of the open ' + fileType + ' file with reference ' + fileRef + '. To view the file click the link below.';
+    const subject = fileType + ' file weekly report';
+    return new Promise((resolve, reject) => {
+      this.sendEmail(email, message, link, subject).then(res => {
         resolve(res);
       }).catch(err => {
         reject(err);
