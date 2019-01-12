@@ -19,7 +19,6 @@ import {ContactResetPasswordComponent} from './Contact/contact-reset-password/co
 const appRoutes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: '/admin-login' },
   { path: 'admin-login', component: AdminLogInComponent, canActivate: [NotAuthService] },
-  // TODO: debug error thrown about observables when someone logged in but closed browser and re opened
   { path: 'admin-login/:id', component: AdminLogInComponent, canActivate: [NotAuthService] },
   {
     path: 'admin-home',
