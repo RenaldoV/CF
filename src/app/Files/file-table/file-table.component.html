@@ -95,7 +95,8 @@
       <mat-accordion>
         <mat-expansion-panel *ngFor="let milestone of element.milestoneList.milestones; let i = index" hideToggle>
           <mat-expansion-panel-header>
-            <mat-panel-title [style.text-decoration]="milestone.completed ? 'line-through' : 'none'">
+            <mat-panel-title [style.text-decoration]="milestone.completed ? 'line-through' : 'none'"
+                             [style.text-decoration-color]="milestone.completed ? 'red' : ''">
               Milestone {{i + 1}}
             </mat-panel-title>
             <mat-panel-description>
@@ -120,7 +121,7 @@
 
             <div class="milestoneComments">
               <div class="btn-group" role="group" aria-label="action buttons" style="margin-top: 5px;">
-                <button class="btn btn-secondary btn-sm saveButton" color="primary" (click)="addComment(milestone, i, element._id)">
+                <button class="btn btn-primary btn-sm saveButton" color="primary" (click)="addComment(milestone, i, element._id)">
                   <span *ngIf="!(loaderService.isLoading | async)"><i class="far fa-comment"></i> Add comment</span>
                   <i *ngIf="loaderService.isLoading | async" class="fas fa-spinner fa-spin"></i>
                 </button>

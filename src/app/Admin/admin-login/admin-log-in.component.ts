@@ -4,6 +4,7 @@ import { AuthService } from '../../auth/auth.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {PasswordValidators} from '../../Common/Validators/passwordValidators';
 import {MatSnackBar} from '@angular/material';
+import {LoaderService} from '../../Common/Loader';
 
 @Component({
   selector: 'app-log-in',
@@ -41,7 +42,8 @@ export class AdminLogInComponent implements OnInit {
     private auth: AuthService,
     private router: Router,
     private route: ActivatedRoute,
-    private matSnack: MatSnackBar
+    private matSnack: MatSnackBar,
+    public loaderService: LoaderService
   ) {
     /*const u = {
       passwordHash : 'admin',

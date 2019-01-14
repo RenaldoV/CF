@@ -98,7 +98,7 @@ export class FileTableComponent implements OnInit {
       };
   }
   numCards(file) {
-    return file.contacts.length + 1 <= 4 ? '' : '-3';
+    return file.contacts.length + 1 <= 3 ? '' : '-4';
   }
   applyFilter(filterValue: string) {
     filterValue = filterValue.trim(); // Remove whitespace

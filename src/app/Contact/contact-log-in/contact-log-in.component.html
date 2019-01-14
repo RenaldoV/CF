@@ -36,7 +36,10 @@
                 <a [routerLink]="['/contact-forgot', loginEmail.valid ? loginEmail.value : '']">Forgot Password?</a>
               </div>
               <div class="col-sm-12 col-md-8 offset-md-2 text-right button-cols">
-                <button type="submit" class="submitBtn btn btn-lg" (click)="login()" [disabled]="!loginForm.valid">Log In</button>
+                <button type="submit" class="submitBtn btn btn-lg btn-primary" (click)="login()" [disabled]="!loginForm.valid">
+                  <span *ngIf="!(loaderService.isLoading | async)">Log In</span>
+                  <i *ngIf="loaderService.isLoading | async" class="fas fa-spinner fa-spin"></i>
+                </button>
               </div>
             </div>
           </form>
@@ -94,7 +97,10 @@
                 </mat-form-field>
               </div>
               <div class="col-sm-12 col-md-8 offset-md-2 text-right button-cols">
-                <button type="submit" class="submitBtn btn btn-lg" (click)="register()" [disabled]="!registerForm.valid">Register</button>
+                <button type="submit" class="submitBtn btn btn-lg btn-primary" (click)="register()" [disabled]="!registerForm.valid">
+                  <span *ngIf="!(loaderService.isLoading | async)">Register</span>
+                  <i *ngIf="loaderService.isLoading | async" class="fas fa-spinner fa-spin"></i>
+                </button>
               </div>
             </div>
           </form>

@@ -1,12 +1,15 @@
-<nav class="navbar navbar-expand-sm bg-dark">
+<nav class="navbar navbar-expand-sm">
   <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-    <li class="nav-item active">
+    <a class="navbar-brand" href="/admin-home">
+      <img style="height: 50px; width: auto;" src="http://app.cbilaw.co.za/Images/Main300x600.png">
+    </a>
+    <li class="nav-item active" style="font-size: 22px; margin-top: 10px">
       <span>ConveyFeed</span>
       <span> / File: {{fileref}}</span>
     </li>
   </ul>
   <div class="dropdown">
-    <button class="btn btn-sm btn-secondary" type="button" id="dropdownMenuButton" >
+    <button class="btn btn-sm btn-primary" type="button" id="dropdownMenuButton" >
       <i class="fas fa-user-tie"></i> {{ getName() }}
     </button>
   </div>

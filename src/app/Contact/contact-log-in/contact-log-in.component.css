@@ -2,7 +2,6 @@
   color: darkgray;
 }
 button {
-  background-color: darkblue;
   color: white;
 }
 button:disabled {

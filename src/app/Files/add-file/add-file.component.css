@@ -1,12 +1,19 @@
 .box {
-  background-color: lightgray;
+  background-color: #F5F5F5;
   border-radius: 5px;
   margin-top: 20px;
   min-height: 400px;
 }
 
 mat-horizontal-stepper {
-  background-color: lightgray;
+  background-color: #F5F5F5;
+}
+
+::ng-deep .mat-step-header .mat-step-icon-selected,
+::ng-deep .mat-step-header .mat-step-icon-state-done,
+::ng-deep .mat-step-header .mat-step-icon-state-edit
+{
+  background-color: #1DA1F2!important;
 }
 
 mat-form-field {

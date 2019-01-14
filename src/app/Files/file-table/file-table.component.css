@@ -77,3 +77,9 @@ mat-row.archived:hover {
   background-color: darkgrey;
 }
 
+div.contactsBox  .col-sm-12 {
+  margin-bottom: 2px;
+}
+
+
+

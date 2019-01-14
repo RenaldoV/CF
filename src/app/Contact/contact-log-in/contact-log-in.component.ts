@@ -6,6 +6,7 @@ import {ContactService} from '../contact.service';
 import {FileService} from '../../Files/file.service';
 import {PasswordValidators} from '../../Common/Validators/passwordValidators';
 import {MatSnackBar} from '@angular/material';
+import {LoaderService} from '../../Common/Loader';
 
 @Component({
   selector: 'app-contact-log-in',
@@ -52,7 +53,8 @@ export class ContactLogInComponent implements OnInit {
     private contactService: ContactService,
     private fileService: FileService,
     private matSnack: MatSnackBar,
-    private router: Router) {
+    private router: Router,
+    public loaderService: LoaderService) {
   }
   createLoginForm(email) {
     this.loginForm = this.fb.group({

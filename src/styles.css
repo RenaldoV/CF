@@ -5,3 +5,29 @@
 .mat-tooltip {
   white-space: pre-line;
 }
+
+* {
+  font-family: 'Open Sans', sans-serif;
+}
+
+.btn.btn-primary {
+  background-color: #1DA1F2!important;
+  border-color: #1DA1F2!important;
+}
+
+.btn.btn-primary:hover {
+  background-color: #5a6268!important;
+  border-color: #5a6268!important;
+}
+
+.mat-checkbox-checked .mat-checkbox-background {
+  background-color: #5fba7d!important;
+}
+
+.mat-card-title > i.far, .mat-card-title > i.fas {
+  color: #1DA1F2!important;
+}
+
+span.speech {
+  background-color: #F5F5F5!important;
+}
