@@ -3,9 +3,31 @@
 <mat-dialog-content [formGroup]="contactForm">
   <div style="margin-bottom: 10px;">
     <mat-form-field class="innerFormFields">
-      <input matInput placeholder="Name and Surname" formControlName="name" required>
+      <mat-select placeholder="Contact's title" formControlName="title">
+        <mat-option value="Mr">
+          Mr.
+        </mat-option>
+        <mat-option value="Mrs">
+          Mrs.
+        </mat-option>
+        <mat-option value="Ms">
+          Ms.
+        </mat-option>
+      </mat-select>
+      <mat-error>
+        Contact title is required.
+      </mat-error>
+    </mat-form-field>
+    <mat-form-field class="innerFormFields">
+      <input matInput placeholder="Name" formControlName="name" required>
       <mat-error>
         Contact name is required.
+      </mat-error>
+    </mat-form-field>
+    <mat-form-field class="innerFormFields">
+      <input matInput placeholder="Surname" formControlName="surname" required>
+      <mat-error>
+        Contact surname is required.
       </mat-error>
     </mat-form-field>
     <br>
@@ -40,24 +62,23 @@
         You already have a contact with this email.
       </mat-error>
     </mat-form-field>
-    <p style="color: gray;">Contact Type</p>
-    <mat-radio-group class="example-radio-group" formControlName="type">
-      <mat-radio-button value="Buyer">
-        Buyer
-      </mat-radio-button>
-      <br>
-      <mat-radio-button value="Seller">
-        Seller
-      </mat-radio-button>
-      <br>
-      <mat-radio-button value="Agent">
-        Agent
-      </mat-radio-button>
-      <br>
-    </mat-radio-group>
-    <mat-error *ngIf="type.hasError('required') && !type.pristine">
-      Contact type is required.
-    </mat-error>
+    <br>
+    <mat-form-field>
+      <mat-select placeholder="Contact type" formControlName="type">
+        <mat-option value="Buyer">
+          Buyer
+        </mat-option>
+        <mat-option value="Seller">
+          Seller
+        </mat-option>
+        <mat-option value="Agent">
+          Agent
+        </mat-option>
+      </mat-select>
+      <mat-error>
+        Contact type is required.
+      </mat-error>
+    </mat-form-field>
   </div>
 </mat-dialog-content>
 

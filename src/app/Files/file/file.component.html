@@ -63,7 +63,7 @@
            class="col-sm-12 col-md-6 col-lg{{numCards()}}">
         <mat-card>
           <mat-card-header>
-            <mat-card-title><i class="fas fa-user{{ct.type === 'Agent' ? 'tie' : ''}}"></i> {{ct.name}}</mat-card-title>
+            <mat-card-title><i class="fas fa-user{{ct.type === 'Agent' ? '-tie' : ''}}"></i> {{ct.name + ' ' + ct.surname}}</mat-card-title>
             <mat-card-subtitle>
               <small><i class="fas fa-user-friends"></i> {{ct?.type}}</small><br>
               <small><i class="far fa-envelope"></i> {{ ct?.email }}</small><br>

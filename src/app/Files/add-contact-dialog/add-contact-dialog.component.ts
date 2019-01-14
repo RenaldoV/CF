@@ -31,7 +31,9 @@ export class AddContactDialogComponent implements OnInit {
 
   createContactsForm() {
     this.contactForm = this.fb.group({
+      title: ['', Validators.required],
       name: ['', Validators.required],
+      surname: ['', Validators.required],
       cell: ['', [Validators.required, GlobalValidators.cellRegex]],
       email: ['', [
         Validators.required,
@@ -40,8 +42,14 @@ export class AddContactDialogComponent implements OnInit {
       type: ['', Validators.required]
     });
   }
+  get title() {
+    return this.contactForm.get('title');
+  }
   get name() {
     return this.contactForm.get('name');
+  }
+  get surname() {
+    return this.contactForm.get('surname');
   }
   get cell() {
     return this.contactForm.get('cell');

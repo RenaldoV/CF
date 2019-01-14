@@ -5,6 +5,8 @@ let Contact = new mongoose.Schema({
     email: String,
     type: String,
     name: String,
+    surname: String,
+    title: String,
     cell: String,
     forgotPassword: {
       token: String,

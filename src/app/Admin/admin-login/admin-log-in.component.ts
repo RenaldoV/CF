@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../auth/auth.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {PasswordValidators} from '../../Common/Validators/passwordValidators';
+import {MatSnackBar} from '@angular/material';
 
 @Component({
   selector: 'app-log-in',
@@ -39,7 +40,8 @@ export class AdminLogInComponent implements OnInit {
     private fb: FormBuilder,
     private auth: AuthService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private matSnack: MatSnackBar
   ) {
     /*const u = {
       passwordHash : 'admin',
@@ -69,7 +71,19 @@ export class AdminLogInComponent implements OnInit {
     return this.loginForm.get('password');
   }
   submit () {
-    this.auth.loginUser(this.loginForm.value);
+    this.auth.loginUser(this.loginForm.value)
+      .subscribe(res => {
+        if (res) {
+          this.auth.saveUser(res);
+          this.router.navigate(['/admin-home']);
+        } else {
+          this.matSnack.open('Email and password combination is incorrect.');
+          return false;
+        }
+      }, err => {
+        console.log(err);
+        return false;
+      });
   }
 
   createRegisterForm(email) {

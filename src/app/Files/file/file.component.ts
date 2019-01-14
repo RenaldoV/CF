@@ -28,7 +28,6 @@ export class FileComponent implements OnInit {
     this.fileService.getFile(this.fileID)
       .subscribe(res => {
         if (res) {
-          console.log(res);
           this.file = res;
         }
       });

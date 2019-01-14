@@ -516,7 +516,9 @@ export class AdminSetupComponent implements OnInit {
   addContact(existing?) {
     const ct = this.fb.group({
       _id: [''],
+      title: ['', Validators.required],
       name: ['', Validators.required],
+      surname: ['', Validators],
       cell: ['', [Validators.required, GlobalValidators.cellRegex]],
       email: ['', [Validators.required, Validators.email],
         existing ? null : this.shouldBeUniqueContact.bind(this)],

@@ -143,7 +143,7 @@
                 <div class="example-box" *ngFor="let ct of fileContactsList" cdkDrag>
                   <div class="row">
                     <div class="col-12">
-                      <span style="font-weight: bold"><i class="far fa-id-card"></i> {{ct?.name}}</span>
+                      <span style="font-weight: bold"><i class="far fa-id-card"></i> {{ct?.name + ' ' + ct?.surname}}</span>
                     </div>
                     <div class="col-8">
                       <small style="color: darkgray"><i class="far fa-envelope"></i> {{ct?.email}}</small>
@@ -171,6 +171,7 @@
                 [cdkDropListConnectedTo]="[fileContactListElement]"
                 class="example-list"
                 (cdkDropListDropped)="drop($event)">
+                <div class="hint" *ngIf="filteredContacts.length === 0" style="color: gray">No contacts match your search.</div>
                 <div class="example-box" *ngFor="let ct of filteredContacts" cdkDrag>
                   <div class="row">
                     <div class="col-12">

@@ -90,7 +90,6 @@ userRoutes.route('/allUserNames').get((req, res, next) => {
       res.send(false);
     }
     if (users) {
-      console.log(users);
       res.send(users);
     } else {
       res.end(false);
@@ -813,7 +812,6 @@ userRoutes.route('/registerContact').post((req, res, next) => {
 });
 userRoutes.route('/loginContact').post((req, res, next) => {
   let ct = req.body;
-  console.log(ct);
   Contact.findById(ct._id, '_id name passwordHash email', (err, resCt) => {
     if (err) {
       console.log(err);
@@ -821,7 +819,6 @@ userRoutes.route('/loginContact').post((req, res, next) => {
     }
     if (resCt) {
       resCt = resCt.toObject();
-      console.log(resCt);
       bcrypt.compare(ct.password, resCt.passwordHash, (err, pwMatch) => {
         if (err) {
           console.log(err);
@@ -883,7 +880,6 @@ userRoutes.route('/checkEmailContact').post((req ,res, next) => {
 });
 userRoutes.route('/checkResetTokenContact').post((req,res,next) => {
   let token = req.body.token;
-  console.log(token);
   Contact.findOne({'forgotPassword.token': token, 'forgotPassword.expiry': { $gt: Date.now() } }, function(err, user) {
     if(err) {
       console.log(err);
@@ -1000,7 +996,7 @@ userRoutes.route('/addFile').post((req, res, next) => {
         const loginUrl = host + '/login/' + encodeURI(file._id);
         f.contacts.forEach(ct => {
             const registerURL = loginUrl + '/' + encodeURI(ct._id);
-            mailer.contactAddedToFile(ct.email, ct.name, f.milestoneList._id.title, file.fileRef, registerURL);
+            mailer.contactAddedToFile(ct.email, ct.title + '. ' + ct.surname, f.milestoneList._id.title, file.fileRef, registerURL);
         });
         mailer.adminFileCreated(usr.email, host + '/admin-home', file.fileRef);
         callback(null, file);
@@ -1088,7 +1084,6 @@ userRoutes.route('/file/:id').get((req, res, next) => {
     }
     if(file) {
       file.milestoneList.milestones = file.milestoneList.milestones.filter(m => m.completed === true);
-      console.log(file);
       res.send(file);
     }
   });

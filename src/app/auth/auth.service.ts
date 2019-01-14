@@ -65,19 +65,7 @@ export class AuthService {
     console.log('logging in user: ' + user);
     const headers = new HttpHeaders();
     headers.set('Content-Type', 'application/json');
-    this.http.post<any>(`${this.host}/login`, user)
-      .subscribe(res => {
-        if (res) {
-          this.saveUser(res);
-          this.router.navigate(['/admin-home']);
-        } else {
-          alert('Email and password combination is incorrect.');
-          return false;
-        }
-      }, err => {
-        console.log(err);
-        return false;
-      });
+    return this.http.post<any>(`${this.host}/login`, user);
   }
   register(user) {
     console.log(user);
