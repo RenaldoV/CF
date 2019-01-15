@@ -740,7 +740,7 @@ userRoutes.route('/contacts/:uid/:search').get((req, res, next) => {
   const uid = req.params.uid;
   const searchTerm = req.params.search;
 
-  User.findById(uid, 'contacts').populate('contacts', 'name email cell type').exec((err, user) => {
+  User.findById(uid, 'contacts').populate('contacts', 'name email cell type surname').exec((err, user) => {
     if(err) {
       console.log(err);
       res.send(false);
@@ -1113,7 +1113,9 @@ userRoutes.route('/completeMilestone').post((req, res, next) => {
         'milestoneList.milestones.$.updatedAt': new Date(),
          updatedBy: uid
       }
-    }, {new: true}).exec((err, newFile) => {
+    }, {new: true})
+    .populate('refUser', 'name email')
+    .exec((err, newFile) => {
       if (err) {
         console.log(err);
         res.send(false);
@@ -1143,14 +1145,19 @@ userRoutes.route('/completeMilestone').post((req, res, next) => {
             let emailMessage = callback.milestone.emailMessage;
             let smsMessage = callback.milestone.smsMessage;
             const milestoneName = callback.milestone.name;
+            console.log(newFile);
             callback.contacts.forEach(ct => {
               const url = req.protocol + '://' + req.get('host') + '/login/' + encodeURI(fileID) + '/' + encodeURI(ct._id);
               const email = ct.email;
+              // All fields that must replace placeholders in messages
               const emailContext = {
                 deedsOffice: newFile.deedsOffice,
                 propertyDescription: newFile.propertyDescription,
                 myName: callback.adminUser.name,
-                contactName: ct.name
+                contactName: ct.name,
+                fileRef: newFile.fileRef,
+                secNames: newFile.refUser.map(s => s.name),
+                secEmails: newFile.refUser.map(s => s.email)
               };
               const emailBody = buildMessage(emailMessage, emailContext);
               // check if always ask for noti props is activated
@@ -1251,5 +1258,9 @@ function buildMessage(body, context) {
   resultMessage = resultMessage.split('*property_description*').join(context.propertyDescription);
   resultMessage = resultMessage.split('*my_name*').join(context.myName);
   resultMessage = resultMessage.split('*contact_name*').join(context.contactName);
+  resultMessage = resultMessage.split('*sec_names*').join(context.secNames.join(' / '));
+  resultMessage = resultMessage.split('*sec_emails*').join(context.secEmails.join(' / '));
+  resultMessage = resultMessage.split('*file_ref*').join(context.fileRef);
+  console.log(resultMessage);
   return resultMessage;
 }

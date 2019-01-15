@@ -53,7 +53,7 @@
                       {{sec.name}}
                     </mat-option>
                   </mat-autocomplete>
-                  <mat-error>Select atleast one secretary as a reference.</mat-error>
+                  <mat-error>Select at least one secretary as a reference.</mat-error>
                 </mat-form-field>
                 <mat-form-field>
                   <mat-select placeholder="Milestone Process" [formControl]="milestoneList" required>
@@ -175,7 +175,7 @@
                 <div class="example-box" *ngFor="let ct of filteredContacts" cdkDrag>
                   <div class="row">
                     <div class="col-12">
-                      <span style="font-weight: bold"><i class="far fa-id-card"></i> {{ct?.name}}</span>
+                      <span style="font-weight: bold"><i class="far fa-id-card"></i> {{ct?.name + ' ' + ct?.surname}}</span>
                     </div>
                     <div class="col-8">
                       <small style="color: darkgray"><i class="far fa-envelope"></i> {{ct?.email}}</small>
