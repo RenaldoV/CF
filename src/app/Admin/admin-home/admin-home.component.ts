@@ -9,7 +9,6 @@ import {FileService} from '../../Files/file.service';
   styleUrls: ['./admin-home.component.css']
 })
 export class AdminHomeComponent implements OnInit {
-  filterForm: FormGroup;
   files;
   constructor(
     private fb: FormBuilder,

@@ -5,10 +5,119 @@
     <div class="col-12">
       <mat-checkbox formControlName="sendSMS">
         SMS</mat-checkbox>
+      <br>
+      <div class="row" *ngIf="sendSMS.value">
+        <div class="col-10 offset-1">
+          <mat-accordion>
+            <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                <mat-panel-description>
+                  SMS Message preview
+                </mat-panel-description>
+              </mat-expansion-panel-header>
+              <mat-form-field class="innerFormFields col-12" appearance="outline">
+                <mat-label>SMS Notification Message</mat-label>
+                <textarea matInput
+                          placeholder="Dear *contact_name* your property *property_description* has been registered at *deeds_office* please contact me *my_name* for any other queries."
+                          formControlName="smsMessage" required rows="4"></textarea>
+                <mat-error>SMS Message is required.</mat-error>
+              </mat-form-field>
+              <div class="col-12">
+                <span style="color: lightgray">Insert Placeholders</span><br>
+                <mat-chip-list>
+                  <mat-chip
+                    (click)="insertNoti($event, ' *contact_name*','smsMessage');">
+                    Contact's Name
+                  </mat-chip>
+                  <mat-chip
+                    (click)="insertNoti($event, ' *property_description*', 'smsMessage');">
+                    Prop Description
+                  </mat-chip>
+                  <mat-chip
+                    (click)="insertNoti($event, ' *deeds_office*', 'smsMessage');">
+                    Deeds Office
+                  </mat-chip>
+                  <mat-chip
+                    (click)="insertNoti($event,' *my_name*', 'smsMessage');">
+                    My Name
+                  </mat-chip>
+                  <mat-chip
+                    (click)="insertNoti($event, ' *sec_names*', 'smsMessage');">
+                    Secretary name/s
+                  </mat-chip>
+                  <mat-chip
+                    (click)="insertNoti($event, ' *sec_emails*', 'smsMessage');">
+                    Secretary email/s
+                  </mat-chip>
+                  <mat-chip
+                    (click)="insertNoti($event, ' *file_ref*', 'smsMessage');">
+                    File Reference
+                  </mat-chip>
+                </mat-chip-list>
+              </div>
+            </mat-expansion-panel>
+          </mat-accordion>
+        </div>
+      </div>
     </div>
+    <br>
     <div class="col-12">
       <mat-checkbox formControlName="sendEmail">
         Email</mat-checkbox>
+      <br>
+      <div class="row" *ngIf="sendEmail.value">
+        <div class="col-10 offset-1">
+          <mat-accordion>
+            <mat-expansion-panel>
+              <mat-expansion-panel-header>
+                <mat-panel-description>
+                  Email Message preview
+                </mat-panel-description>
+              </mat-expansion-panel-header>
+              <mat-form-field class="innerFormFields col-12" appearance="outline">
+                <mat-label>Email Notification Message</mat-label>
+                <textarea matInput
+                          placeholder="Dear *contact_name* your property *property_description* has been registered at *deeds_office* please contact me *my_name* for any other queries."
+                          formControlName="emailMessage" required rows="4"></textarea>
+                <mat-error>Email Message is required.</mat-error>
+              </mat-form-field>
+              <div class="col-12">
+                <span style="color: lightgray">Insert Placeholders</span><br>
+                <mat-chip-list>
+                  <mat-chip
+                    (click)="insertNoti($event, ' *contact_name*','emailMessage');">
+                    Contact's Name
+                  </mat-chip>
+                  <mat-chip
+                    (click)="insertNoti($event, ' *property_description*', 'emailMessage');">
+                    Prop Description
+                  </mat-chip>
+                  <mat-chip
+                    (click)="insertNoti($event, ' *deeds_office*', 'emailMessage');">
+                    Deeds Office
+                  </mat-chip>
+                  <mat-chip
+                    (click)="insertNoti($event,' *my_name*', 'emailMessage');">
+                    My Name
+                  </mat-chip>
+                  <mat-chip
+                    (click)="insertNoti($event, ' *sec_names*', 'emailMessage');">
+                    Secretary name/s
+                  </mat-chip>
+                  <mat-chip
+                    (click)="insertNoti($event, ' *sec_emails*', 'emailMessage');">
+                    Secretary email/s
+                  </mat-chip>
+                  <mat-chip
+                    (click)="insertNoti($event, ' *file_ref*', 'emailMessage');">
+                    File Reference
+                  </mat-chip>
+                </mat-chip-list>
+              </div>
+            </mat-expansion-panel>
+          </mat-accordion>
+        </div>
+      </div>
     </div>
     <br>
   </div>

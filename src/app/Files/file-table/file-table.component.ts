@@ -133,6 +133,10 @@ export class FileTableComponent implements OnInit {
               m.completed = e.checked;
               chBx.checked = false;
             }
+          } else {
+            e.checked = !e.checked;
+            m.completed = e.checked;
+            chBx.checked = false;
           }
         });
       } else {

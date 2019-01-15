@@ -10,7 +10,8 @@ import {ContactService} from '../contact.service';
   styleUrls: ['./contact-forgot-password.component.css']
 })
 export class ContactForgotPasswordComponent implements OnInit {
-
+  submitted = false;
+  message = '';
   constructor(
     private auth: ContactService,
     private router: Router,
@@ -25,12 +26,15 @@ export class ContactForgotPasswordComponent implements OnInit {
     this.auth.checkEmail(e)
       .subscribe(res => {
         if (res) {
+          this.submitted = true;
+          this.message = 'Please check your email and follow the instructions';
           this.matSnack.open('Please check your email and follow the instructions');
         } else {
+          this.submitted = true;
+          this.message = 'Email does not exist or has not been verified, please follow the link from your email to verify your account.';
           this.matSnack.open('Email does not exist or has not been verified, ' +
             'please follow the link from your email to verify your account.');
         }
-        console.log(res);
       }, (error) => {
         console.log(error);
       });

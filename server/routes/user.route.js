@@ -859,7 +859,7 @@ userRoutes.route('/checkEmailContact').post((req ,res, next) => {
               else {
                 // sendmail with link
                 const link = req.protocol + '://' + req.get('host') + '/contact-reset/' + token;
-                mailer.forgotPassword(usr.name, link, usr.email)
+                mailer.forgotPassword(usr.title + '. ' + usr.surname, link, usr.email)
                   .then(result => {
                     res.send(true);
                   }).catch(err => {
@@ -1145,7 +1145,6 @@ userRoutes.route('/completeMilestone').post((req, res, next) => {
             let emailMessage = callback.milestone.emailMessage;
             let smsMessage = callback.milestone.smsMessage;
             const milestoneName = callback.milestone.name;
-            console.log(newFile);
             callback.contacts.forEach(ct => {
               const url = req.protocol + '://' + req.get('host') + '/login/' + encodeURI(fileID) + '/' + encodeURI(ct._id);
               const email = ct.email;
@@ -1163,11 +1162,20 @@ userRoutes.route('/completeMilestone').post((req, res, next) => {
               // check if always ask for noti props is activated
               if (callback.milestone.alwaysAsk) {
                 if (notiProps.sendEmail) { // send email
-                  mailer.sendEmail(email, emailBody, url, milestoneName + ' milestone has been completed.');
+                  mailer.sendEmail(
+                    email,
+                    // check if message has changed in always ask for noti popup and replace original message
+                    notiProps.emailMessage ? buildMessage(notiProps.emailMessage, emailContext) : buildMessage(emailMessage, emailContext),
+                    url,
+                    milestoneName + ' milestone has been completed.'
+                  );
                 }
                 if (notiProps.sendSMS) { // send sms
-                  smser.send(ct.cell, buildMessage(smsMessage, emailContext))
-                    .then(res => {}, (error) => {
+                  smser.send(
+                    ct.cell,
+                    // check if message has changed in always ask for noti popup and replace original message
+                    notiProps.smsMessage ? buildMessage(notiProps.smsMessage, emailContext) : buildMessage(smsMessage, emailContext)
+                  ).then(res => {}, (error) => {
                       console.log(error);
                       res.send(false);
                     });
@@ -1261,6 +1269,5 @@ function buildMessage(body, context) {
   resultMessage = resultMessage.split('*sec_names*').join(context.secNames.join(' / '));
   resultMessage = resultMessage.split('*sec_emails*').join(context.secEmails.join(' / '));
   resultMessage = resultMessage.split('*file_ref*').join(context.fileRef);
-  console.log(resultMessage);
   return resultMessage;
 }

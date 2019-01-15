@@ -327,7 +327,7 @@
                     </mat-expansion-panel-header>
                     <div [formGroupName]="i" (change)="onContactChange(i)">
                       <mat-form-field class="innerFormFields">
-                        <mat-select placeholder="Contact's title" formControlName="title">
+                        <mat-select (valueChange)="onContactChange(i)" placeholder="Contact's title" formControlName="title">
                           <mat-option value="Mr">
                             Mr.
                           </mat-option>
@@ -344,7 +344,7 @@
                       </mat-form-field>
                       <br>
                       <mat-form-field class="innerFormFields">
-                        <input matInput placeholder="Name and Surname" formControlName="name" required>
+                        <input matInput placeholder="Name" formControlName="name" required>
                         <mat-error>
                           Contact name is required.
                         </mat-error>
@@ -387,7 +387,7 @@
                       </mat-form-field>
                       <br>
                       <mat-form-field class="innerFormFields">
-                        <mat-select placeholder="Contact type" formControlName="type">
+                        <mat-select (valueChange)="onContactChange(i)" placeholder="Contact type" formControlName="type">
                           <mat-option value="Buyer">
                             Buyer
                           </mat-option>

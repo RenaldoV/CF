@@ -12,6 +12,8 @@ import {ContactService} from '../contact.service';
 export class ContactResetPasswordComponent implements OnInit {
   token;
   tokenValid = false;
+  submitted = false;
+  message = '';
   constructor(
     private route: ActivatedRoute,
     private contactService: ContactService,
@@ -22,12 +24,13 @@ export class ContactResetPasswordComponent implements OnInit {
 
   ngOnInit() {
     this.token = this.route.snapshot.paramMap.get('token');
-    console.log(this.token);
     this.contactService.checkResetToken(this.token)
       .subscribe(res => {
         if (res) {
           this.tokenValid = true;
         } else {
+          this.submitted = true;
+          this.message = 'Reset token has expired, please try again.';
           const sb = this.matSnack.open('Reset token has expired, please try again.', 'ok');
           sb.afterDismissed().subscribe(() => {
             this.router.navigate(['/contact-forgot']);
@@ -42,8 +45,11 @@ export class ContactResetPasswordComponent implements OnInit {
     this.contactService.updateForgotPassword(this.token, e)
       .subscribe(res => {
         if (res) {
+          this.submitted = true;
+          this.message = 'Password successfully changed';
           const sb = this.matSnack.open('Password successfully changed', 'ok');
           sb.afterDismissed().subscribe(() => {
+            this.message.concat('\nPlease follow the link on your email to log in and view a file.');
             this.matSnack.open('Please follow the link on your email to log in and view a file.', 'ok');
           });
         } else {

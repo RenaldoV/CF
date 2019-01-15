@@ -29,12 +29,42 @@ export class AlwaysAskNotificationsComponent implements OnInit {
   createForm() {
     this.notiPropsForm = this.fb.group({
       sendSMS: [this.data.sendSMS],
-      sendEmail: [this.data.sendEmail]
+      smsMessage: [this.data.smsMessage],
+      sendEmail: [this.data.sendEmail],
+      emailMessage: [this.data.emailMessage]
     });
+  }
+  get sendSMS() {
+    return this.notiPropsForm.get('sendSMS');
+  }
+  get sendEmail() {
+    return this.notiPropsForm.get('sendEmail');
+  }
+  get smsMessage() {
+    return this.notiPropsForm.get('smsMessage');
+  }
+  get emailMessage() {
+    return this.notiPropsForm.get('emailMessage');
+  }
+  insertNoti(e, msg, control) {
+    e.preventDefault();
+    this.notiPropsForm.get(control).setValue(this.notiPropsForm.get(control).value + msg);
   }
   submit() {
     if (this.notiPropsForm.valid) {
-      this.dialogRef.close(this.notiPropsForm.value);
+      const payload = {
+        smsMessage: null,
+        emailMessage: null,
+        sendSMS: this.sendSMS.value,
+        sendEmail: this.sendEmail.value
+      };
+      if (this.data.smsMessage !== this.smsMessage.value) {
+        payload.smsMessage = this.smsMessage.value;
+      }
+      if (this.data.emailMessage !== this.emailMessage.value) {
+        payload.emailMessage = this.emailMessage.value;
+      }
+      this.dialogRef.close(payload);
     }
   }
 }

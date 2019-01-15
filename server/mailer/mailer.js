@@ -38,7 +38,7 @@ class Mailer {
   send(templateName, context, toEmail, subject) {
     let that = this;
     //Returns promise
-    console.log('sending email to ' + toEmail);
+    // console.log('sending email to ' + toEmail);
     return new Promise((resolve, reject) => {
       this.mailer.sendMail({
         from: that.emailFrom,
