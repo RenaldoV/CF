@@ -3,7 +3,7 @@
     <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Search">
   </mat-form-field>
   <div class="archivedCB">
-    <mat-checkbox [checked]="archived" (change)="archived = !archived; archived ? showArchived() : hideArchived()"><small style="color: gray">Show Archived</small></mat-checkbox>
+    <mat-checkbox [checked]="archived" (change)="archived = !archived; archived ? showArchived() : hideArchived()"><small style="color: gray">Archived Files</small></mat-checkbox>
   </div>
 </div>
 
