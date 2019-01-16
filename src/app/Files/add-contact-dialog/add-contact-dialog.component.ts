@@ -71,6 +71,7 @@ export class AddContactDialogComponent implements OnInit {
   }
   submitContact() {
     if (this.contactForm.valid) {
+      delete this.contactForm.value._id;
       this.contactService.createContact(this.contactForm.value)
         .subscribe(res => {
           if (res) {
@@ -114,7 +115,6 @@ export class AddContactDialogComponent implements OnInit {
     }
   }
   onEmailChange() {
-    console.log('email update');
     if (this.existing) {
       if (this.email.value !== this.data.email) {
         this.email.setAsyncValidators(this.shouldBeUnique.bind(this));

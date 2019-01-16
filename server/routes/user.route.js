@@ -996,7 +996,9 @@ userRoutes.route('/addFile').post((req, res, next) => {
         const loginUrl = host + '/login/' + encodeURI(file._id);
         f.contacts.forEach(ct => {
             const registerURL = loginUrl + '/' + encodeURI(ct._id);
-            mailer.contactAddedToFile(ct.email, ct.title + ' ' + ct.surname, f.milestoneList._id.title, file.fileRef, registerURL);
+            if (ct.email) {
+              mailer.contactAddedToFile(ct.email, ct.title + ' ' + ct.surname, f.milestoneList._id.title, file.fileRef, registerURL);
+            }
         });
         mailer.adminFileCreated(usr.email, host + '/admin-home', file.fileRef);
         callback(null, file);
@@ -1161,13 +1163,15 @@ userRoutes.route('/completeMilestone').post((req, res, next) => {
               // check if always ask for noti props is activated
               if (callback.milestone.alwaysAsk) {
                 if (notiProps.sendEmail) { // send email
-                  mailer.sendEmail(
-                    email,
-                    // check if message has changed in always ask for noti popup and replace original message
-                    notiProps.emailMessage ? buildMessage(notiProps.emailMessage, emailContext) : buildMessage(emailMessage, emailContext),
-                    url,
-                    milestoneName + ' milestone has been completed.'
-                  );
+                  if (email) { // check if contact has email address
+                    mailer.sendEmail(
+                      email,
+                      // check if message has changed in always ask for noti popup and replace original message
+                      notiProps.emailMessage ? buildMessage(notiProps.emailMessage, emailContext) : buildMessage(emailMessage, emailContext),
+                      url,
+                      milestoneName + ' milestone has been completed.'
+                    );
+                  }
                 }
                 if (notiProps.sendSMS) { // send sms
                   smser.send(
@@ -1181,7 +1185,9 @@ userRoutes.route('/completeMilestone').post((req, res, next) => {
                 }
               } else {
                 if (callback.milestone.sendEmail) { // send email
-                  mailer.sendEmail(email, emailBody, url, milestoneName + ' milestone has been completed.');
+                  if (email) {
+                    mailer.sendEmail(email, buildMessage(emailMessage, emailContext), url, milestoneName + ' milestone has been completed.');
+                  }
                 }
                 if (callback.milestone.sendSMS) { // send sms
                   smser.send(ct.cell, buildMessage(smsMessage, emailContext))
@@ -1236,7 +1242,9 @@ userRoutes.route('/addComment').post((req, res, next) => {
         result.contacts.forEach(ct => {
           const url = req.protocol + '://' + req.get('host') + '/login/' + encodeURI(fileID) + '/' + encodeURI(ct._id);
           if(sendNoti.email) {
-            mailer.commentMade(user.name, ct.email, comment.comment, result.propertyDescription, result.milestoneList.milestones[0]._id.name, url);
+            if (ct.email) {
+              mailer.commentMade(user.name, ct.email, comment.comment, result.propertyDescription, result.milestoneList.milestones[0]._id.name, url);
+            }
           }
           if(sendNoti.sms) {
             smser.commentMade(ct.cell, comment.comment, user.name, result.propertyDescription, result.milestoneList.milestones[0]._id.name, url);

@@ -159,8 +159,9 @@ export class AdminSetupComponent implements OnInit {
       }
     }
   }
-  insertNoti(e, i, k, msg, control) {
+  insertNoti(e, i, k, msg, control, ctr) {
     e.preventDefault();
+    console.log(ctr);
     this.getMilestones(i).at(k).get(control).setValue(this.getMilestones(i).at(k).get(control).value + msg);
   }
   getAllLists() {

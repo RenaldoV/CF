@@ -153,7 +153,8 @@
                       <span style="font-weight: bold"><i class="far fa-id-card"></i> {{ct?.name + ' ' + ct?.surname}}</span>
                     </div>
                     <div class="col-8">
-                      <small style="color: darkgray"><i class="far fa-envelope"></i> {{ct?.email}}</small>
+                      <small *ngIf="ct.email" style="color: darkgray"><i class="far fa-envelope"></i> {{ct?.email}}</small>
+                      <small *ngIf="!ct.email" style="color: darkgray"><i class="fas fa-phone-square"></i> {{ ct?.cell }}</small>
                     </div>
                     <div class="col-4">
                       <small style="color: darkgray">| <i class="fas fa-user-friends"></i> {{ct?.type}}</small>
@@ -185,7 +186,8 @@
                       <span style="font-weight: bold"><i class="far fa-id-card"></i> {{ct?.name + ' ' + ct?.surname}}</span>
                     </div>
                     <div class="col-8">
-                      <small style="color: darkgray"><i class="far fa-envelope"></i> {{ct?.email}}</small>
+                      <small *ngIf="ct.email" style="color: darkgray"><i class="far fa-envelope"></i> {{ct?.email}}</small>
+                      <small *ngIf="!ct.email" style="color: darkgray"><i class="fas fa-phone-square"></i> {{ ct?.cell }}</small>
                     </div>
                     <div class="col-4">
                       <small style="color: darkgray">| <i class="fas fa-user-friends"></i> {{ct?.type}}</small>

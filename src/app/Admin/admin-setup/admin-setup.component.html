@@ -68,7 +68,7 @@
                           </mat-form-field>
                           <mat-form-field class="innerFormFields col-12" appearance="outline">
                             <mat-label>Email Notification Message</mat-label>
-                            <textarea matInput
+                            <textarea matInput #emailMessage
                                       placeholder="Dear *contact_name* your property *property_description* has been registered at *deeds_office* please contact me *my_name* for any other queries."
                                       formControlName="emailMessage" required rows="4"></textarea>
                             <mat-error>Email Message is required.</mat-error>
