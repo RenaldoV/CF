@@ -1,10 +1,11 @@
-import {ViewChild, Component, OnInit, Input} from '@angular/core';
+import {ViewChild, Component, OnInit, Input, ChangeDetectorRef} from '@angular/core';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import {MatTableDataSource, MatSort, MatPaginator, MatSnackBar, MatDialogConfig, MatDialog} from '@angular/material';
 import {FileService} from '../file.service';
 import {LoaderService} from '../../Common/Loader';
 import {AddCommentDialogComponent} from '../add-comment-dialog/add-comment-dialog.component';
 import {AlwaysAskNotificationsComponent} from '../always-ask-notifications/always-ask-notifications.component';
+import {AddContactDialogComponent} from '../add-contact-dialog/add-contact-dialog.component';
 
 
 @Component({
@@ -256,6 +257,23 @@ export class FileTableComponent implements OnInit {
     this.dataSource = new MatTableDataSource<File>(this.allFiles.filter(f => !f.archived));
     this.initDataSource();
   }
+  editContact(ct) {
+    this.createNewContactDialog(ct);
+  }
+  createNewContactDialog(ct) {
+    const dialConfig = new MatDialogConfig();
+    dialConfig.disableClose = true;
+    dialConfig.autoFocus = true;
+    dialConfig.minWidth = 200;
+    dialConfig.data = ct;
+    const dialogRef = this.dialog.open(AddContactDialogComponent, dialConfig);
+    dialogRef.afterClosed().subscribe(res => {
+      if (res) {
+        window.location.reload(true);
+      }
+    });
+  }
+
 }
 
 export interface File {

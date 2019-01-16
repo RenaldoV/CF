@@ -1,17 +1,28 @@
-<h2 mat-dialog-title>Add New Contact</h2>
+<h2 mat-dialog-title>
+  {{existing ? 'Update Contact' : 'Add New Contact'}}
+</h2>
 
 <mat-dialog-content [formGroup]="contactForm">
   <div style="margin-bottom: 10px;">
     <mat-form-field class="innerFormFields">
       <mat-select placeholder="Contact's title" formControlName="title">
-        <mat-option value="Mr">
+        <mat-option value="Mr.">
           Mr.
         </mat-option>
-        <mat-option value="Mrs">
+        <mat-option value="Mrs.">
           Mrs.
         </mat-option>
-        <mat-option value="Ms">
+        <mat-option value="Ms.">
           Ms.
+        </mat-option>
+        <mat-option value="Dr.">
+          Dr.
+        </mat-option>
+        <mat-option value="Prof.">
+          Prof.
+        </mat-option>
+        <mat-option value="Adv.">
+          Adv.
         </mat-option>
       </mat-select>
       <mat-error>
@@ -51,7 +62,7 @@
     </mat-form-field>
     <br>
     <mat-form-field class="innerFormFields">
-      <input type="email" matInput placeholder="Email address" formControlName="email" required>
+      <input (keyup)="onEmailChange()" type="email" matInput placeholder="Email address" formControlName="email">
       <mat-error *ngIf="email.hasError('required')">
         Email address is required.
       </mat-error>
@@ -84,8 +95,14 @@
 
 <mat-dialog-actions>
   <button class="btn btn-outline-secondary btn-sm closeBtn"(click)="close()">Close</button>
-  <button [disabled]="contactForm.invalid || (loaderService.isLoading | async)" class="btn btn-primary btn-sm" (click)="submitContact()">
+  <button *ngIf="!existing" [disabled]="contactForm.invalid || (loaderService.isLoading | async)"
+          class="btn btn-primary btn-sm" (click)="submitContact()">
     <span *ngIf="!(loaderService.isLoading | async)"><i class="far fa-save"></i> Add Contact</span>
+    <i *ngIf="loaderService.isLoading | async" class="fas fa-spinner fa-spin"></i>
+  </button>
+  <button *ngIf="existing" [disabled]="contactForm.invalid || (loaderService.isLoading | async)"
+          class="btn btn-primary btn-sm" (click)="updateContact()">
+    <span *ngIf="!(loaderService.isLoading | async)"><i class="far fa-save"></i> Save</span>
     <i *ngIf="loaderService.isLoading | async" class="fas fa-spinner fa-spin"></i>
   </button>
 </mat-dialog-actions>

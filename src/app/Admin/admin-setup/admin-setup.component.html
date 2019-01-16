@@ -1,6 +1,13 @@
 <app-nav></app-nav>
 <div class="container">
   <div class="row">
+    <div class="col-12 text-center">
+      <br>
+      <h3 class="routeHeader">{{showRoute()}}</h3>
+    </div>
+    <br>
+  </div>
+  <div class="row" style="margin-top: 20px">
     <div class="col-lg-8 col-md-10 col-sm-12 offset-md-1 offset-lg-2">
       <mat-accordion>
         <mat-expansion-panel hideToggle>
@@ -327,15 +334,24 @@
                     </mat-expansion-panel-header>
                     <div [formGroupName]="i" (change)="onContactChange(i)">
                       <mat-form-field class="innerFormFields">
-                        <mat-select (valueChange)="onContactChange(i)" placeholder="Contact's title" formControlName="title">
-                          <mat-option value="Mr">
+                        <mat-select (valueChange)="onContactChange(i)" placeholder="Contact's title" formControlName="title" required>
+                          <mat-option value="Mr.">
                             Mr.
                           </mat-option>
-                          <mat-option value="Mrs">
+                          <mat-option value="Mrs.">
                             Mrs.
                           </mat-option>
-                          <mat-option value="Ms">
+                          <mat-option value="Ms.">
                             Ms.
+                          </mat-option>
+                          <mat-option value="Dr.">
+                            Dr.
+                          </mat-option>
+                          <mat-option value="Prof.">
+                            Prof.
+                          </mat-option>
+                          <mat-option value="Adv.">
+                            Adv.
                           </mat-option>
                         </mat-select>
                         <mat-error>
@@ -374,10 +390,7 @@
                       </mat-form-field>
                       <br>
                       <mat-form-field class="innerFormFields">
-                        <input type="email" matInput placeholder="Email address" formControlName="email" required>
-                        <mat-error *ngIf="c.get('email').hasError('required')">
-                          Email address is required.
-                        </mat-error>
+                        <input (change)="checkUniquenessValidator(i)" type="email" matInput placeholder="Email address" formControlName="email">
                         <mat-error *ngIf="c.get('email').hasError('email')">
                           Email must be a valid email address.
                         </mat-error>
@@ -387,7 +400,7 @@
                       </mat-form-field>
                       <br>
                       <mat-form-field class="innerFormFields">
-                        <mat-select (valueChange)="onContactChange(i)" placeholder="Contact type" formControlName="type">
+                        <mat-select (valueChange)="onContactChange(i)" placeholder="Contact type" formControlName="type" required>
                           <mat-option value="Buyer">
                             Buyer
                           </mat-option>

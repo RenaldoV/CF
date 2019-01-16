@@ -1,13 +1,14 @@
 <nav class="navbar navbar-expand-sm">
   <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
     <a class="navbar-brand" href="/admin-home">
-      <img style="height: 50px; width: auto;" src="http://app.cbilaw.co.za/Images/Main300x600.png">
+      <img style="height: 50px; width: auto;" src="../../../assets/Logo/conveyfeed_landslogo_fc_v2.png">
     </a>
-    <li class="nav-item active">
+    <!--<li class="nav-item active">
       <a class="nav-link"><a href="/admin-home"><span>ConveyFeed</span></a><span>{{showRoute()}}</span></a>
-    </li>
+    </li>-->
   </ul>
   <div class="dropdown">
+    <img style="height: 50px; width: auto; margin-right: 20px;" src="http://app.cbilaw.co.za/Images/Main300x600.png">
     <button class="btn btn-sm btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
       <i class="fas fa-user-tie"></i> {{ getName() }}
     </button>
@@ -18,7 +19,6 @@
     </div>
   </div>
   <span class="navbar-text">
-
   </span>
   <button class="btn btn-sm btn-outline-secondary" type="button" (click)="logout()">Log Out</button>
 </nav>

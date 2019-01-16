@@ -18,6 +18,7 @@ import {AddContactDialogComponent} from '../add-contact-dialog/add-contact-dialo
 import {Router} from '@angular/router';
 import {LoaderService} from '../../Common/Loader';
 import {FileService} from '../file.service';
+import {ContactService} from '../../Contact/contact.service';
 
 @Component({
   selector: 'app-add-file',
@@ -54,6 +55,7 @@ export class AddFileComponent implements OnInit {
     private fb: FormBuilder,
     private auth: AuthService,
     private adminService: AdminService,
+    private contactService: ContactService,
     private fileService: FileService,
     private dialog: MatDialog,
     private matSnack: MatSnackBar,
@@ -113,7 +115,7 @@ export class AddFileComponent implements OnInit {
       }, err => {
         console.log(err);
       });
-    this.adminService.searchContacts(this.searchTerm$)
+    this.contactService.searchContacts(this.searchTerm$)
       .subscribe(res => {
         this.filteredContacts = [];
         res.forEach(ct => {
@@ -128,6 +130,14 @@ export class AddFileComponent implements OnInit {
       map((sec: string | null) => sec ? this._filterSecretaries(sec) : this._filterSecretaries('')));
   }
   ngOnInit() {}
+  showRoute() {
+    let route = this.router.url.replace('/', '').replace('-', ' ');
+    route = route.toLowerCase()
+      .split(' ')
+      .map((s) => s.charAt(0).toUpperCase() + s.substring(1))
+      .join(' ');
+    return route;
+  }
   // ======= File Form functions ===============
 
   // ====auto complete functions=======

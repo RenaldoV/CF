@@ -4,6 +4,7 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {WINDOW} from '../window.service';
 import {Router} from '@angular/router';
 import {Observable} from 'rxjs/index';
+import {debounceTime, distinctUntilChanged, switchMap} from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -43,5 +44,71 @@ export class ContactService {
   }
   updateForgotPassword(token, pw) {
     return this.http.post<any>(`${this.host}/updateForgotPasswordContact`, {passwordHash: pw, token: token});
+  }
+  createContact(ct) {
+    let uid;
+    if (this.auth.isTopLevelUser()) {
+      uid = this.auth.getID();
+    } else {
+      uid = this.auth.getAdminID();
+    }
+    const headers = new HttpHeaders();
+    headers.set('Content-Type', 'application/json');
+    return this.http.post<any>(`${this.host}/addContact`, {contact: ct, uid: uid});
+  }
+  getContacts(): Observable<any> {
+    let uid;
+    if (this.auth.isTopLevelUser()) {
+      uid = this.auth.getID();
+    } else {
+      uid = this.auth.getAdminID();
+    }
+    const url = `${this.host}/contacts/` + uid;
+    return this.http.get(url);
+  }
+  getContactByEmail(email): Observable<any> {
+    let uid;
+    if (this.auth.isTopLevelUser()) {
+      uid = this.auth.getID();
+    } else {
+      uid = this.auth.getAdminID();
+    }
+    const headers = new HttpHeaders();
+    headers.set('Content-Type', 'application/json');
+    return this.http.post<any>(`${this.host}/contact`, {email: email, uid: uid});
+  }
+  deleteContact(id) {
+    let uid;
+    if (this.auth.isTopLevelUser()) {
+      uid = this.auth.getID();
+    } else {
+      uid = this.auth.getAdminID();
+    }
+    const headers = new HttpHeaders();
+    headers.set('Content-Type', 'application/json');
+    return this.http.post<any>(`${this.host}/deleteContact`, {cid: id, uid: uid});
+  }
+  updateContact(ct) {
+    const headers = new HttpHeaders();
+    headers.set('Content-Type', 'application/json');
+    return this.http.post<any>(`${this.host}/updateContact`, ct);
+  }
+  searchContacts(terms: Observable<string>)  {
+    return terms
+      .pipe(
+        debounceTime(600),
+        distinctUntilChanged(),
+        switchMap(term => this.searchEntries(term))
+      );
+  }
+  searchEntries(term): Observable<any[]> {
+    let uid;
+    if (this.auth.isTopLevelUser()) {
+      uid = this.auth.getID();
+    } else {
+      uid = this.auth.getAdminID();
+    }
+    const url = `${this.host}/contacts/` + uid + '/' + term;
+    return this.http.get<any[]>(url);
   }
 }

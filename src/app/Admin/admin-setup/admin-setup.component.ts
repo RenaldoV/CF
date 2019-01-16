@@ -14,6 +14,8 @@ import {AuthService} from '../../auth/auth.service';
 import {computeStyle} from '@angular/animations/browser/src/util';
 import {MatSnackBar} from '@angular/material';
 import {GlobalValidators} from '../../Common/Validators/globalValidators';
+import {Router} from '@angular/router';
+import {ContactService} from '../../Contact/contact.service';
 
 @Component({
   selector: 'app-admin-setup',
@@ -28,7 +30,9 @@ export class AdminSetupComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private adminService: AdminService,
+    private contactService: ContactService,
     private auth: AuthService,
+    private router: Router,
     public loaderService: LoaderService,
     private matSnack: MatSnackBar
   ) {
@@ -45,6 +49,14 @@ export class AdminSetupComponent implements OnInit {
   ngOnInit() {}
   iAmAdmin() {
     return this.auth.isTopLevelUser();
+  }
+  showRoute() {
+    let route = this.router.url.replace('/', '').replace('-', ' ');
+    route = route.toLowerCase()
+      .split(' ')
+      .map((s) => s.charAt(0).toUpperCase() + s.substring(1))
+      .join(' ');
+    return route;
   }
   // ================== MILESTONE FUNCTIONS ==============================
   createMilestoneListForm() {
@@ -493,7 +505,7 @@ export class AdminSetupComponent implements OnInit {
     return this.ContactsForm.get('contacts') as FormArray;
   }
   getContacts() {
-    this.adminService.getContacts()
+    this.contactService.getContacts()
       .subscribe(res => {
         if (res) {
           this.patchContacts(res);
@@ -520,14 +532,17 @@ export class AdminSetupComponent implements OnInit {
       name: ['', Validators.required],
       surname: ['', Validators],
       cell: ['', [Validators.required, GlobalValidators.cellRegex]],
-      email: ['', [Validators.required, Validators.email],
+      email: ['', [Validators.email],
         existing ? null : this.shouldBeUniqueContact.bind(this)],
       updatedBy: [existing ? 'existing' : 'new'],
       type: ['', Validators.required]
     });
     const arrayControl = <FormArray>this.contacts;
-    if (existing) { ct.get('email').disable(); }
+    /*if (existing) { ct.get('email').disable(); }*/
     arrayControl.push(ct);
+  }
+  checkUniquenessValidator(i) {
+    this.contacts.at(i).get('email').setAsyncValidators(this.shouldBeUniqueContact.bind(this));
   }
   removeContact(e, i) {
     e.stopPropagation();
@@ -540,7 +555,7 @@ export class AdminSetupComponent implements OnInit {
         control.removeAt(i);
         this.matSnack.open('Contact removed successfully');
       } else {
-        this.adminService.deleteContact(ct.value._id)
+        this.contactService.deleteContact(ct.value._id)
           .subscribe(res => {
             if (res) {
               this.matSnack.open('Contact removed successfully');
@@ -574,13 +589,12 @@ export class AdminSetupComponent implements OnInit {
       const newContact = ct.value;
       delete newContact.updatedBy;
       delete newContact._id;
-      this.adminService.createContact(newContact)
+      this.contactService.createContact(newContact)
         .subscribe(res => {
           if (res) {
             this.matSnack.open('Contact created successfully');
             ct.patchValue(res);
             ct.get('email').clearAsyncValidators();
-            ct.get('email').disable();
             ct.get('updatedBy').setValue('existing');
           } else {
             const sb = this.matSnack.open('Contact not created successful', 'retry');
@@ -598,11 +612,12 @@ export class AdminSetupComponent implements OnInit {
     } else if (ct.value.updatedBy === 'updated') {
       const newContact = ct.value;
       delete newContact.updatedBy;
-      this.adminService.updateContact(newContact)
+      this.contactService.updateContact(newContact)
         .subscribe(res => {
           if (res) {
-            this.contacts.at(i).patchValue(res);
+            ct.patchValue(res);
             ct.get('updatedBy').setValue('existing');
+            ct.clearAsyncValidators(); // TODO: Fix this it doesn't work
             this.matSnack.open('Update successful');
           } else {
             const sb = this.matSnack.open('Update unsuccessful', 'retry');
@@ -623,7 +638,7 @@ export class AdminSetupComponent implements OnInit {
   shouldBeUniqueContact(control: AbstractControl): Promise<ValidationErrors> | null {
     const q = new Promise((resolve, reject) => {
       setTimeout(() => {
-        this.adminService.getContactByEmail(control.value).subscribe((res) => {
+        this.contactService.getContactByEmail(control.value).subscribe((res) => {
           if (!res) {
             resolve(null);
           } else {

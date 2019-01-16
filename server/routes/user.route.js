@@ -859,7 +859,7 @@ userRoutes.route('/checkEmailContact').post((req ,res, next) => {
               else {
                 // sendmail with link
                 const link = req.protocol + '://' + req.get('host') + '/contact-reset/' + token;
-                mailer.forgotPassword(usr.title + '. ' + usr.surname, link, usr.email)
+                mailer.forgotPassword(usr.title + ' ' + usr.surname, link, usr.email)
                   .then(result => {
                     res.send(true);
                   }).catch(err => {
@@ -996,7 +996,7 @@ userRoutes.route('/addFile').post((req, res, next) => {
         const loginUrl = host + '/login/' + encodeURI(file._id);
         f.contacts.forEach(ct => {
             const registerURL = loginUrl + '/' + encodeURI(ct._id);
-            mailer.contactAddedToFile(ct.email, ct.title + '. ' + ct.surname, f.milestoneList._id.title, file.fileRef, registerURL);
+            mailer.contactAddedToFile(ct.email, ct.title + ' ' + ct.surname, f.milestoneList._id.title, file.fileRef, registerURL);
         });
         mailer.adminFileCreated(usr.email, host + '/admin-home', file.fileRef);
         callback(null, file);
@@ -1153,12 +1153,11 @@ userRoutes.route('/completeMilestone').post((req, res, next) => {
                 deedsOffice: newFile.deedsOffice,
                 propertyDescription: newFile.propertyDescription,
                 myName: callback.adminUser.name,
-                contactName: ct.name,
+                contactName: ct.title + ' ' + ct.surname,
                 fileRef: newFile.fileRef,
                 secNames: newFile.refUser.map(s => s.name),
                 secEmails: newFile.refUser.map(s => s.email)
               };
-              const emailBody = buildMessage(emailMessage, emailContext);
               // check if always ask for noti props is activated
               if (callback.milestone.alwaysAsk) {
                 if (notiProps.sendEmail) { // send email

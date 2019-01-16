@@ -105,9 +105,9 @@ class Mailer {
     this.sendEmail(email, message, link, subject);
   }
   // forgotPassword
-  forgotPassword(userFirstName, forgotPasswordLink, email) {
+  forgotPassword(name, forgotPasswordLink, email) {
     let context = {
-      name: userFirstName,
+      name: name,
       link: forgotPasswordLink
     };
     let that = this;

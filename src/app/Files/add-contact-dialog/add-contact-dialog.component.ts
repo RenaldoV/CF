@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, Inject, OnInit} from '@angular/core';
 import {AbstractControl, FormArray, FormBuilder, FormGroup, ValidationErrors, Validators} from '@angular/forms';
-import {MatDialogRef, MatSnackBar} from '@angular/material';
+import {MAT_DIALOG_DATA, MatDialogRef, MatSnackBar} from '@angular/material';
 import {LoaderService} from '../../Common/Loader';
 import {AdminService} from '../../Admin/admin.service';
 import {GlobalValidators} from '../../Common/Validators/globalValidators';
+import {ContactService} from '../../Contact/contact.service';
 
 @Component({
   selector: 'app-add-contact-dialog',
@@ -13,32 +14,40 @@ import {GlobalValidators} from '../../Common/Validators/globalValidators';
 export class AddContactDialogComponent implements OnInit {
 
   contactForm: FormGroup;
+  existing = false;
 
   constructor(
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<AddContactDialogComponent>,
     public loaderService: LoaderService,
     private adminService: AdminService,
-    private matSnack: MatSnackBar
+    private contactService: ContactService,
+    private matSnack: MatSnackBar,
+    @Inject(MAT_DIALOG_DATA) public data: any
   ) {
     this.createContactsForm();
+    if (data) {
+      this.existing = true;
+      this.contactForm.patchValue(data);
+      this.email.clearAsyncValidators();
+      this.email.updateValueAndValidity();
+    }
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+  }
   close() {
     this.dialogRef.close();
   }
 
   createContactsForm() {
     this.contactForm = this.fb.group({
+      _id: [null],
       title: ['', Validators.required],
       name: ['', Validators.required],
       surname: ['', Validators.required],
       cell: ['', [Validators.required, GlobalValidators.cellRegex]],
-      email: ['', [
-        Validators.required,
-        GlobalValidators.validEmail
-      ], this.shouldBeUnique.bind(this)],
+      email: ['', [GlobalValidators.validEmail], this.shouldBeUnique.bind(this)],
       type: ['', Validators.required]
     });
   }
@@ -62,7 +71,7 @@ export class AddContactDialogComponent implements OnInit {
   }
   submitContact() {
     if (this.contactForm.valid) {
-      this.adminService.createContact(this.contactForm.value)
+      this.contactService.createContact(this.contactForm.value)
         .subscribe(res => {
           if (res) {
             this.matSnack.open('Contact added successfully');
@@ -82,11 +91,45 @@ export class AddContactDialogComponent implements OnInit {
         });
     }
   }
+  updateContact() {
+    if (this.contactForm.valid) {
+      this.contactService.updateContact(this.contactForm.value)
+        .subscribe(res => {
+          if (res) {
+            this.matSnack.open('Contact updated successfully');
+            this.dialogRef.close(res);
+          } else {
+            const sb = this.matSnack.open('Contact not updated successful', 'retry');
+            sb.onAction().subscribe(() => {
+              this.updateContact();
+            });
+          }
+        }, err => {
+          const sb = this.matSnack.open('Contact not updated successful', 'retry');
+          sb.onAction().subscribe(() => {
+            this.updateContact();
+          });
+          console.log(err);
+        });
+    }
+  }
+  onEmailChange() {
+    console.log('email update');
+    if (this.existing) {
+      if (this.email.value !== this.data.email) {
+        this.email.setAsyncValidators(this.shouldBeUnique.bind(this));
+        this.email.updateValueAndValidity();
+      } else {
+        this.email.clearAsyncValidators();
+        this.email.updateValueAndValidity();
+      }
+    }
+  }
 
   shouldBeUnique(control: AbstractControl): Promise<ValidationErrors> | null {
     const q = new Promise((resolve, reject) => {
       setTimeout(() => {
-        this.adminService.getContactByEmail(control.value).subscribe((res) => {
+        this.contactService.getContactByEmail(control.value).subscribe((res) => {
           if (!res) {
             resolve(null);
           } else {

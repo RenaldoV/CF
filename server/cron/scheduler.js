@@ -26,7 +26,7 @@ class Scheduler {
       console.log("Kicking off scheduled weekly updates");
       async.waterfall([
         (cb) => { // get all files in db that are not archived
-          File.find({})
+          File.find({archived: {$ne : true}}) // TODO: Test this
             .populate('contacts')
             .populate('milestoneList._id', 'title')
             .populate('refUser', 'email name')
@@ -52,8 +52,12 @@ class Scheduler {
               async.each(file.contacts,
                 (ct, innerCb) => {
                   const url = host + '/login/' + encodeURI(file._id) + '/' + encodeURI(ct._id);
-                  mailer.weeklyUpdate(ct.email,ct.name,url,file.milestoneList._id.title,file.fileRef)
-                    .then(res => {
+                  mailer.weeklyUpdate(
+                    ct.email,
+                    ct.title + ' ' + ct.surname,
+                    url,file.milestoneList._id.title,
+                    file.fileRef
+                  ).then(res => {
                       // increment number of contacts emailed.
                       counts.contacts++;
                       innerCb();

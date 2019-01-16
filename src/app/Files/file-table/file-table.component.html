@@ -80,8 +80,12 @@
       </div>
       <div class="col-sm-12 col-md-6 col-lg{{numCards(element)}}" *ngFor="let ct of element.contacts; let i = index">
         <mat-card>
+          <i (click)="editContact(ct)" class="fas fa-user-edit float-right text-right" style="cursor: pointer; color: black"></i>
           <mat-card-header>
-            <mat-card-title><i class="far fa-id-card"></i> {{ct.name + ' ' + ct.surname}}</mat-card-title>
+            <mat-card-title style="justify-content: space-between">
+              <i class="far fa-id-card"></i>
+              {{ct.name + ' ' + ct.surname}}
+            </mat-card-title>
             <mat-card-subtitle>
               <small><i class="fas fa-user-friends"></i> {{ct?.type}}</small><br>
               <small><i class="far fa-envelope"></i> {{ ct?.email }}</small><br>
