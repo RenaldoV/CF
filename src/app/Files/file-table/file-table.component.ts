@@ -109,7 +109,9 @@ export class FileTableComponent implements OnInit {
   reduceContacts(contacts) {
     return contacts.map(ct => ct.name).toString().replace(',', ',\n');
   }
-  markMilestone(e, m, fileID, chBx) {
+  markMilestone(e, m, file, chBx) {
+    const fileID = file._id;
+    const thisMilestoneIndex = file.milestoneList.milestones.indexOf(m);
     if (e.checked) {
       if (m._id.alwaysAsk) { // check always ask for notifications property
         // bring up popup modal
@@ -127,6 +129,12 @@ export class FileTableComponent implements OnInit {
                   if (res.message) {
                     m.completed = e.checked;
                     this.matSnack.open(res.message);
+                    if (thisMilestoneIndex === file.milestoneList.milestones.length - 1) { // if last milestone ask to send to archived
+                      console.log('this is last milestone');
+                      if (confirm('You have completed the last milestone, do you want to archive this file?')) {
+                        this.archiveFile(file);
+                      }
+                    }
                   }
                 });
             } else {
@@ -147,6 +155,12 @@ export class FileTableComponent implements OnInit {
               if (res.message) {
                 m.completed = e.checked;
                 this.matSnack.open(res.message);
+                if (thisMilestoneIndex === file.milestoneList.milestones.length - 1) { // if last milestone ask to send to archived
+                  console.log('this is last milestone');
+                  if (confirm('You have completed the last milestone, do you want to archive this file?')) {
+                    this.archiveFile(file);
+                  }
+                }
               }
             });
         } else {
@@ -155,14 +169,7 @@ export class FileTableComponent implements OnInit {
           chBx.checked = false;
         }
       }
-    } /*else {
-      if (confirm('Are you sure you want to mark this milestone as not done?')) {
-        console.log('mark milestone ' + m._id + ' as completed: ' + e.checked);
-        m.complete = e.checked;
-      } else {
-        m.complete = !e.checked;
-      }
-    }*/
+    }
   }
   convertDate(inputFormat, d) {
     d = new Date(d);
@@ -186,7 +193,7 @@ export class FileTableComponent implements OnInit {
       }
     });
   }
-  // TODO: Update, delete file
+  // TODO: Update file
   // TODO: Update milestone propogates to file?
 
   // ============== HELPER FUNCTIONS ================

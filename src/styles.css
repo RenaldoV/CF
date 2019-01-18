@@ -51,5 +51,10 @@ span.speech {
 
 .routeHeader {
   font-family: 'Aldine', sans-serif;
+  font-size: 1.5rem!important;
+}
+
+h5 {
+  font-size: 1.05rem;
 }
 

@@ -14,6 +14,9 @@ const async = require('async');
 const mailer = new Mailer("slash.aserv.co.za", 465, "donotreply@conveyfeed.co.za", "D0N0tRep3y@C0nV5yF@ee#d@2018@!");
 
 
+// TODO: When contact gets deleted it saves null in array of top level admin.
+// TODO: Test cron in every situation.
+
 class Scheduler {
 
   constructor (host) {
@@ -22,15 +25,16 @@ class Scheduler {
   }
 
   scheduleReports (host) {
-    cron.schedule('0 0 15 * * Friday', function() {
+    console.log('scedule report called');
+    cron.schedule('0 15 * * Fri', function() {
       console.log("Kicking off scheduled weekly updates");
       async.waterfall([
         (cb) => { // get all files in db that are not archived
-          File.find({archived: {$ne : true}}) // TODO: Test this
+          File.find({archived: {$ne : true}})
             .populate('contacts')
             .populate('milestoneList._id', 'title')
             .populate('refUser', 'email name')
-            .exec((err, files) => { // TODO: only add non-archived files in report
+            .exec((err, files) => {
               if(err) {
                 cb(err);
               } else {
@@ -52,18 +56,21 @@ class Scheduler {
               async.each(file.contacts,
                 (ct, innerCb) => {
                   const url = host + '/login/' + encodeURI(file._id) + '/' + encodeURI(ct._id);
-                  mailer.weeklyUpdate(
-                    ct.email,
-                    ct.title + ' ' + ct.surname,
-                    url,file.milestoneList._id.title,
-                    file.fileRef
-                  ).then(res => {
+                  if (ct.email) {
+                    mailer.weeklyUpdate(
+                      ct.email,
+                      ct.title + ' ' + ct.surname,
+                      url,
+                      file.milestoneList._id.title,
+                      file.fileRef
+                    ).then(res => {
                       // increment number of contacts emailed.
                       counts.contacts++;
                       innerCb();
                     }, (innerError) => {
                       innerCb(innerError);
                     });
+                  }
                 }, (err) => {
                   if (err) {
                     cb(err);

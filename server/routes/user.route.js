@@ -1107,6 +1107,7 @@ userRoutes.route('/completeMilestone').post((req, res, next) => {
   let milestoneID = req.body.milestoneID;
   let uid = req.body.uid; // can be top level or secretary
   let notiProps = req.body.notiProps;
+  console.log(notiProps);
   File.findOneAndUpdate(
     {_id: fileID, 'milestoneList.milestones._id': milestoneID},
     {$set: {
@@ -1161,7 +1162,7 @@ userRoutes.route('/completeMilestone').post((req, res, next) => {
                 secEmails: newFile.refUser.map(s => s.email)
               };
               // check if always ask for noti props is activated
-              if (callback.milestone.alwaysAsk) {
+              if (notiProps) {
                 if (notiProps.sendEmail) { // send email
                   if (email) { // check if contact has email address
                     mailer.sendEmail(
