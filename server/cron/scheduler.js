@@ -25,7 +25,6 @@ class Scheduler {
   }
 
   scheduleReports (host) {
-    console.log('scedule report called');
     cron.schedule('0 15 * * Fri', function() {
       console.log("Kicking off scheduled weekly updates");
       async.waterfall([

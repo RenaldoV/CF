@@ -47,13 +47,15 @@
                         <mat-expansion-panel hideToggle class="msPanel" formArrayName="milestones"
                                            *ngFor="let m of getMilestones(i).controls; let k = index" [expanded]="k + 1 === getMilestones(i).length">
                         <mat-expansion-panel-header>
-                          <mat-panel-title>
+                          <mat-panel-title class="mTitle">
                             {{ m.get('name').value ? m.get('name').value : 'Milestone' }}
                           </mat-panel-title>
                           <mat-panel-description>
-                            {{ k + 1 }}
-                            <i class="fas fa-trash-alt float-right deleteBtn" *ngIf="getMilestones(i).length > 1"
-                               (click)="removeMilestone($event, i, k)"></i>
+                            <span class="mTitle">{{ k + 1 }}</span>
+                            <div class="mCheck">
+                              <i class="fas fa-trash-alt float-right deleteBtn" *ngIf="getMilestones(i).length > 1"
+                                 (click)="removeMilestone($event, i, k)"></i>
+                            </div>
                           </mat-panel-description>
                         </mat-expansion-panel-header>
                         <div class="row" [formGroupName]="k" (change)="onMilestoneChange(i , k)">

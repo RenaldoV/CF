@@ -100,7 +100,12 @@
       <mat-expansion-panel *ngFor="let milestone of file.milestoneList.milestones; let i = index" hideToggle>
         <mat-expansion-panel-header>
           <mat-panel-title>
-            {{ milestone._id.name }}
+            <span>
+              {{ milestone._id.name }}
+              <small style="color: #1DA1F2">
+                &nbsp;({{milestone.comments.length}} Comment{{milestone.comments.length < 1 || milestone.comments.length > 1? 's' : ''}})
+              </small>
+            </span>
           </mat-panel-title>
           <mat-panel-description>
             <small style="color: darkgrey">

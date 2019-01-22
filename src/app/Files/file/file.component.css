@@ -49,3 +49,7 @@ mat-card {
   margin-top: 5px;
 }
 
+mat-panel-title {
+  width: 100%;
+}
+

@@ -98,19 +98,23 @@
     <div class="milestonesBox">
       <mat-accordion>
         <mat-expansion-panel *ngFor="let milestone of element.milestoneList.milestones; let i = index" hideToggle>
-          <mat-expansion-panel-header>
+          <mat-expansion-panel-header collapsedHeight="*" expandedHeight="*">
             <mat-panel-title [style.text-decoration]="milestone.completed ? 'line-through' : 'none'"
                              [style.text-decoration-color]="milestone.completed ? 'red' : ''">
               Milestone {{i + 1}}
             </mat-panel-title>
             <mat-panel-description>
-              {{ milestone._id.name }}
-              <small style="color: darkgrey">
+              <span class="mTitle">{{ milestone._id.name }}
+                <small style="color: #1DA1F2">({{milestone.comments.length}} Comment{{milestone.comments.length > 1 || milestone.comments.length < 1? 's' : ''}})</small>
+              </span>
+              <small class="mUpdated" style="color: darkgrey">
                 Last Updated: {{convertDate('dd/mm/yyyy', milestone.updatedAt)}} <br>by {{milestone.updatedBy.name}}
               </small>
-              <mat-checkbox
-                *ngIf="!milestone.completed" (click)="$event.stopPropagation()"
-                [checked]="milestone.completed" (change)="markMilestone($event, milestone, element, chbx)" #chbx></mat-checkbox>
+              <div class="mCheck">
+                <mat-checkbox
+                  *ngIf="!milestone.completed" (click)="$event.stopPropagation()"
+                  [checked]="milestone.completed" (change)="markMilestone($event, milestone, element, chbx)" #chbx></mat-checkbox>
+              </div>
             </mat-panel-description>
           </mat-expansion-panel-header>
           <h5 style="color: darkslategray">Comments: </h5>

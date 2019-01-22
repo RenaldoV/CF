@@ -58,3 +58,30 @@ h5 {
   font-size: 1.05rem;
 }
 
+mat-expansion-panel mat-expansion-panel-header {
+  height: auto!important;
+  min-height: 48px!important;
+}
+mat-expansion-panel mat-expansion-panel-header.mat-expanded {
+  height: auto!important;
+  min-height: 64px!important;
+}
+
+mat-panel-description {
+  width: 70%;
+}
+
+mat-panel-title {
+  align-items: center;
+}
+
+mat-panel-description .mTitle {
+   width: 50%;
+}
+
+mat-panel-description .mUpdated {
+  width: 40%;
+}
+mat-panel-description .mCheck {
+  width: 10%;
+}
