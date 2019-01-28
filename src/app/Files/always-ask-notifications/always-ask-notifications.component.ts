@@ -1,5 +1,5 @@
 import {Component, Inject, OnInit} from '@angular/core';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {MAT_DIALOG_DATA, MatDialogRef, MatSnackBar} from '@angular/material';
 import {AddCommentDialogComponent} from '../add-comment-dialog/add-comment-dialog.component';
 
@@ -21,6 +21,7 @@ export class AlwaysAskNotificationsComponent implements OnInit {
   }
 
   ngOnInit() {
+    console.log(this.data);
   }
 
   close() {
@@ -29,9 +30,11 @@ export class AlwaysAskNotificationsComponent implements OnInit {
   createForm() {
     this.notiPropsForm = this.fb.group({
       sendSMS: [this.data.sendSMS],
-      smsMessage: [this.data.smsMessage],
+      smsMessage: new FormControl({value: this.data.smsMessage, disabled: true}),
       sendEmail: [this.data.sendEmail],
-      emailMessage: [this.data.emailMessage]
+      emailMessage: new FormControl({value: this.data.emailMessage, disabled: true}),
+      chooseBank1: [''],
+      chooseBank2: [''],
     });
   }
   get sendSMS() {
@@ -46,11 +49,51 @@ export class AlwaysAskNotificationsComponent implements OnInit {
   get emailMessage() {
     return this.notiPropsForm.get('emailMessage');
   }
-  insertNoti(e, msg, control) {
-    e.preventDefault();
-    this.notiPropsForm.get(control).setValue(this.notiPropsForm.get(control).value + msg);
+  get chooseBank1 () {
+    return this.notiPropsForm.get('chooseBank1');
+  }
+  get chooseBank2 () {
+    return this.notiPropsForm.get('chooseBank2');
+  }
+  changeSend(e, name) {
+    const ctr = this.notiPropsForm.get(name);
+    if (name === 'sendSMS') {
+      if (e.checked) {
+        this.chooseBank1.setValidators(Validators.required);
+        this.chooseBank1.updateValueAndValidity();
+      } else {
+        this.chooseBank1.clearValidators();
+        this.chooseBank1.updateValueAndValidity();
+      }
+    } else if (name === 'sendEmail') {
+      if (e.checked) {
+        this.chooseBank2.setValidators(Validators.required);
+        this.chooseBank2.updateValueAndValidity();
+      } else {
+        this.chooseBank2.clearValidators();
+        this.chooseBank2.updateValueAndValidity();
+      }
+    }
+  }
+  chooseBank(e, name) {
+    const ctr = this.notiPropsForm.get(name);
+    ctr.setValue(ctr.value.replace('*bank*', e));
+    if (name === 'smsMessage') {
+      if (confirm('Would you like to choose the same bank for the email message?')) {
+        this.emailMessage.setValue(this.emailMessage.value.replace('*bank*', e));
+        this.chooseBank2.setValue(e);
+        this.sendEmail.setValue(true);
+      }
+    } else if (name === 'emailMessage') {
+      if (confirm('Would you like to choose the same bank for the sms message?')) {
+        this.smsMessage.setValue(this.smsMessage.value.replace('*bank*', e));
+        this.chooseBank1.setValue(e);
+        this.sendSMS.setValue(true);
+      }
+    }
   }
   submit() {
+    this.notiPropsForm.markAsTouched();
     if (this.notiPropsForm.valid) {
       const payload = {
         smsMessage: null,

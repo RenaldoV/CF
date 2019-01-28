@@ -3,16 +3,16 @@
 <mat-dialog-content [formGroup]="notiPropsForm">
   <div style="margin-bottom: 10px;">
     <div class="col-12">
-      <mat-checkbox formControlName="sendSMS">
+      <mat-checkbox formControlName="sendSMS" (change)="changeSend($event, 'sendSMS')">
         SMS</mat-checkbox>
       <br>
       <div class="row" *ngIf="sendSMS.value">
         <div class="col-10 offset-1">
           <mat-accordion>
-            <mat-expansion-panel>
+            <mat-expansion-panel expanded="true">
               <mat-expansion-panel-header>
                 <mat-panel-description>
-                  SMS Message preview
+                  SMS Message preview {{smsMessage.value.indexOf('*bank*') > -1 ? '(Choose bank)' : ''}}
                 </mat-panel-description>
               </mat-expansion-panel-header>
               <mat-form-field class="innerFormFields col-12" appearance="outline">
@@ -22,39 +22,20 @@
                           formControlName="smsMessage" required rows="4"></textarea>
                 <mat-error>SMS Message is required.</mat-error>
               </mat-form-field>
-              <div class="col-12">
-                <span style="color: lightgray">Insert Placeholders</span><br>
-                <mat-chip-list>
-                  <mat-chip
-                    (click)="insertNoti($event, ' *contact_name*','smsMessage');">
-                    Contact's Name
-                  </mat-chip>
-                  <mat-chip
-                    (click)="insertNoti($event, ' *property_description*', 'smsMessage');">
-                    Prop Description
-                  </mat-chip>
-                  <mat-chip
-                    (click)="insertNoti($event, ' *deeds_office*', 'smsMessage');">
-                    Deeds Office
-                  </mat-chip>
-                  <mat-chip
-                    (click)="insertNoti($event,' *my_name*', 'smsMessage');">
-                    My Name
-                  </mat-chip>
-                  <mat-chip
-                    (click)="insertNoti($event, ' *sec_names*', 'smsMessage');">
-                    Secretary name/s
-                  </mat-chip>
-                  <mat-chip
-                    (click)="insertNoti($event, ' *sec_emails*', 'smsMessage');">
-                    Secretary email/s
-                  </mat-chip>
-                  <mat-chip
-                    (click)="insertNoti($event, ' *file_ref*', 'smsMessage');">
-                    File Reference
-                  </mat-chip>
-                </mat-chip-list>
-              </div>
+              <mat-form-field *ngIf="sendSMS.value">
+                <mat-select formControlName="chooseBank1" placeholder="Choose Bank" (valueChange)="chooseBank($event, 'smsMessage')" required>
+                  <mat-option value="First National Bank">First National Bank</mat-option>
+                  <mat-option value="ABSA">ABSA</mat-option>
+                  <mat-option value="African Bank">African Bank</mat-option>
+                  <mat-option value="Capitec">Capitec</mat-option>
+                  <mat-option value="Nedbank">Nedbank</mat-option>
+                  <mat-option value="Standard Bank">Standard Bank</mat-option>
+                  <mat-option value="Bidvest Bank">Bidvest Bank</mat-option>
+                </mat-select>
+                <mat-error>
+                  You are required to choose a bank.
+                </mat-error>
+              </mat-form-field>
             </mat-expansion-panel>
           </mat-accordion>
         </div>
@@ -62,16 +43,16 @@
     </div>
     <br>
     <div class="col-12">
-      <mat-checkbox formControlName="sendEmail">
+      <mat-checkbox formControlName="sendEmail" (change)="changeSend($event, 'sendEmail')">
         Email</mat-checkbox>
       <br>
       <div class="row" *ngIf="sendEmail.value">
         <div class="col-10 offset-1">
           <mat-accordion>
-            <mat-expansion-panel>
+            <mat-expansion-panel expanded="true">
               <mat-expansion-panel-header>
                 <mat-panel-description>
-                  Email Message preview
+                  Email Message preview {{emailMessage.value.indexOf('*bank*') > -1 ? '(Choose bank)' : ''}}
                 </mat-panel-description>
               </mat-expansion-panel-header>
               <mat-form-field class="innerFormFields col-12" appearance="outline">
@@ -81,39 +62,20 @@
                           formControlName="emailMessage" required rows="4"></textarea>
                 <mat-error>Email Message is required.</mat-error>
               </mat-form-field>
-              <div class="col-12">
-                <span style="color: lightgray">Insert Placeholders</span><br>
-                <mat-chip-list>
-                  <mat-chip
-                    (click)="insertNoti($event, ' *contact_name*','emailMessage');">
-                    Contact's Name
-                  </mat-chip>
-                  <mat-chip
-                    (click)="insertNoti($event, ' *property_description*', 'emailMessage');">
-                    Prop Description
-                  </mat-chip>
-                  <mat-chip
-                    (click)="insertNoti($event, ' *deeds_office*', 'emailMessage');">
-                    Deeds Office
-                  </mat-chip>
-                  <mat-chip
-                    (click)="insertNoti($event,' *my_name*', 'emailMessage');">
-                    My Name
-                  </mat-chip>
-                  <mat-chip
-                    (click)="insertNoti($event, ' *sec_names*', 'emailMessage');">
-                    Secretary name/s
-                  </mat-chip>
-                  <mat-chip
-                    (click)="insertNoti($event, ' *sec_emails*', 'emailMessage');">
-                    Secretary email/s
-                  </mat-chip>
-                  <mat-chip
-                    (click)="insertNoti($event, ' *file_ref*', 'emailMessage');">
-                    File Reference
-                  </mat-chip>
-                </mat-chip-list>
-              </div>
+              <mat-form-field *ngIf="sendEmail.value">
+                <mat-select formControlName="chooseBank2" placeholder="Choose Bank" (valueChange)="chooseBank($event, 'emailMessage')" required>
+                  <mat-option value="First National Bank">First National Bank</mat-option>
+                  <mat-option value="ABSA">ABSA</mat-option>
+                  <mat-option value="African Bank">African Bank</mat-option>
+                  <mat-option value="Capitec">Capitec</mat-option>
+                  <mat-option value="Nedbank">Nedbank</mat-option>
+                  <mat-option value="Standard Bank">Standard Bank</mat-option>
+                  <mat-option value="Bidvest Bank">Bidvest Bank</mat-option>
+                </mat-select>
+                <mat-error>
+                  You are required to choose a bank.
+                </mat-error>
+              </mat-form-field>
             </mat-expansion-panel>
           </mat-accordion>
         </div>
@@ -125,7 +87,7 @@
 
 <mat-dialog-actions>
   <button class="btn btn-outline-secondary btn-sm closeBtn"(click)="close()">Close</button>
-  <button [disabled]="notiPropsForm.invalid" class="btn btn-primary btn-sm" (click)="submit()">
+  <button [disabled]="notiPropsForm.invalid" type="submit" class="btn btn-primary btn-sm" (click)="submit();">
     <span><i class="far fa-save"></i> Complete Milestone</span>
   </button>
 </mat-dialog-actions>

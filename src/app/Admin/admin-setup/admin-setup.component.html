@@ -79,38 +79,42 @@
                             <span style="color: lightgray">Insert Placeholders</span><br>
                             <mat-chip-list>
                               <mat-chip
-                                (click)="insertNoti($event, i, k, ' *contact_name*','emailMessage'); onMilestoneChange(i,k); onListChange(i)">
+                                (click)="insertNoti($event, i, k, ' *contact_name*','emailMessage', emailMessage); onMilestoneChange(i,k); onListChange(i)">
                                 Contact's Name
                               </mat-chip>
                               <mat-chip
-                                (click)="insertNoti($event, i, k, ' *property_description*', 'emailMessage'); onMilestoneChange(i,k); onListChange(i)">
+                                (click)="insertNoti($event, i, k, ' *property_description*', 'emailMessage', emailMessage); onMilestoneChange(i,k); onListChange(i)">
                                 Prop Description
                               </mat-chip>
                               <mat-chip
-                                (click)="insertNoti($event, i, k, ' *deeds_office*', 'emailMessage'); onMilestoneChange(i,k); onListChange(i)">
+                                (click)="insertNoti($event, i, k, ' *deeds_office*', 'emailMessage', emailMessage); onMilestoneChange(i,k); onListChange(i)">
                                 Deeds Office
                               </mat-chip>
                               <mat-chip
-                                (click)="insertNoti($event, i, k, ' *my_name*', 'emailMessage'); onMilestoneChange(i,k); onListChange(i)">
+                                (click)="insertNoti($event, i, k, ' *my_name*', 'emailMessage', emailMessage); onMilestoneChange(i,k); onListChange(i)">
                                 My Name
                               </mat-chip>
                               <mat-chip
-                                (click)="insertNoti($event, i, k, ' *sec_names*', 'emailMessage'); onMilestoneChange(i,k); onListChange(i)">
+                                (click)="insertNoti($event, i, k, ' *sec_names*', 'emailMessage', emailMessage); onMilestoneChange(i,k); onListChange(i)">
                                 Secretary name/s
                               </mat-chip>
                               <mat-chip
-                                (click)="insertNoti($event, i, k, ' *sec_emails*', 'emailMessage'); onMilestoneChange(i,k); onListChange(i)">
+                                (click)="insertNoti($event, i, k, ' *sec_emails*', 'emailMessage', emailMessage); onMilestoneChange(i,k); onListChange(i)">
                                 Secretary email/s
                               </mat-chip>
                               <mat-chip
-                                (click)="insertNoti($event, i, k, ' *file_ref*', 'emailMessage'); onMilestoneChange(i,k); onListChange(i)">
+                                (click)="insertNoti($event, i, k, ' *file_ref*', 'emailMessage', emailMessage); onMilestoneChange(i,k); onListChange(i)">
                                 File Reference
+                              </mat-chip>
+                              <mat-chip
+                                (click)="insertNoti($event, i, k, ' *bank*', 'emailMessage', emailMessage); onMilestoneChange(i,k); onListChange(i)">
+                                Bank
                               </mat-chip>
                             </mat-chip-list>
                           </div>
                           <mat-form-field class="innerFormFields col-12" appearance="outline">
                             <mat-label>SMS Notification Message</mat-label>
-                            <textarea matInput
+                            <textarea matInput #smsInput
                                       placeholder="Dear *contact_name* your property *property_description* has been registered at *deeds_office* please contact me *my_name* for any other queries."
                                       formControlName="smsMessage" required rows="4"></textarea>
                             <mat-error>SMS Message is required.</mat-error>
@@ -119,32 +123,36 @@
                             <span style="color: lightgray">Insert Placeholders</span><br>
                             <mat-chip-list>
                               <mat-chip
-                                (click)="insertNoti($event, i, k, ' *contact_name*','smsMessage'); onMilestoneChange(i,k); onListChange(i)">
+                                (click)="insertNoti($event, i, k, ' *contact_name*','smsMessage', smsInput); onMilestoneChange(i,k); onListChange(i)">
                                 Contact's Name
                               </mat-chip>
                               <mat-chip
-                                (click)="insertNoti($event, i, k, ' *property_description*', 'smsMessage'); onMilestoneChange(i,k); onListChange(i)">
+                                (click)="insertNoti($event, i, k, ' *property_description*', 'smsMessage', smsInput); onMilestoneChange(i,k); onListChange(i)">
                                 Prop Description
                               </mat-chip>
                               <mat-chip
-                                (click)="insertNoti($event, i, k, ' *deeds_office*', 'smsMessage'); onMilestoneChange(i,k); onListChange(i)">
+                                (click)="insertNoti($event, i, k, ' *deeds_office*', 'smsMessage', smsInput); onMilestoneChange(i,k); onListChange(i)">
                                 Deeds Office
                               </mat-chip>
                               <mat-chip
-                                (click)="insertNoti($event, i, k, ' *my_name*', 'smsMessage'); onMilestoneChange(i,k); onListChange(i)">
+                                (click)="insertNoti($event, i, k, ' *my_name*', 'smsMessage', smsInput); onMilestoneChange(i,k); onListChange(i)">
                                 My Name
                               </mat-chip>
                               <mat-chip
-                                (click)="insertNoti($event, i, k, ' *sec_names*', 'smsMessage'); onMilestoneChange(i,k); onListChange(i)">
+                                (click)="insertNoti($event, i, k, ' *sec_names*', 'smsMessage', smsInput); onMilestoneChange(i,k); onListChange(i)">
                                 Secretary name/s
                               </mat-chip>
                               <mat-chip
-                                (click)="insertNoti($event, i, k, ' *sec_emails*', 'smsMessage'); onMilestoneChange(i,k); onListChange(i)">
+                                (click)="insertNoti($event, i, k, ' *sec_emails*', 'smsMessage', smsInput); onMilestoneChange(i,k); onListChange(i)">
                                 Secretary email/s
                               </mat-chip>
                               <mat-chip
-                                (click)="insertNoti($event, i, k, ' *file_ref*', 'smsMessage'); onMilestoneChange(i,k); onListChange(i)">
+                                (click)="insertNoti($event, i, k, ' *file_ref*', 'smsMessage', smsInput); onMilestoneChange(i,k); onListChange(i)">
                                 File Reference
+                              </mat-chip>
+                              <mat-chip
+                                (click)="insertNoti($event, i, k, ' *bank*', 'smsMessage', smsInput); onMilestoneChange(i,k); onListChange(i)">
+                                Bank
                               </mat-chip>
                             </mat-chip-list>
                           </div>

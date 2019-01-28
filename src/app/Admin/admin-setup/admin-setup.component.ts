@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, ElementRef, OnInit} from '@angular/core';
 import {
   AbstractControl,
   FormArray,
@@ -161,8 +161,16 @@ export class AdminSetupComponent implements OnInit {
   }
   insertNoti(e, i, k, msg, control, ctr) {
     e.preventDefault();
-    console.log(ctr);
-    this.getMilestones(i).at(k).get(control).setValue(this.getMilestones(i).at(k).get(control).value + msg);
+    const value = this.getMilestones(i).at(k).get(control).value;
+    if (ctr.selectionStart || ctr.selectionStart === 0) {
+      if (ctr.selectionEnd || ctr.selectionEnd === 0) {
+        const msgStart = value.substring(0, ctr.selectionStart);
+        const msgEnd = value.substring(ctr.selectionEnd, value.length);
+        this.getMilestones(i).at(k).get(control).setValue(msgStart + msg + msgEnd);
+        console.log(this.getMilestones(i).at(k).get(control).value);
+      }
+    }
+    // this.getMilestones(i).at(k).get(control).setValue(this.getMilestones(i).at(k).get(control).value + msg);
   }
   getAllLists() {
     this.adminService.getAllMilestoneLists()
