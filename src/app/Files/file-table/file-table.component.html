@@ -97,7 +97,8 @@
     </div>
     <div class="milestonesBox">
       <mat-accordion>
-        <mat-expansion-panel *ngFor="let milestone of element.milestoneList.milestones; let i = index" hideToggle>
+        <mat-expansion-panel *ngFor="let milestone of element.milestoneList.milestones; let i = index"
+                             hideToggle (opened)="milestoneOpenState = true" (closed)="milestoneOpenState = false">
           <mat-expansion-panel-header collapsedHeight="*" expandedHeight="*">
             <mat-panel-title [style.text-decoration]="milestone.completed ? 'line-through' : 'none'"
                              [style.text-decoration-color]="milestone.completed ? 'red' : ''">
@@ -106,6 +107,15 @@
             <mat-panel-description>
               <span class="mTitle">{{ milestone._id.name }}
                 <small style="color: #1DA1F2">({{milestone.comments.length}} Comment{{milestone.comments.length > 1 || milestone.comments.length < 1? 's' : ''}})</small>
+                <small class="comment" *ngIf="milestone.comments.length > 0 && !milestoneOpenState">
+                  <hr>
+                  Last comment:
+                  <i class="fas fa-user-tie"></i> <span style="font-weight: bold; color: darkslategray"> {{milestone.comments[milestone.comments.length - 1]?.user?.name}}</span>
+                  <div class="speech">
+                    {{milestone.comments[milestone.comments.length - 1]?.comment}}<small style="color: #888888"> {{milestone.comments[milestone.comments.length - 1]?.timestamp | amTimeAgo}}</small>
+                  </div>
+                  <br>
+                </small>
               </span>
               <small class="mUpdated" style="color: darkgrey">
                 Last Updated: {{convertDate('dd/mm/yyyy', milestone.updatedAt)}} <br>by {{milestone.updatedBy.name}}
@@ -126,7 +136,6 @@
                 {{c.comment}}<small style="color: #888888"> {{c.timestamp | amTimeAgo}}</small>
               </span>
             </div>
-
             <div class="milestoneComments">
               <div class="btn-group" role="group" aria-label="action buttons" style="margin-top: 5px;">
                 <button class="btn btn-primary btn-sm saveButton" color="primary" (click)="addComment(milestone, i, element._id)">

@@ -76,7 +76,8 @@ mat-panel-title {
 }
 
 mat-panel-description .mTitle {
-   width: 50%;
+  width: 50%;
+  padding: 7px;
 }
 
 mat-panel-description .mUpdated {

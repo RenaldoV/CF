@@ -48,6 +48,7 @@ export class AddFileComponent implements OnInit {
   allSecretaries: any[] = [];
   secretaries: any[] = [];
   matcher = new ErrorStateMatcher();
+  milestoneOpenState;
   @ViewChild('secInput') secretaryInput: ElementRef<HTMLInputElement>;
   @ViewChild('auto') secretaryAutoComp: MatAutocomplete;
   @ViewChild(MatAutocompleteTrigger) secInput: MatAutocompleteTrigger;
