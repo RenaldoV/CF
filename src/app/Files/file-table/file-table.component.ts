@@ -113,13 +113,12 @@ export class FileTableComponent implements OnInit {
     const fileID = file._id;
     const thisMilestoneIndex = file.milestoneList.milestones.indexOf(m);
     if (e.checked) {
-      if (m._id.alwaysAsk) { // check always ask for notifications property
-        // bring up popup modal
+      if (m._id.alwaysAsk) { // check always ask for notifications property bring up popup modal
         const dialConfig = new MatDialogConfig();
         dialConfig.disableClose = true;
         dialConfig.autoFocus = true;
         dialConfig.minWidth = 300;
-        dialConfig.data = m._id;
+        dialConfig.data = {milestone: m._id, contacts: file.contacts};
         const dialogRef = this.dialog.open(AlwaysAskNotificationsComponent, dialConfig);
         dialogRef.afterClosed().subscribe(notiProps => {
           if (notiProps) {

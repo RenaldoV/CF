@@ -36,6 +36,17 @@
                   You are required to choose a bank.
                 </mat-error>
               </mat-form-field>
+              <mat-form-field>
+                <mat-select placeholder="Contacts" [formControl]="contacts1" multiple required>
+                  <mat-select-trigger>
+                    {{contacts1.value ? contacts1.value[0].name : ''}}
+                    <span *ngIf="contacts1.value?.length > 1" class="example-additional-selection">
+                      (+{{contacts1.value.length - 1}} {{contacts1.value?.length === 2 ? 'other' : 'others'}})
+                    </span>
+                  </mat-select-trigger>
+                  <mat-option *ngFor="let contact of data.contacts" [value]="contact">{{contact.name + ' ' + contact.surname}}</mat-option>
+                </mat-select>
+              </mat-form-field>
             </mat-expansion-panel>
           </mat-accordion>
         </div>
@@ -75,6 +86,17 @@
                 <mat-error>
                   You are required to choose a bank.
                 </mat-error>
+              </mat-form-field>
+              <mat-form-field>
+                <mat-select placeholder="Contacts" [formControl]="contacts2" multiple required>
+                  <mat-select-trigger>
+                    {{contacts2.value ? contacts1.value[0].name : ''}}
+                    <span *ngIf="contacts1.value?.length > 1" class="example-additional-selection">
+                      (+{{contacts2.value.length - 1}} {{contacts2.value?.length === 2 ? 'other' : 'others'}})
+                    </span>
+                  </mat-select-trigger>
+                  <mat-option *ngFor="let contact of data.contacts" [value]="contact">{{contact.name + ' ' + contact.surname}}</mat-option>
+                </mat-select>
               </mat-form-field>
             </mat-expansion-panel>
           </mat-accordion>

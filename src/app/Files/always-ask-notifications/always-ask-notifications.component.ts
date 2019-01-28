@@ -21,7 +21,6 @@ export class AlwaysAskNotificationsComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log(this.data);
   }
 
   close() {
@@ -29,12 +28,14 @@ export class AlwaysAskNotificationsComponent implements OnInit {
   }
   createForm() {
     this.notiPropsForm = this.fb.group({
-      sendSMS: [this.data.sendSMS],
-      smsMessage: new FormControl({value: this.data.smsMessage, disabled: true}),
-      sendEmail: [this.data.sendEmail],
-      emailMessage: new FormControl({value: this.data.emailMessage, disabled: true}),
+      sendSMS: [this.data.milestone.sendSMS],
+      smsMessage: new FormControl({value: this.data.milestone.smsMessage, disabled: true}),
+      sendEmail: [this.data.milestone.sendEmail],
+      emailMessage: new FormControl({value: this.data.milestone.emailMessage, disabled: true}),
       chooseBank1: [''],
       chooseBank2: [''],
+      contacts1: ['', [Validators.required]],
+      contacts2: ['', [Validators.required]]
     });
   }
   get sendSMS() {
@@ -54,6 +55,12 @@ export class AlwaysAskNotificationsComponent implements OnInit {
   }
   get chooseBank2 () {
     return this.notiPropsForm.get('chooseBank2');
+  }
+  get contacts1 () {
+    return this.notiPropsForm.get('contacts1');
+  }
+  get contacts2 () {
+    return this.notiPropsForm.get('contacts2');
   }
   changeSend(e, name) {
     const ctr = this.notiPropsForm.get(name);
@@ -101,10 +108,10 @@ export class AlwaysAskNotificationsComponent implements OnInit {
         sendSMS: this.sendSMS.value,
         sendEmail: this.sendEmail.value
       };
-      if (this.data.smsMessage !== this.smsMessage.value) {
+      if (this.data.milestone.smsMessage !== this.smsMessage.value) {
         payload.smsMessage = this.smsMessage.value;
       }
-      if (this.data.emailMessage !== this.emailMessage.value) {
+      if (this.data.milestone.emailMessage !== this.emailMessage.value) {
         payload.emailMessage = this.emailMessage.value;
       }
       this.dialogRef.close(payload);
