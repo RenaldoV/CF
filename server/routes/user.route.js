@@ -391,7 +391,7 @@ userRoutes.route('/updateMilestone').post((req, res, next) => {
 userRoutes.route('/list').get((req, res, next) => {
   // get all milestone Lists
   // TODO: get lists from specific user and not just all lists in DB
-  List.find().populate('milestones').exec((err, lists) => {
+  List.find().populate({path: 'milestones', options: {sort: {'number': 1}}}).exec((err, lists) => {
     console.log(err);
     if (lists) {
       res.json(lists);
@@ -932,7 +932,9 @@ userRoutes.route('/addFile').post((req, res, next) => {
   file.archived = false;
   async.waterfall([
     (callback) => { // first method: Get milestone list associated to file and build new file with milestones array
-      List.findById(file.milestoneList, 'milestones').exec((error, list) => {
+      List.findById(file.milestoneList, 'milestones')
+        .populate({path: 'milestones', select: {'_id': 1}, options: {sort: {'number': 1}}})
+        .exec((error, list) => {
         if (error) {
           callback(error);
         }
@@ -1041,7 +1043,7 @@ userRoutes.route('/files/:id').get((req, res, next) => {
         .populate('milestoneList.milestones._id')
         .populate('milestoneList._id', 'title')
         .populate('milestoneList.milestones.updatedBy', 'name')
-        .populate('contacts')
+        .populate('contacts', 'name surname title email cell type')
         .populate('milestoneList.milestones.comments.user', 'name')
         .populate('createdBy', 'name')
         .populate('updatedBy', 'name')
@@ -1052,6 +1054,11 @@ userRoutes.route('/files/:id').get((req, res, next) => {
           console.log(er);
           res.send(false);
         } else if (files) {
+          files.forEach(f => {
+            f.milestoneList.milestones.sort((a, b) => {
+              return a._id.number - b._id.number;
+            });
+          });
           res.send(files);
         } else {
           res.send(false);
@@ -1086,6 +1093,9 @@ userRoutes.route('/file/:id').get((req, res, next) => {
     }
     if(file) {
       file.milestoneList.milestones = file.milestoneList.milestones.filter(m => m.completed === true);
+      file.milestoneList.milestones.sort((a, b) => {
+        return a._id.number - b._id.number;
+      });
       res.send(file);
     }
   });
@@ -1107,7 +1117,6 @@ userRoutes.route('/completeMilestone').post((req, res, next) => {
   let milestoneID = req.body.milestoneID;
   let uid = req.body.uid; // can be top level or secretary
   let notiProps = req.body.notiProps;
-  console.log(notiProps);
   File.findOneAndUpdate(
     {_id: fileID, 'milestoneList.milestones._id': milestoneID},
     {$set: {
@@ -1148,43 +1157,72 @@ userRoutes.route('/completeMilestone').post((req, res, next) => {
             let emailMessage = callback.milestone.emailMessage;
             let smsMessage = callback.milestone.smsMessage;
             const milestoneName = callback.milestone.name;
-            callback.contacts.forEach(ct => {
-              const url = req.protocol + '://' + req.get('host') + '/login/' + encodeURI(fileID) + '/' + encodeURI(ct._id);
-              const email = ct.email;
-              // All fields that must replace placeholders in messages
-              const emailContext = {
-                deedsOffice: newFile.deedsOffice,
-                propertyDescription: newFile.propertyDescription,
-                myName: callback.adminUser.name,
-                contactName: ct.title + ' ' + ct.surname,
-                fileRef: newFile.fileRef,
-                secNames: newFile.refUser.map(s => s.name),
-                secEmails: newFile.refUser.map(s => s.email)
-              };
-              // check if always ask for noti props is activated
-              if (notiProps) {
-                if (notiProps.sendEmail) { // send email
-                  if (email) { // check if contact has email address
-                    mailer.sendEmail(
-                      email,
-                      // check if message has changed in always ask for noti popup and replace original message
-                      notiProps.emailMessage ? buildMessage(notiProps.emailMessage, emailContext) : buildMessage(emailMessage, emailContext),
-                      url,
-                      milestoneName + ' milestone has been completed.'
-                    );
-                  }
+            if (notiProps) { // user chose notification preference on the front end
+              if (notiProps.sendEmail) { // send email
+                if (notiProps.emailContacts) { // contacts have been chosen for emails
+                  notiProps.emailContacts.forEach(ct => {
+                    const url = req.protocol + '://' + req.get('host') + '/login/' + encodeURI(fileID) + '/' + encodeURI(ct._id);
+                    const email = ct.email;
+                    // All fields that must replace placeholders in messages
+                    const emailContext = {
+                      deedsOffice: newFile.deedsOffice,
+                      propertyDescription: newFile.propertyDescription,
+                      myName: callback.adminUser.name,
+                      contactName: ct.title + ' ' + ct.surname,
+                      fileRef: newFile.fileRef,
+                      secNames: newFile.refUser.map(s => s.name),
+                      secEmails: newFile.refUser.map(s => s.email),
+                      bank: newFile.bank
+                    };
+                    if (email) { // check if contact has email address
+                      mailer.sendEmail(
+                        email,
+                        buildMessage(emailMessage, emailContext),
+                        url,
+                        milestoneName + ' milestone has been completed.'
+                      );
+                    }
+                  });
                 }
-                if (notiProps.sendSMS) { // send sms
-                  smser.send(
-                    ct.cell,
-                    // check if message has changed in always ask for noti popup and replace original message
-                    notiProps.smsMessage ? buildMessage(notiProps.smsMessage, emailContext) : buildMessage(smsMessage, emailContext)
-                  ).then(res => {}, (error) => {
+              }
+              if (notiProps.sendSMS) { // send sms
+                if (notiProps.smsContacts) { // contacts have been chosen for smss
+                  notiProps.smsContacts.forEach(ct => {
+                    const smsContext = {
+                      deedsOffice: newFile.deedsOffice,
+                      propertyDescription: newFile.propertyDescription,
+                      myName: callback.adminUser.name,
+                      contactName: ct.title + ' ' + ct.surname,
+                      fileRef: newFile.fileRef,
+                      secNames: newFile.refUser.map(s => s.name),
+                      secEmails: newFile.refUser.map(s => s.email),
+                      bank: newFile.bank
+                    };
+                    smser.send(
+                      ct.cell,
+                      buildMessage(smsMessage, smsContext)
+                    ).then(res => {}, (error) => {
                       console.log(error);
                       res.send(false);
                     });
+                  });
                 }
-              } else {
+              }
+            } else { // user didn't choose notification preference on front end, use default
+              callback.contacts.forEach(ct => {
+                const url = req.protocol + '://' + req.get('host') + '/login/' + encodeURI(fileID) + '/' + encodeURI(ct._id);
+                const email = ct.email;
+                // All fields that must replace placeholders in messages
+                const emailContext = {
+                  deedsOffice: newFile.deedsOffice,
+                  propertyDescription: newFile.propertyDescription,
+                  myName: callback.adminUser.name,
+                  contactName: ct.title + ' ' + ct.surname,
+                  fileRef: newFile.fileRef,
+                  secNames: newFile.refUser.map(s => s.name),
+                  secEmails: newFile.refUser.map(s => s.email),
+                  bank: newFile.bank
+                };
                 if (callback.milestone.sendEmail) { // send email
                   if (email) {
                     mailer.sendEmail(email, buildMessage(emailMessage, emailContext), url, milestoneName + ' milestone has been completed.');
@@ -1197,8 +1235,9 @@ userRoutes.route('/completeMilestone').post((req, res, next) => {
                       res.send(false);
                     });
                 }
-              }
-            });
+                // check if always ask for noti props is activated
+              });
+            }
             res.send({
               message: 'Milestone successfully marked as complete' + (callback.milestone.sendEmail || callback.milestone.sendSMS ? ', and all parties notified.' : '.')
             });
@@ -1277,5 +1316,6 @@ function buildMessage(body, context) {
   resultMessage = resultMessage.split('*sec_names*').join(context.secNames.join(' / '));
   resultMessage = resultMessage.split('*sec_emails*').join(context.secEmails.join(' / '));
   resultMessage = resultMessage.split('*file_ref*').join(context.fileRef);
+  resultMessage = resultMessage.split('*bank*').join(context.bank);
   return resultMessage;
 }

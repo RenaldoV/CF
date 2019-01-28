@@ -85,7 +85,7 @@ export class AdminSetupComponent implements OnInit {
     const ms = this.fb.group({
       _id: [''],
       name: ['', Validators.required],
-      number: new FormControl({value: this.getMilestones(i).length + 1, disabled: true}),
+      number: new FormControl({value: this.getMilestones(i).length + 1}),
       emailMessage: ['', Validators.required],
       smsMessage: ['', Validators.required],
       sendEmail: [false],
@@ -192,7 +192,7 @@ export class AdminSetupComponent implements OnInit {
         const ms = this.fb.group({
           _id: [''],
           name: ['', Validators.required],
-          number: new FormControl({value: k + 1, disabled: true}),
+          number: new FormControl({value: m.number ? m.number : k + 1}),
           emailMessage: ['', Validators.required],
           smsMessage: ['', Validators.required],
           sendEmail: [false],

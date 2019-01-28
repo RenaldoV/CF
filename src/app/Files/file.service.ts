@@ -34,12 +34,12 @@ export class FileService {
     const url = `${this.host}/files/` + uid;
     return this.http.get(url);
   }
-  completeMilestone(fileID, milestoneID, notiProps?) {
+  completeMilestone(file, milestone, notiProps?) {
     const uid = this.auth.getID(); // complete milestone as me
     const headers = new HttpHeaders();
     headers.set('Content-Type', 'application/json');
     return this.http.post<any>(`${this.host}/completeMilestone`,
-      {fileID: fileID, milestoneID: milestoneID, uid: uid, notiProps: notiProps});
+      {fileID: file, milestoneID: milestone, uid: uid, notiProps: notiProps});
   }
   addComment(fileID, milestoneID, comment) {
     const uid = this.auth.getID();

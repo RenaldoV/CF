@@ -22,7 +22,7 @@
                           formControlName="smsMessage" required rows="4"></textarea>
                 <mat-error>SMS Message is required.</mat-error>
               </mat-form-field>
-              <mat-form-field *ngIf="sendSMS.value">
+              <!--<mat-form-field *ngIf="sendSMS.value">
                 <mat-select formControlName="chooseBank1" placeholder="Choose Bank" (valueChange)="chooseBank($event, 'smsMessage')" required>
                   <mat-option value="First National Bank">First National Bank</mat-option>
                   <mat-option value="ABSA">ABSA</mat-option>
@@ -35,17 +35,18 @@
                 <mat-error>
                   You are required to choose a bank.
                 </mat-error>
-              </mat-form-field>
+              </mat-form-field>-->
               <mat-form-field>
-                <mat-select placeholder="Contacts" [formControl]="contacts1" multiple required>
+                <mat-select placeholder="Contacts" [formControl]="smsContacts" multiple required>
                   <mat-select-trigger>
-                    {{contacts1.value ? contacts1.value[0].name : ''}}
-                    <span *ngIf="contacts1.value?.length > 1" class="example-additional-selection">
-                      (+{{contacts1.value.length - 1}} {{contacts1.value?.length === 2 ? 'other' : 'others'}})
+                    {{smsContacts.value ? smsContacts.value[0]?.name : ''}}
+                    <span *ngIf="smsContacts.value?.length > 1" class="example-additional-selection">
+                      (+{{smsContacts.value.length - 1}} {{smsContacts.value?.length === 2 ? 'other' : 'others'}})
                     </span>
                   </mat-select-trigger>
                   <mat-option *ngFor="let contact of data.contacts" [value]="contact">{{contact.name + ' ' + contact.surname}}</mat-option>
                 </mat-select>
+                <mat-error>Contacts are required</mat-error>
               </mat-form-field>
             </mat-expansion-panel>
           </mat-accordion>
@@ -73,7 +74,7 @@
                           formControlName="emailMessage" required rows="4"></textarea>
                 <mat-error>Email Message is required.</mat-error>
               </mat-form-field>
-              <mat-form-field *ngIf="sendEmail.value">
+              <!--<mat-form-field *ngIf="sendEmail.value">
                 <mat-select formControlName="chooseBank2" placeholder="Choose Bank" (valueChange)="chooseBank($event, 'emailMessage')" required>
                   <mat-option value="First National Bank">First National Bank</mat-option>
                   <mat-option value="ABSA">ABSA</mat-option>
@@ -86,17 +87,18 @@
                 <mat-error>
                   You are required to choose a bank.
                 </mat-error>
-              </mat-form-field>
+              </mat-form-field>-->
               <mat-form-field>
-                <mat-select placeholder="Contacts" [formControl]="contacts2" multiple required>
+                <mat-select placeholder="Contacts" [formControl]="emailContacts" multiple required>
                   <mat-select-trigger>
-                    {{contacts2.value ? contacts1.value[0].name : ''}}
-                    <span *ngIf="contacts1.value?.length > 1" class="example-additional-selection">
-                      (+{{contacts2.value.length - 1}} {{contacts2.value?.length === 2 ? 'other' : 'others'}})
+                    {{emailContacts.value ? emailContacts.value[0]?.name : ''}}
+                    <span *ngIf="emailContacts.value?.length > 1" class="example-additional-selection">
+                      (+{{emailContacts.value.length - 1}} {{emailContacts.value?.length === 2 ? 'other' : 'others'}})
                     </span>
                   </mat-select-trigger>
                   <mat-option *ngFor="let contact of data.contacts" [value]="contact">{{contact.name + ' ' + contact.surname}}</mat-option>
                 </mat-select>
+                <mat-error>Contacts are required</mat-error>
               </mat-form-field>
             </mat-expansion-panel>
           </mat-accordion>

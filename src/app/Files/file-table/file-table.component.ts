@@ -41,7 +41,7 @@ export class FileTableComponent implements OnInit {
   ngOnInit() {
     this.allFiles = this.files;
     this.dataSource = new MatTableDataSource<File>(this.files.filter(f => !f.archived));
-    /*console.log(this.files);*/
+    console.log(this.files);
     this.initDataSource();
   }
   initDataSource() {
@@ -122,6 +122,7 @@ export class FileTableComponent implements OnInit {
         const dialogRef = this.dialog.open(AlwaysAskNotificationsComponent, dialConfig);
         dialogRef.afterClosed().subscribe(notiProps => {
           if (notiProps) {
+            console.log(notiProps);
             if (confirm('Are you sure you want to mark this milestone as done?')) {
               this.fileService.completeMilestone(fileID, m._id, notiProps)
                 .subscribe(res => {
@@ -155,7 +156,6 @@ export class FileTableComponent implements OnInit {
                 m.completed = e.checked;
                 this.matSnack.open(res.message);
                 if (thisMilestoneIndex === file.milestoneList.milestones.length - 1) { // if last milestone ask to send to archived
-                  console.log('this is last milestone');
                   if (confirm('You have completed the last milestone, do you want to archive this file?')) {
                     this.archiveFile(file);
                   }

@@ -63,13 +63,27 @@
                   <mat-error>Select at least one secretary as a reference.</mat-error>
                 </mat-form-field>
                 <mat-form-field>
-                  <mat-select placeholder="Milestone Process" [formControl]="milestoneList" required>
+                  <mat-select (valueChange)="milestoneListSelected($event)" placeholder="Milestone Process" [formControl]="milestoneList" required>
                     <mat-option *ngFor="let ml of milestonesLists" [value]="ml._id">
                       {{ml.title}}
                     </mat-option>
                   </mat-select>
                   <mat-error *ngIf="milestoneList.hasError('required')">
                     Milestone Process is required.
+                  </mat-error>
+                </mat-form-field>
+                <mat-form-field *ngIf="isBond()">
+                  <mat-select formControlName="bank" placeholder="Choose Bank" required>
+                    <mat-option value="First National Bank">First National Bank</mat-option>
+                    <mat-option value="ABSA">ABSA</mat-option>
+                    <mat-option value="African Bank">African Bank</mat-option>
+                    <mat-option value="Capitec">Capitec</mat-option>
+                    <mat-option value="Nedbank">Nedbank</mat-option>
+                    <mat-option value="Standard Bank">Standard Bank</mat-option>
+                    <mat-option value="Bidvest Bank">Bidvest Bank</mat-option>
+                  </mat-select>
+                  <mat-error>
+                    You are required to choose a bank.
                   </mat-error>
                 </mat-form-field>
               </div>

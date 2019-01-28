@@ -19,6 +19,7 @@ let File = new mongoose.Schema({
         }]
       }]
       },
+    bank: String,
     deedsOffice: String,
     propertyDescription: String,
     /*erfNumber: String,

@@ -32,10 +32,8 @@ export class AlwaysAskNotificationsComponent implements OnInit {
       smsMessage: new FormControl({value: this.data.milestone.smsMessage, disabled: true}),
       sendEmail: [this.data.milestone.sendEmail],
       emailMessage: new FormControl({value: this.data.milestone.emailMessage, disabled: true}),
-      chooseBank1: [''],
-      chooseBank2: [''],
-      contacts1: ['', [Validators.required]],
-      contacts2: ['', [Validators.required]]
+      smsContacts: [this.data.milestone.sendSMS ? this.data.contacts : ''],
+      emailContacts: [this.data.milestone.sendEmail ? this.data.contacts : '']
     });
   }
   get sendSMS() {
@@ -50,71 +48,39 @@ export class AlwaysAskNotificationsComponent implements OnInit {
   get emailMessage() {
     return this.notiPropsForm.get('emailMessage');
   }
-  get chooseBank1 () {
-    return this.notiPropsForm.get('chooseBank1');
+  get smsContacts () {
+    return this.notiPropsForm.get('smsContacts');
   }
-  get chooseBank2 () {
-    return this.notiPropsForm.get('chooseBank2');
-  }
-  get contacts1 () {
-    return this.notiPropsForm.get('contacts1');
-  }
-  get contacts2 () {
-    return this.notiPropsForm.get('contacts2');
+  get emailContacts () {
+    return this.notiPropsForm.get('emailContacts');
   }
   changeSend(e, name) {
     const ctr = this.notiPropsForm.get(name);
     if (name === 'sendSMS') {
       if (e.checked) {
-        this.chooseBank1.setValidators(Validators.required);
-        this.chooseBank1.updateValueAndValidity();
+        this.smsContacts.setValue(this.data.contacts);
+        this.smsContacts.setValidators(Validators.required);
+        this.smsContacts.updateValueAndValidity();
       } else {
-        this.chooseBank1.clearValidators();
-        this.chooseBank1.updateValueAndValidity();
+        this.smsContacts.setValue('');
+        this.smsContacts.clearValidators();
+        this.smsContacts.updateValueAndValidity();
       }
     } else if (name === 'sendEmail') {
       if (e.checked) {
-        this.chooseBank2.setValidators(Validators.required);
-        this.chooseBank2.updateValueAndValidity();
+        this.emailContacts.setValue(this.data.contacts);
+        this.emailContacts.setValidators(Validators.required);
+        this.emailContacts.updateValueAndValidity();
       } else {
-        this.chooseBank2.clearValidators();
-        this.chooseBank2.updateValueAndValidity();
-      }
-    }
-  }
-  chooseBank(e, name) {
-    const ctr = this.notiPropsForm.get(name);
-    ctr.setValue(ctr.value.replace('*bank*', e));
-    if (name === 'smsMessage') {
-      if (confirm('Would you like to choose the same bank for the email message?')) {
-        this.emailMessage.setValue(this.emailMessage.value.replace('*bank*', e));
-        this.chooseBank2.setValue(e);
-        this.sendEmail.setValue(true);
-      }
-    } else if (name === 'emailMessage') {
-      if (confirm('Would you like to choose the same bank for the sms message?')) {
-        this.smsMessage.setValue(this.smsMessage.value.replace('*bank*', e));
-        this.chooseBank1.setValue(e);
-        this.sendSMS.setValue(true);
+        this.emailContacts.setValue('');
+        this.emailContacts.clearValidators();
+        this.emailContacts.updateValueAndValidity();
       }
     }
   }
   submit() {
-    this.notiPropsForm.markAsTouched();
     if (this.notiPropsForm.valid) {
-      const payload = {
-        smsMessage: null,
-        emailMessage: null,
-        sendSMS: this.sendSMS.value,
-        sendEmail: this.sendEmail.value
-      };
-      if (this.data.milestone.smsMessage !== this.smsMessage.value) {
-        payload.smsMessage = this.smsMessage.value;
-      }
-      if (this.data.milestone.emailMessage !== this.emailMessage.value) {
-        payload.emailMessage = this.emailMessage.value;
-      }
-      this.dialogRef.close(payload);
+      this.dialogRef.close(this.notiPropsForm.value);
     }
   }
 }

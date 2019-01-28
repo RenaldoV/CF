@@ -245,7 +245,8 @@ export class AddFileComponent implements OnInit {
       /*action: ['', Validators.required],*/
       refUser: [''],
       secChips: ['', Validators.required],
-      milestoneList: ['', Validators.required] // TODO: get milestone lists from DB
+      milestoneList: ['', Validators.required], // TODO: get milestone lists from DB
+      bank: ['']
     });
   }
   get fileRef () {
@@ -262,6 +263,31 @@ export class AddFileComponent implements OnInit {
   }
   get milestoneList () {
     return this.fileForm.get('milestoneList');
+  }
+  get bank () {
+    return this.fileForm.get('bank');
+  }
+  milestoneListSelected(e) {
+    const ms = this.milestonesLists.filter(m => m._id === e);
+    if (ms[0].title === 'Bond') {
+      this.bank.setValidators([Validators.required]);
+      this.bank.updateValueAndValidity();
+    } else {
+      this.bank.clearValidators();
+      this.bank.updateValueAndValidity();
+    }
+  }
+  isBond() {
+    const ms = this.milestonesLists.filter(m => m._id === this.milestoneList.value);
+    if (ms[0]) {
+      if (ms[0].title === 'Bond') {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
   }
   // ======= File Form functions ===============
   // ======= Property Form functions ===============
