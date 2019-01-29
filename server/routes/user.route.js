@@ -716,15 +716,7 @@ userRoutes.route('/deleteContact').post((req, res, next) => {
           console.log(er);
           res.send(false);
         } else if (result1) {
-          File.findAndUpdate({'contacts': cid}, {$pull: {'contacts.&' : cid}}, {new: true}, (e, resF) => {
-            if(e) {
-              console.log(e);
-              res.send(false);
-            } else {
-              console.log(resF);
-              res.send(true);
-            }
-          });
+          res.send(true);
         } else {
           res.send(false);
         }
