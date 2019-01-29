@@ -125,12 +125,13 @@ export class AddFileComponent implements OnInit {
           }
         });
       });
-    // TODO: get all my contact initially
     this.filteredSecretaries = this.refUser.valueChanges.pipe(
       startWith(null),
       map((sec: string | null) => sec ? this._filterSecretaries(sec) : this._filterSecretaries('')));
   }
-  ngOnInit() {}
+  ngOnInit() {
+    this.searchTerm$.next('');
+  }
   showRoute() {
     let route = this.router.url.replace('/', '').replace('-', ' ');
     route = route.toLowerCase()
@@ -370,7 +371,6 @@ export class AddFileComponent implements OnInit {
     if (this.propForm.valid && this.fileForm.valid) {
       this.propForm.value.refUser = this.secretaries.map(s => s._id);
       delete this.propForm.value.secChips;
-      console.log(this.propForm.value);
       const file = {...this.fileForm.value, ...this.propForm.value, ...{'contacts': this.fileContactsList.map(ct => ct._id)}};
       this.fileService.createFile(file)
         .subscribe(res => {

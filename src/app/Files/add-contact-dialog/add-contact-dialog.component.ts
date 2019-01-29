@@ -47,7 +47,7 @@ export class AddContactDialogComponent implements OnInit {
       name: ['', Validators.required],
       surname: ['', Validators.required],
       cell: ['', [Validators.required, GlobalValidators.cellRegex]],
-      email: ['', [GlobalValidators.validEmail], this.shouldBeUnique.bind(this)],
+      email: ['', [GlobalValidators.validEmail]],
       type: ['', Validators.required]
     });
   }
@@ -123,19 +123,29 @@ export class AddContactDialogComponent implements OnInit {
         this.email.clearAsyncValidators();
         this.email.updateValueAndValidity();
       }
+    } else {
+      if (this.email.value !== '') {
+        this.email.setAsyncValidators(this.shouldBeUnique.bind(this));
+      } else {
+        this.email.clearAsyncValidators();
+      }
     }
   }
 
   shouldBeUnique(control: AbstractControl): Promise<ValidationErrors> | null {
     const q = new Promise((resolve, reject) => {
       setTimeout(() => {
-        this.contactService.getContactByEmail(control.value).subscribe((res) => {
-          if (!res) {
-            resolve(null);
-          } else {
-            resolve({'emailNotUnique': true});
-          }
-        });
+        if (control.value === '') {
+          resolve(null);
+        } else {
+          this.contactService.getContactByEmail(control.value).subscribe((res) => {
+            if (!res) {
+              resolve(null);
+            } else {
+              resolve({'emailNotUnique': true});
+            }
+          });
+        }
       }, 100);
     });
     return q;

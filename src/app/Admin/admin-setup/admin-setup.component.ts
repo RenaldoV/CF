@@ -27,6 +27,7 @@ export class AdminSetupComponent implements OnInit {
   PropertiesForm: FormGroup;
   ContactsForm: FormGroup;
   UsersForm: FormGroup;
+  origContacts;
   constructor(
     private fb: FormBuilder,
     private adminService: AdminService,
@@ -517,6 +518,7 @@ export class AdminSetupComponent implements OnInit {
     this.contactService.getContacts()
       .subscribe(res => {
         if (res) {
+          this.origContacts = res;
           this.patchContacts(res);
         }
       }, err => {
@@ -541,13 +543,12 @@ export class AdminSetupComponent implements OnInit {
       name: ['', Validators.required],
       surname: ['', Validators],
       cell: ['', [Validators.required, GlobalValidators.cellRegex]],
-      email: ['', [Validators.email],
+      email: ['', [GlobalValidators.validEmail],
         existing ? null : this.shouldBeUniqueContact.bind(this)],
       updatedBy: [existing ? 'existing' : 'new'],
       type: ['', Validators.required]
     });
     const arrayControl = <FormArray>this.contacts;
-    /*if (existing) { ct.get('email').disable(); }*/
     arrayControl.push(ct);
   }
   checkUniquenessValidator(i) {
@@ -604,6 +605,7 @@ export class AdminSetupComponent implements OnInit {
             this.matSnack.open('Contact created successfully');
             ct.patchValue(res);
             ct.get('email').clearAsyncValidators();
+            ct.get('email').updateValueAndValidity();
             ct.get('updatedBy').setValue('existing');
           } else {
             const sb = this.matSnack.open('Contact not created successful', 'retry');
@@ -626,7 +628,8 @@ export class AdminSetupComponent implements OnInit {
           if (res) {
             ct.patchValue(res);
             ct.get('updatedBy').setValue('existing');
-            ct.clearAsyncValidators(); // TODO: Fix this it doesn't work
+            ct.get('email').clearAsyncValidators();
+            ct.get('email').updateValueAndValidity();
             this.matSnack.open('Update successful');
           } else {
             const sb = this.matSnack.open('Update unsuccessful', 'retry');
@@ -647,13 +650,17 @@ export class AdminSetupComponent implements OnInit {
   shouldBeUniqueContact(control: AbstractControl): Promise<ValidationErrors> | null {
     const q = new Promise((resolve, reject) => {
       setTimeout(() => {
-        this.contactService.getContactByEmail(control.value).subscribe((res) => {
-          if (!res) {
-            resolve(null);
-          } else {
-            resolve({'emailNotUnique': true});
-          }
-        });
+        if (control.value === '') {
+          resolve(null);
+        } else {
+          this.contactService.getContactByEmail(control.value).subscribe((res) => {
+            if (!res) {
+              resolve(null);
+            } else {
+              resolve({'emailNotUnique': true});
+            }
+          });
+        }
       }, 100);
     });
     return q;
@@ -689,13 +696,17 @@ export class AdminSetupComponent implements OnInit {
   shouldBeUniqueUser(control: AbstractControl): Promise<ValidationErrors> | null {
     const q = new Promise((resolve, reject) => {
       setTimeout(() => {
-        this.auth.getUserByEmail(control.value).subscribe((res) => {
-          if (!res) {
-            resolve(null);
-          } else {
-            resolve({'emailNotUnique': true});
-          }
-        });
+        if (control.value === '') {
+          resolve(null);
+        } else {
+          this.contactService.getContactByEmail(control.value).subscribe((res) => {
+            if (!res) {
+              resolve(null);
+            } else {
+              resolve({'emailNotUnique': true});
+            }
+          });
+        }
       }, 100);
     });
     return q;

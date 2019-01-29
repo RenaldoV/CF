@@ -41,7 +41,6 @@ export class FileTableComponent implements OnInit {
   ngOnInit() {
     this.allFiles = this.files;
     this.dataSource = new MatTableDataSource<File>(this.files.filter(f => !f.archived));
-    console.log(this.files);
     this.initDataSource();
   }
   initDataSource() {
@@ -175,15 +174,16 @@ export class FileTableComponent implements OnInit {
     function pad(s) { return (s < 10) ? '0' + s : s; }
     return [d.getFullYear(), pad(d.getMonth() + 1), pad(d.getDate())].join('-');
   }
-  addComment(mID, mNum, fileID) {
+  addComment(mID, mNum, file) {
     const dialConfig = new MatDialogConfig();
     dialConfig.disableClose = true;
     dialConfig.autoFocus = true;
     dialConfig.minWidth = 300;
+    dialConfig.data = { contacts: file.contacts };
     const dialogRef = this.dialog.open(AddCommentDialogComponent, dialConfig);
     dialogRef.afterClosed().subscribe(res => {
       if (res) {
-        this.fileService.addComment(fileID, mID._id._id, res)
+        this.fileService.addComment(file._id, mID._id._id, res)
           .subscribe((comment) => {
             if (comment) {
               mID.comments.push(comment);

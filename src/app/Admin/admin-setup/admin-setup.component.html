@@ -402,7 +402,7 @@
                       <br>
                       <mat-form-field class="innerFormFields">
                         <input (change)="checkUniquenessValidator(i)" type="email" matInput placeholder="Email address" formControlName="email">
-                        <mat-error *ngIf="c.get('email').hasError('email')">
+                        <mat-error *ngIf="c.get('email').hasError('invalidEmail')">
                           Email must be a valid email address.
                         </mat-error>
                         <mat-error *ngIf="c.get('email').hasError('emailNotUnique')">

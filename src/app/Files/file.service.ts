@@ -47,7 +47,8 @@ export class FileService {
     headers.set('Content-Type', 'application/json');
     return this.http.post<any>(`${this.host}/addComment`, {
       fileID: fileID, milestoneID: milestoneID, uid: uid, comment: comment.comment,
-      sendNoti: {sms : comment.sendSMS, email: comment.sendEmail}
+      sendNoti: {sms : comment.sendSMS, email: comment.sendEmail},
+      emailContacts: comment.emailContacts, smsContacts: comment.smsContacts
     });
   }
   getFileRef(id): Observable<any> {

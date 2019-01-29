@@ -10,12 +10,36 @@
       </mat-error>
     </mat-form-field>
     <div class="col-12">
-      <mat-checkbox formControlName="sendSMS">
+      <mat-checkbox (change)="changeSend($event, 'sendEmail')" formControlName="sendSMS">
         SMS all parties</mat-checkbox>
+      <mat-form-field *ngIf="sendSMS.value">
+        <mat-select placeholder="Send to Contacts" [formControl]="smsContacts" multiple required>
+          <mat-select-trigger>
+            {{smsContacts.value ? smsContacts.value[0]?.name : ''}}
+            <span *ngIf="smsContacts.value?.length > 1" class="example-additional-selection">
+                      (+{{smsContacts.value.length - 1}} {{smsContacts.value?.length === 2 ? 'other' : 'others'}})
+                    </span>
+          </mat-select-trigger>
+          <mat-option *ngFor="let contact of data.contacts" [value]="contact">{{contact.name + ' ' + contact.surname}}</mat-option>
+        </mat-select>
+        <mat-error>Contacts are required</mat-error>
+      </mat-form-field>
     </div>
     <div class="col-12">
-      <mat-checkbox formControlName="sendEmail">
+      <mat-checkbox (change)="changeSend($event, 'sendEmail')" formControlName="sendEmail">
         Email all parties</mat-checkbox>
+      <mat-form-field *ngIf="sendEmail.value">
+        <mat-select placeholder="Send to Contacts" [formControl]="emailContacts" multiple required>
+          <mat-select-trigger>
+            {{emailContacts.value ? emailContacts.value[0]?.name : ''}}
+            <span *ngIf="emailContacts.value?.length > 1" class="example-additional-selection">
+                      (+{{emailContacts.value.length - 1}} {{emailContacts.value?.length === 2 ? 'other' : 'others'}})
+                    </span>
+          </mat-select-trigger>
+          <mat-option *ngFor="let contact of filteredEmailContacts" [value]="contact">{{contact.name + ' ' + contact.surname}}</mat-option>
+        </mat-select>
+        <mat-error>Contacts are required</mat-error>
+      </mat-form-field>
     </div>
     <br>
   </div>

@@ -648,6 +648,11 @@ userRoutes.route('/addOneDeedsOffice').post((req, res, next) => {
 // ============================ CONTACTS ROUTES  =======================
 userRoutes.route('/addContact').post((req, res, next) => {
   let contact = req.body.contact;
+  if (contact.email === "" || contact.email === null) {
+    delete contact.email;
+  } else {
+    contact.email = contact.email.toLowerCase();
+  }
   contact.verified = false;
   let uid = req.body.uid;
   contact.passwordHash = Math.random().toString(36).substring(10);
@@ -711,7 +716,15 @@ userRoutes.route('/deleteContact').post((req, res, next) => {
           console.log(er);
           res.send(false);
         } else if (result1) {
-          res.send(true);
+          File.findAndUpdate({'contacts': cid}, {$pull: {'contacts.&' : cid}}, {new: true}, (e, resF) => {
+            if(e) {
+              console.log(e);
+              res.send(false);
+            } else {
+              console.log(resF);
+              res.send(true);
+            }
+          });
         } else {
           res.send(false);
         }
@@ -723,13 +736,25 @@ userRoutes.route('/deleteContact').post((req, res, next) => {
 });
 userRoutes.route('/updateContact').post((req, res, next) => {
   const ct = req.body;
+  console.log(ct);
+  if (ct.email === '' || ct.email === null) {
+    delete ct.email;
+  } else {
+    ct.email = ct.email.toLowerCase();
+  }
   Contact.findByIdAndUpdate(ct._id, ct, {new: true}, (er, ctRes) => {
         if(er) {
           console.log(er);
           res.send(false);
         }
         if(ctRes) {
-          res.send(ctRes);
+          if (!ct.email) {
+            Contact.findByIdAndUpdate(ct._id, {$unset: {email: ""}}, {new: true}, (e, result) => {
+              res.send(result);
+            });
+          } else {
+            res.send(ctRes);
+          }
         }else {
           res.send(false);
         }
@@ -739,7 +764,6 @@ userRoutes.route('/contacts/:uid/:search').get((req, res, next) => {
   // get user's contacts
   const uid = req.params.uid;
   const searchTerm = req.params.search;
-
   User.findById(uid, 'contacts').populate('contacts', 'name email cell type surname').exec((err, user) => {
     if(err) {
       console.log(err);
@@ -755,7 +779,8 @@ userRoutes.route('/contacts/:uid/:search').get((req, res, next) => {
 userRoutes.route('/contact').post((req, res, next) => {
   // get user's contacts
   const uid = req.body.uid;
-  const email = req.body.email;
+  let email = req.body.email;
+  email = email.toLowerCase();
   User.findById(uid, 'contacts').populate('contacts', 'name email cell type').exec((err, user) => {
     if(err) {
       console.log(err);
@@ -1259,6 +1284,8 @@ userRoutes.route('/addComment').post((req, res, next) => {
     timestamp: new Date()
   };
   let sendNoti = req.body.sendNoti;
+  let emailContacts = req.body.emailContacts;
+  let smsContacts = req.body.smsContacts;
   File.findOneAndUpdate(
     {_id: fileID, 'milestoneList.milestones._id': milestoneID},
     { $push: {'milestoneList.milestones.$.comments': comment},
@@ -1269,7 +1296,6 @@ userRoutes.route('/addComment').post((req, res, next) => {
     },
     {fields: 'milestoneList.milestones.$.comments propertyDescription'})
     .populate('milestoneList.milestones.comments.user', 'name')
-    .populate('contacts', 'cell email')
     .populate('milestoneList.milestones._id', 'name')
     .exec((err, result) => {
     if (err) {
@@ -1279,7 +1305,20 @@ userRoutes.route('/addComment').post((req, res, next) => {
     if (result) {
       User.findById(comment.user, 'name email', (er, user) => {
         comment.user = user;
-        result.contacts.forEach(ct => {
+        if (sendNoti.email && emailContacts.length > 0) { // if send email true and contacts selected
+          emailContacts.forEach(ct => {
+            if (ct.email) {
+              const url = req.protocol + '://' + req.get('host') + '/login/' + encodeURI(fileID) + '/' + encodeURI(ct._id);
+              mailer.commentMade(user.name, ct.email, comment.comment, result.propertyDescription, result.milestoneList.milestones[0]._id.name, url);
+            }
+          });
+        } if (sendNoti.sms && smsContacts.length > 0) {
+          smsContacts.forEach(ct => {
+            const url = req.protocol + '://' + req.get('host') + '/login/' + encodeURI(fileID) + '/' + encodeURI(ct._id);
+            smser.commentMade(ct.cell, comment.comment, user.name, result.propertyDescription, result.milestoneList.milestones[0]._id.name, url);
+          });
+        }
+        /*result.contacts.forEach(ct => {
           const url = req.protocol + '://' + req.get('host') + '/login/' + encodeURI(fileID) + '/' + encodeURI(ct._id);
           if(sendNoti.email) {
             if (ct.email) {
@@ -1289,7 +1328,7 @@ userRoutes.route('/addComment').post((req, res, next) => {
           if(sendNoti.sms) {
             smser.commentMade(ct.cell, comment.comment, user.name, result.propertyDescription, result.milestoneList.milestones[0]._id.name, url);
           }
-        });
+        });*/
         res.send(comment);
       });
     } else {
@@ -1304,6 +1343,9 @@ function find(items, text) {
   text = text.split(' ');
   return items.filter((item) => {
     return text.every((el) => {
+      if (!item.email) {
+        item.email = '';
+      }
       return item.name.toLowerCase().indexOf(el) > -1 || item.cell.indexOf(el) > -1 || item.email.toLowerCase().indexOf(el) > -1 || item.type.toLowerCase().indexOf(el) > -1;
     });
   });

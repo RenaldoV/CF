@@ -108,8 +108,8 @@
               <span class="mTitle">{{ milestone._id.name }}
                 <small style="color: #1DA1F2">({{milestone.comments.length}} Comment{{milestone.comments.length > 1 || milestone.comments.length < 1? 's' : ''}})</small>
                 <small class="comment" *ngIf="milestone.comments.length > 0 && !milestoneOpenState">
-                  <hr>
-                  Last comment:
+                  <br/>
+                  <span style="color:red">Last comment:</span>
                   <i class="fas fa-user-tie"></i> <span style="font-weight: bold; color: darkslategray"> {{milestone.comments[milestone.comments.length - 1]?.user?.name}}</span>
                   <div class="speech">
                     {{milestone.comments[milestone.comments.length - 1]?.comment}}<small style="color: #888888"> {{milestone.comments[milestone.comments.length - 1]?.timestamp | amTimeAgo}}</small>
@@ -138,7 +138,7 @@
             </div>
             <div class="milestoneComments">
               <div class="btn-group" role="group" aria-label="action buttons" style="margin-top: 5px;">
-                <button class="btn btn-primary btn-sm saveButton" color="primary" (click)="addComment(milestone, i, element._id)">
+                <button class="btn btn-primary btn-sm saveButton" color="primary" (click)="addComment(milestone, i, element)">
                   <span *ngIf="!(loaderService.isLoading | async)"><i class="far fa-comment"></i> Add comment</span>
                   <i *ngIf="loaderService.isLoading | async" class="fas fa-spinner fa-spin"></i>
                 </button>
