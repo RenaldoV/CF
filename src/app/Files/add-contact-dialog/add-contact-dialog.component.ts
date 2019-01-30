@@ -46,7 +46,7 @@ export class AddContactDialogComponent implements OnInit {
       title: ['', Validators.required],
       name: ['', Validators.required],
       surname: ['', Validators.required],
-      cell: ['', [Validators.required, GlobalValidators.cellRegex]],
+      cell: ['', [GlobalValidators.cellRegex]],
       email: ['', [GlobalValidators.validEmail]],
       type: ['', Validators.required]
     });

@@ -653,6 +653,9 @@ userRoutes.route('/addContact').post((req, res, next) => {
   } else {
     contact.email = contact.email.toLowerCase();
   }
+  if (contact.cell === "" || contact.cell === null) {
+    delete contact.cell;
+  }
   contact.verified = false;
   let uid = req.body.uid;
   contact.passwordHash = Math.random().toString(36).substring(10);
@@ -728,29 +731,57 @@ userRoutes.route('/deleteContact').post((req, res, next) => {
 });
 userRoutes.route('/updateContact').post((req, res, next) => {
   const ct = req.body;
-  console.log(ct);
-  if (ct.email === '' || ct.email === null) {
+  if (ct.email === "" || ct.email === null) {
     delete ct.email;
   } else {
     ct.email = ct.email.toLowerCase();
   }
-  Contact.findByIdAndUpdate(ct._id, ct, {new: true}, (er, ctRes) => {
-        if(er) {
-          console.log(er);
-          res.send(false);
-        }
-        if(ctRes) {
-          if (!ct.email) {
-            Contact.findByIdAndUpdate(ct._id, {$unset: {email: ""}}, {new: true}, (e, result) => {
-              res.send(result);
-            });
-          } else {
-            res.send(ctRes);
+  if (ct.cell === "" || ct.cell === null) {
+    delete ct.cell;
+  }
+  async.waterfall([
+      (cb) => {
+        Contact.findByIdAndUpdate(ct._id, ct, {new: true}, (er, ctRes) => {
+          if(er) {
+            console.log(er);
+            cb(er)
           }
-        }else {
-          res.send(false);
+          if(ctRes) {
+            cb(null, ctRes)
+          } else {
+            res.send(false);
+          }
+        })
+      },
+      (ctRes, cb) => {
+        if (!ct.email) {
+          Contact.findByIdAndUpdate(ct._id, {$unset: {email: ""}}, {new: true}, (e, result) => {
+            cb(null, result);
+          });
+        } else {
+          cb(null, ctRes);
         }
-      })
+      },
+      (ctRes, cb) => {
+        if (!ct.cell) {
+          Contact.findByIdAndUpdate(ct._id, {$unset: {cell: ""}}, {new: true}, (e, result) => {
+            cb(null, result);
+          });
+        } else {
+          cb(null, ctRes);
+        }
+      }
+    ],
+    (err, result) => {
+      if (err) {
+        console.log(err);
+        res.send(false);
+      } else if(result) {
+        res.send(result);
+      } else {
+        res.send(false);
+      }
+    });
 });
 userRoutes.route('/contacts/:uid/:search').get((req, res, next) => {
   // get user's contacts
@@ -1034,15 +1065,29 @@ userRoutes.route('/addFile').post((req, res, next) => {
   });
 });
 userRoutes.route('/updateFile').post((req, res, next) => {
-  const f = req.body;
+  const f = req.body.file;
+  const uid = req.body.uid;
+  f.updateBy = uid;
+  f.updatedAt = new Date();
+  delete f.milestoneList;
   File.findByIdAndUpdate(f._id, f, {new: true}, (er, fRes) => {
     if(er) {
       console.log(er);
       res.send(false);
     }
     if(fRes) {
-      res.send(fRes);
-    }else {
+      if (f.refUser && f.contacts) {
+        File.findByIdAndUpdate(f._id, {$set: {contacts: f.contacts, refUser: f.refUser}}, {new: true},  (e, newFileRes) => {
+          if (newFileRes) {
+            res.send(newFileRes);
+          } else {
+            res.send(false);
+          }
+        });
+      } else {
+        res.send(fRes);
+      }
+    } else {
       res.end(false);
     }
   })
@@ -1215,13 +1260,15 @@ userRoutes.route('/completeMilestone').post((req, res, next) => {
                       secEmails: newFile.refUser.map(s => s.email),
                       bank: newFile.bank
                     };
-                    smser.send(
-                      ct.cell,
-                      buildMessage(smsMessage, smsContext)
-                    ).then(res => {}, (error) => {
-                      console.log(error);
-                      res.send(false);
-                    });
+                    if(ct.cell) {
+                      smser.send(
+                        ct.cell,
+                        buildMessage(smsMessage, smsContext)
+                      ).then(res => {}, (error) => {
+                        console.log(error);
+                        res.send(false);
+                      });
+                    }
                   });
                 }
               }
@@ -1246,11 +1293,13 @@ userRoutes.route('/completeMilestone').post((req, res, next) => {
                   }
                 }
                 if (callback.milestone.sendSMS) { // send sms
-                  smser.send(ct.cell, buildMessage(smsMessage, emailContext))
-                    .then(res => {}, (error) => {
-                      console.log(error);
-                      res.send(false);
-                    });
+                  if (ct.cell) {
+                    smser.send(ct.cell, buildMessage(smsMessage, emailContext))
+                      .then(res => {}, (error) => {
+                        console.log(error);
+                        res.send(false);
+                      });
+                  }
                 }
                 // check if always ask for noti props is activated
               });
@@ -1306,8 +1355,10 @@ userRoutes.route('/addComment').post((req, res, next) => {
           });
         } if (sendNoti.sms && smsContacts.length > 0) {
           smsContacts.forEach(ct => {
-            const url = req.protocol + '://' + req.get('host') + '/login/' + encodeURI(fileID) + '/' + encodeURI(ct._id);
-            smser.commentMade(ct.cell, comment.comment, user.name, result.propertyDescription, result.milestoneList.milestones[0]._id.name, url);
+            if (ct.cell) {
+              const url = req.protocol + '://' + req.get('host') + '/login/' + encodeURI(fileID) + '/' + encodeURI(ct._id);
+              smser.commentMade(ct.cell, comment.comment, user.name, result.propertyDescription, result.milestoneList.milestones[0]._id.name, url);
+            }
           });
         }
         /*result.contacts.forEach(ct => {
@@ -1337,6 +1388,9 @@ function find(items, text) {
     return text.every((el) => {
       if (!item.email) {
         item.email = '';
+      }
+      if (!item.cell) {
+        item.cell = '';
       }
       return item.name.toLowerCase().indexOf(el) > -1 || item.cell.indexOf(el) > -1 || item.email.toLowerCase().indexOf(el) > -1 || item.type.toLowerCase().indexOf(el) > -1;
     });

@@ -385,10 +385,7 @@
                       </mat-form-field>
                       <br>
                       <mat-form-field class="innerFormFields">
-                        <input matInput placeholder="Cell number" formControlName="cell" required>
-                        <mat-error *ngIf="c.get('cell').hasError('required')">
-                          Cell number is required.
-                        </mat-error>
+                        <input matInput placeholder="Cell number" formControlName="cell">
                         <mat-error *ngIf="c.get('cell').hasError('length')">
                           A valid cell must be 10 digits long.
                         </mat-error>

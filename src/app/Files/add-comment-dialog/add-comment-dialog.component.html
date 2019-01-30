@@ -20,7 +20,7 @@
                       (+{{smsContacts.value.length - 1}} {{smsContacts.value?.length === 2 ? 'other' : 'others'}})
                     </span>
           </mat-select-trigger>
-          <mat-option *ngFor="let contact of data.contacts" [value]="contact">{{contact.name + ' ' + contact.surname}}</mat-option>
+          <mat-option *ngFor="let contact of filteredCellContacts" [value]="contact">{{contact.name + ' ' + contact.surname}}</mat-option>
         </mat-select>
         <mat-error>Contacts are required</mat-error>
       </mat-form-field>

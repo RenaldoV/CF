@@ -51,7 +51,7 @@
       <mat-cell *matCellDef="let element">
         <i class="fas fa-ellipsis-h" [matMenuTriggerFor]="actionsMenu" (click)="$event.stopPropagation()"></i>
         <mat-menu #actionsMenu="matMenu">
-          <!--<button mat-menu-item><i class="far fa-edit"></i> Edit</button>-->
+          <button (click)="gotoEditFile(element._id)" mat-menu-item><i class="far fa-edit"></i> Edit</button>
           <button mat-menu-item (click)="archiveFile(element)"><i class="fas fa-archive"></i> {{element.archived ? 'Restore' : 'Archive'}}</button>
         </mat-menu>
       </mat-cell>
@@ -89,7 +89,7 @@
             <mat-card-subtitle>
               <small><i class="fas fa-user-friends"></i> {{ct?.type}}</small><br>
               <small *ngIf="ct?.email"><i class="far fa-envelope"></i> {{ ct?.email }}</small><br *ngIf="ct?.email">
-              <small><i class="fas fa-phone-square"></i> {{ ct?.cell }}</small>
+              <small *ngIf="ct?.cell"><i class="fas fa-phone-square"></i> {{ ct?.cell }}</small>
             </mat-card-subtitle>
           </mat-card-header>
         </mat-card>

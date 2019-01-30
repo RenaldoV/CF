@@ -31,6 +31,11 @@ const appRoutes: Routes = [
     canActivate: [AdminAuthGuardService, AdminGuardService]
   },
   {
+    path: 'add-file/:id',
+    component: AddFileComponent,
+    canActivate: [AdminAuthGuardService, AdminGuardService]
+  },
+  {
     path: 'admin-setup',
     component: AdminSetupComponent,
     canActivate: [AdminAuthGuardService, AdminGuardService]

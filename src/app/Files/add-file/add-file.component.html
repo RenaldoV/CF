@@ -14,7 +14,7 @@
           <form [formGroup]="fileForm">
             <ng-template matStepLabel>File Details</ng-template>
             <div class="row">
-              <div class="col-sm-12 col-md-8 offset-md-2">
+              <div *ngIf="!(loaderService.isLoading | async) || file" class="col-sm-12 col-md-8 offset-md-2">
                 <mat-form-field>
                 <input matInput placeholder="Our File Reference" formControlName="fileRef" required>
                 <mat-error *ngIf="fileRef.hasError('required')">
@@ -87,6 +87,7 @@
                   </mat-error>
                 </mat-form-field>
               </div>
+              <div *ngIf="loaderService.isLoading | async"  class="text-center col-12"><i class="fas fa-spinner fa-spin x3"></i></div>
             </div>
             <div>
               <button class="btn btn-primary btn-sm" matStepperNext>Next</button>
@@ -168,7 +169,7 @@
                     </div>
                     <div class="col-8">
                       <small *ngIf="ct.email" style="color: darkgray"><i class="far fa-envelope"></i> {{ct?.email}}</small>
-                      <small *ngIf="!ct.email" style="color: darkgray"><i class="fas fa-phone-square"></i> {{ ct?.cell }}</small>
+                      <small *ngIf="!ct.email && ct.cell" style="color: darkgray"><i class="fas fa-phone-square"></i> {{ ct?.cell }}</small>
                     </div>
                     <div class="col-4">
                       <small style="color: darkgray">| <i class="fas fa-user-friends"></i> {{ct?.type}}</small>
@@ -201,7 +202,7 @@
                     </div>
                     <div class="col-8">
                       <small *ngIf="ct.email" style="color: darkgray"><i class="far fa-envelope"></i> {{ct?.email}}</small>
-                      <small *ngIf="!ct.email" style="color: darkgray"><i class="fas fa-phone-square"></i> {{ ct?.cell }}</small>
+                      <small *ngIf="!ct.email && ct.cell" style="color: darkgray"><i class="fas fa-phone-square"></i> {{ ct?.cell }}</small>
                     </div>
                     <div class="col-4">
                       <small style="color: darkgray">| <i class="fas fa-user-friends"></i> {{ct?.type}}</small>
@@ -212,8 +213,8 @@
             </div>
           </div>
           <div style="margin-top: 10px;">
-            <button class="btn btn-primary btn-sm" matStepperNext [disabled]="fileContactsList.length < 1" (click)="submitFile()">
-              <span *ngIf="!(loaderService.isLoading | async)"><i class="far fa-save"></i> Done</span>
+            <button class="btn btn-primary btn-sm" matStepperNext [disabled]="fileContactsList.length < 1 || (loaderService.isLoading | async)" (click)="submitFile()">
+              <span *ngIf="!(loaderService.isLoading | async)"><i class="far fa-save"></i> {{showRoute()}}</span>
               <i *ngIf="loaderService.isLoading | async" class="fas fa-spinner fa-spin"></i>
             </button>
             <button style="margin-right: 5px;" class="btn btn-outline-secondary btn-sm" matStepperPrevious>Back</button>

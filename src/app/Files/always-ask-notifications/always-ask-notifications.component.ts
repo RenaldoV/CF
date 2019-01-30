@@ -11,12 +11,16 @@ import {AddCommentDialogComponent} from '../add-comment-dialog/add-comment-dialo
 export class AlwaysAskNotificationsComponent implements OnInit {
   notiPropsForm: FormGroup;
   milestone: any;
+  filteredEmailContacts;
+  filteredCellContacts;
   constructor(
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<AddCommentDialogComponent>,
     private matSnack: MatSnackBar,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
+    this.filteredEmailContacts = this.data.contacts.filter(ct => ct.email !== undefined);
+    this.filteredCellContacts = this.data.contacts.filter(ct => ct.cell !== undefined);
     this.createForm();
   }
 
@@ -32,8 +36,8 @@ export class AlwaysAskNotificationsComponent implements OnInit {
       smsMessage: new FormControl({value: this.data.milestone.smsMessage, disabled: true}),
       sendEmail: [this.data.milestone.sendEmail],
       emailMessage: new FormControl({value: this.data.milestone.emailMessage, disabled: true}),
-      smsContacts: [this.data.milestone.sendSMS ? this.data.contacts : ''],
-      emailContacts: [this.data.milestone.sendEmail ? this.data.contacts : '']
+      smsContacts: [this.data.milestone.sendSMS ? this.filteredCellContacts : ''],
+      emailContacts: [this.data.milestone.sendEmail ? this.filteredEmailContacts : '']
     });
   }
   get sendSMS() {
@@ -58,7 +62,7 @@ export class AlwaysAskNotificationsComponent implements OnInit {
     const ctr = this.notiPropsForm.get(name);
     if (name === 'sendSMS') {
       if (e.checked) {
-        this.smsContacts.setValue(this.data.contacts);
+        this.smsContacts.setValue(this.filteredCellContacts);
         this.smsContacts.setValidators(Validators.required);
         this.smsContacts.updateValueAndValidity();
       } else {
@@ -68,7 +72,7 @@ export class AlwaysAskNotificationsComponent implements OnInit {
       }
     } else if (name === 'sendEmail') {
       if (e.checked) {
-        this.emailContacts.setValue(this.data.contacts);
+        this.emailContacts.setValue(this.filteredEmailContacts);
         this.emailContacts.setValidators(Validators.required);
         this.emailContacts.updateValueAndValidity();
       } else {

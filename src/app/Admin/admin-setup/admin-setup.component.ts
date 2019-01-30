@@ -542,7 +542,7 @@ export class AdminSetupComponent implements OnInit {
       title: ['', Validators.required],
       name: ['', Validators.required],
       surname: ['', Validators],
-      cell: ['', [Validators.required, GlobalValidators.cellRegex]],
+      cell: ['', [GlobalValidators.cellRegex]],
       email: ['', [GlobalValidators.validEmail],
         existing ? null : this.shouldBeUniqueContact.bind(this)],
       updatedBy: [existing ? 'existing' : 'new'],

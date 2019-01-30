@@ -1,8 +1,9 @@
 import {COMMA, ENTER} from '@angular/cdk/keycodes';
 import {Component, OnChanges, OnInit, ElementRef, ViewChild} from '@angular/core';
+import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Observable, Subject } from 'rxjs';
-import { map, startWith } from 'rxjs/operators';
+import { map, startWith, switchMap } from 'rxjs/operators';
 import { AuthService } from '../../auth/auth.service';
 import { AdminService } from '../../Admin/admin.service';
 import { CdkDragDrop , moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
@@ -15,7 +16,6 @@ import {
   MatAutocomplete, MatAutocompleteTrigger, ErrorStateMatcher
 } from '@angular/material';
 import {AddContactDialogComponent} from '../add-contact-dialog/add-contact-dialog.component';
-import {Router} from '@angular/router';
 import {LoaderService} from '../../Common/Loader';
 import {FileService} from '../file.service';
 import {ContactService} from '../../Contact/contact.service';
@@ -26,6 +26,7 @@ import {ContactService} from '../../Contact/contact.service';
   styleUrls: ['./add-file.component.css']
 })
 export class AddFileComponent implements OnInit {
+  file;
   fileForm: FormGroup;
   propForm: FormGroup;
   /*propTypes: String[] = [];
@@ -61,6 +62,7 @@ export class AddFileComponent implements OnInit {
     private dialog: MatDialog,
     private matSnack: MatSnackBar,
     private router: Router,
+    private route: ActivatedRoute,
     public loaderService: LoaderService
   ) {
     this.createFileForm();
@@ -70,7 +72,9 @@ export class AddFileComponent implements OnInit {
         if (res) {
           this.secretaries = res.filter(s => s.name === this.auth.getName());
           this.allSecretaries = res;
-          this.secChips.setValue(this.secretaries);
+          if (!this.route.snapshot.paramMap.get('id')) {
+            this.secChips.setValue(this.secretaries);
+          }
         }
       }, err => {
         console.log(err);
@@ -130,15 +134,34 @@ export class AddFileComponent implements OnInit {
       map((sec: string | null) => sec ? this._filterSecretaries(sec) : this._filterSecretaries('')));
   }
   ngOnInit() {
-    this.searchTerm$.next('');
+    const id = this.route.snapshot.paramMap.get('id');
+    // patch the form
+    if (id) {
+      this.fileService.getFile(id)
+        .subscribe(res => {
+          if (res) {
+            this.file = res;
+            this.propForm.patchValue(this.file);
+            this.fileRef.setValue(this.file.fileRef);
+            this.milestoneList.setValue(this.file.milestoneList._id._id);
+            this.secretaries = this.file.refUser.map(s => ({name: s.name, _id: s._id}));
+            this.secChips.setValue(this.secretaries);
+            if (this.file.bank) {
+              this.bank.setValue(this.file.bank);
+            }
+            this.fileContactsList = this.file.contacts;
+          }
+        }, (err) => {
+          console.log(err);
+        });
+    }
   }
   showRoute() {
-    let route = this.router.url.replace('/', '').replace('-', ' ');
-    route = route.toLowerCase()
-      .split(' ')
-      .map((s) => s.charAt(0).toUpperCase() + s.substring(1))
-      .join(' ');
-    return route;
+    if (this.route.snapshot.paramMap.get('id')) {
+      return 'Edit File';
+    } else {
+      return 'Add File';
+    }
   }
   // ======= File Form functions ===============
 
@@ -368,14 +391,45 @@ export class AddFileComponent implements OnInit {
     this.secInput.openPanel();
   }
   submitFile() {
+    if (this.route.snapshot.paramMap.get('id')) {
+      this.updateFile();
+    } else {
+      if (this.propForm.valid && this.fileForm.valid) {
+        this.propForm.value.refUser = this.secretaries.map(s => s._id);
+        delete this.propForm.value.secChips;
+        const file = {...this.fileForm.value, ...this.propForm.value, ...{'contacts': this.fileContactsList.map(ct => ct._id)}};
+        this.fileService.createFile(file)
+          .subscribe(res => {
+            if (res) {
+              const sb = this.matSnack.open('File saved successfully', 'Ok');
+              sb.onAction().subscribe(() => {
+                this.router.navigate(['/admin-home']);
+              });
+              sb.afterDismissed().subscribe(() => {
+                this.router.navigate(['/admin-home']);
+              });
+            } else {
+              const sb = this.matSnack.open('Save unsuccessful', 'retry');
+              sb.onAction().subscribe(() => {
+                this.submitFile();
+              });
+            }
+          });
+      } else {
+        this.matSnack.open('Please check that all data is valid');
+      }
+    }
+  }
+  updateFile() {
     if (this.propForm.valid && this.fileForm.valid) {
       this.propForm.value.refUser = this.secretaries.map(s => s._id);
       delete this.propForm.value.secChips;
-      const file = {...this.fileForm.value, ...this.propForm.value, ...{'contacts': this.fileContactsList.map(ct => ct._id)}};
-      this.fileService.createFile(file)
+      const file = {_id: this.route.snapshot.paramMap.get('id'), ...this.fileForm.value, ...this.propForm.value, ...{'contacts': this.fileContactsList.map(ct => ct._id)}};
+      console.log(file);
+      this.fileService.updateFile(file)
         .subscribe(res => {
-          if (file) {
-            const sb = this.matSnack.open('File saved successfully', 'Ok');
+          if (res) {
+            const sb = this.matSnack.open('File updated successfully', 'Ok');
             sb.onAction().subscribe(() => {
               this.router.navigate(['/admin-home']);
             });
@@ -383,7 +437,7 @@ export class AddFileComponent implements OnInit {
               this.router.navigate(['/admin-home']);
             });
           } else {
-            const sb = this.matSnack.open('Save unsuccessful', 'retry');
+            const sb = this.matSnack.open('Update unsuccessful', 'retry');
             sb.onAction().subscribe(() => {
               this.submitFile();
             });

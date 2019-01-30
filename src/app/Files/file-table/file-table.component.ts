@@ -6,6 +6,7 @@ import {LoaderService} from '../../Common/Loader';
 import {AddCommentDialogComponent} from '../add-comment-dialog/add-comment-dialog.component';
 import {AlwaysAskNotificationsComponent} from '../always-ask-notifications/always-ask-notifications.component';
 import {AddContactDialogComponent} from '../add-contact-dialog/add-contact-dialog.component';
+import {Router} from '@angular/router';
 
 
 @Component({
@@ -35,7 +36,8 @@ export class FileTableComponent implements OnInit {
     private fileService: FileService,
     private matSnack: MatSnackBar,
     public loaderService: LoaderService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -191,6 +193,9 @@ export class FileTableComponent implements OnInit {
           });
       }
     });
+  }
+  gotoEditFile(fileID) {
+    this.router.navigate(['/add-file', fileID]);
   }
   // TODO: Update file
   // TODO: Update milestone propogates to file?

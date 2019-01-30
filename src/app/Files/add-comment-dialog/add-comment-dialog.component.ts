@@ -14,13 +14,15 @@ import {GlobalValidators} from '../../Common/Validators/globalValidators';
 export class AddCommentDialogComponent implements OnInit {
   commentForm: FormGroup;
   filteredEmailContacts; // to filter out contacts without emails
+  filteredCellContacts; // to filter out contacts without cells
   constructor(
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<AddCommentDialogComponent>,
     private matSnack: MatSnackBar,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
-    this.filteredEmailContacts = this.data.contacts.filter(ct => ct.email !== '');
+    this.filteredEmailContacts = this.data.contacts.filter(ct => ct.email !== undefined);
+    this.filteredCellContacts = this.data.contacts.filter(ct => ct.cell !== undefined);
     this.createCommentForm();
   }
 
@@ -34,7 +36,7 @@ export class AddCommentDialogComponent implements OnInit {
       comment: ['', Validators.required],
       sendSMS: [true],
       sendEmail: [true],
-      smsContacts: [this.data.contacts],
+      smsContacts: [this.filteredCellContacts],
       emailContacts: [this.filteredEmailContacts]
     });
   }
@@ -56,7 +58,7 @@ export class AddCommentDialogComponent implements OnInit {
   changeSend(e, name) {
     if (name === 'sendSMS') {
       if (e.checked) {
-        this.commentForm.get('smsContacts').setValue(this.data.contacts);
+        this.commentForm.get('smsContacts').setValue(this.filteredCellContacts);
         this.commentForm.get('smsContacts').setValidators(Validators.required);
         this.commentForm.get('smsContacts').updateValueAndValidity();
       } else {
