@@ -1,5 +1,6 @@
 let request = require('request');
 let http = require('http');
+const config = require('../../config/config');
 
 class Sms {
 
@@ -8,7 +9,7 @@ class Sms {
   send(contact, message) {
     const ct = this.parseContact(contact);
     const msg = encodeURI(message);
-    const smsApiUrl = 'http://148.251.196.36/app/smsapi/index.php?key=54b728a102252&type=text&contacts='+ ct +'&senderid=ULTIMATE&msg=' + msg;
+    const smsApiUrl = 'http://148.251.196.36/app/smsapi/index.php?key=' + config.smsAPIKey + '&type=text&contacts='+ ct +'&senderid=ULTIMATE&msg=' + msg;
     let promise = new Promise(function(resolve, reject) {
       if (message.length >= 740) {
         reject(new Error('Message is too long'));
