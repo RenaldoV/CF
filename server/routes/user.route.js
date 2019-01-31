@@ -17,7 +17,7 @@ const async = require('async');
 
 
 // ============================ ADMIN ROUTES ===========================
-userRoutes.route('/addUser').post((req, res, next) => { // todo: sort out unique emails in contacts and users. Change in Schema
+userRoutes.route('/addUser').post((req, res, next) => {
   let user = req.body;
   let saltRounds = 10;
   bcrypt.hash(user.passwordHash, saltRounds, (err, hash) => {
@@ -511,6 +511,21 @@ userRoutes.route('/hasProperties/:id').get((req, res, next) => {
 });
 userRoutes.route('/updateProperties').post((req, res, next) => {
   const prop = req.body.properties;
+  if (!prop.propertyTypes) {
+    delete prop.propertyTypes;
+  }
+  if (!prop.deedsOffices) {
+    delete prop.deedsOffices;
+  }
+  if (!prop.propertyTypes) {
+    delete prop.propertyTypes;
+  }
+  if (!prop.actionTypes) {
+    delete prop.actionTypes;
+  }
+  if (!prop.commentMailFooter) {
+    delete prop.commentMailFooter;
+  }
   const uid = req.body.uid;
   User.findById(uid, 'properties', (err, user) => {
     if(err) {
@@ -518,11 +533,7 @@ userRoutes.route('/updateProperties').post((req, res, next) => {
       res.send(false);
     }
     if (user) {
-      Properties.findByIdAndUpdate(user.properties, {
-        propertyTypes: prop.propertyTypes,
-        deedsOffices: prop.deedsOffices,
-        actionTypes: prop.actionTypes
-      }, {new: true}, (er, pRes) => {
+      Properties.findByIdAndUpdate(user.properties, prop, {new: true}, (er, pRes) => {
         if(er) {
           console.log(er);
           res.send(false);
@@ -1344,13 +1355,21 @@ userRoutes.route('/addComment').post((req, res, next) => {
       res.send(false);
     }
     if (result) {
-      User.findById(comment.user, 'name email', (er, user) => {
+      User.findById(comment.user, 'name email')
+        .populate({
+          path: 'companyAdmin',
+          select: {'properties': 1},
+          populate: {path: 'properties'}
+        })
+        .populate('properties')
+        .exec((er, user) => {
         comment.user = user;
+        let commentFooter = user.properties ? user.properties.commentMailFooter : user.companyAdmin.properties.commentMailFooter;
         if (sendNoti.email && emailContacts.length > 0) { // if send email true and contacts selected
           emailContacts.forEach(ct => {
             if (ct.email) {
               const url = req.protocol + '://' + req.get('host') + '/login/' + encodeURI(fileID) + '/' + encodeURI(ct._id);
-              mailer.commentMade(user.name, ct.email, comment.comment, result.propertyDescription, result.milestoneList.milestones[0]._id.name, url);
+              mailer.commentMade(user.name, ct.email, comment.comment, result.propertyDescription, result.milestoneList.milestones[0]._id.name, url, commentFooter);
             }
           });
         } if (sendNoti.sms && smsContacts.length > 0) {
@@ -1361,17 +1380,6 @@ userRoutes.route('/addComment').post((req, res, next) => {
             }
           });
         }
-        /*result.contacts.forEach(ct => {
-          const url = req.protocol + '://' + req.get('host') + '/login/' + encodeURI(fileID) + '/' + encodeURI(ct._id);
-          if(sendNoti.email) {
-            if (ct.email) {
-              mailer.commentMade(user.name, ct.email, comment.comment, result.propertyDescription, result.milestoneList.milestones[0]._id.name, url);
-            }
-          }
-          if(sendNoti.sms) {
-            smser.commentMade(ct.cell, comment.comment, user.name, result.propertyDescription, result.milestoneList.milestones[0]._id.name, url);
-          }
-        });*/
         res.send(comment);
       });
     } else {

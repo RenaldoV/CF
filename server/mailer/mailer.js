@@ -100,7 +100,7 @@ class Mailer {
     this.sendEmail(email, message, link, subject);
   }
   contactAddedToFile(email, name/*title and surname*/, fileType, fileRef, link) {
-    const message = 'Dear ' + name + ', \nyou have been added to a new ' + fileType + ' file with reference ' + fileRef + '. To view the file click the link below.';
+    const message = 'Good day ' + name + ', \nyou have been added to a new ' + fileType + ' file with reference ' + fileRef + '. To view the file click the link below.';
     const subject = 'You\'ve been added to a new ' + fileType + ' file';
     this.sendEmail(email, message, link, subject);
   }
@@ -120,17 +120,18 @@ class Mailer {
     });
   }
   userCreated(name, email, link) {
-    const message = 'Hi '+ name +' \nYou were added as a ConveyFeed admin user / secretary. \n Click the link below to register your account.';
+    const message = 'Good day '+ name +' \nYou were added as a ConveyFeed admin user / secretary. \n Click the link below to register your account.';
     const subject = 'You were added as a ConveyFeed admin user / secretary';
     this.sendEmail(email, message, link, subject, 'Register');
   }
-  commentMade(adminName, email, comment, propDesc, milestone, link) {
+  commentMade(adminName, email, comment, propDesc, milestone, link, footerMessage) {
     const context = {
       name: adminName,
       comment: comment,
       propDesc: propDesc,
       milestone: milestone,
-      link: link
+      link: link,
+      footer: footerMessage
     };
     const subject = 'New comment made by ' + adminName;
     return new Promise((resolve, reject) => {
@@ -142,7 +143,7 @@ class Mailer {
     });
   }
   weeklyUpdate(email, name, link, fileType, fileRef) {
-    const message = 'Dear ' + name + ', \nherewith your weekly summary report. To view the file click the link below.';
+    const message = 'Good day ' + name + ', \nherewith your weekly summary report. To view the file click the link below.';
     const subject = fileType + ' file weekly report';
     return new Promise((resolve, reject) => {
       this.sendEmail(email, message, link, subject).then(res => {

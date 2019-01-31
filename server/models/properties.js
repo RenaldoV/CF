@@ -5,7 +5,8 @@ const Schema = mongoose.Schema;
 let Properties = new mongoose.Schema({
     propertyTypes: [{type: String}],
     actionTypes: [{type: String}],
-    deedsOffices: [{type: String}]
+    deedsOffices: [{type: String}],
+    commentMailFooter: String
   },
   {
     collection: 'properties'

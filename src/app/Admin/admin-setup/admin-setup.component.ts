@@ -27,6 +27,7 @@ export class AdminSetupComponent implements OnInit {
   PropertiesForm: FormGroup;
   ContactsForm: FormGroup;
   UsersForm: FormGroup;
+  EmailPropsForm: FormGroup;
   origContacts;
   constructor(
     private fb: FormBuilder,
@@ -40,6 +41,7 @@ export class AdminSetupComponent implements OnInit {
     this.createMilestoneListForm();
     this.getAllLists();
     this.createPropertiesForm();
+    this.creatEmailPropertiesForm();
     this.getProperties();
     this.createContactsForm();
     this.getContacts();
@@ -418,6 +420,9 @@ export class AdminSetupComponent implements OnInit {
         }
       });
     }
+    if (p.commentMailFooter) {
+      this.commentMailFooter.patchValue(p.commentMailFooter);
+    }
   }
   getProperties() {
     this.adminService.getProperties()
@@ -503,6 +508,31 @@ export class AdminSetupComponent implements OnInit {
       }, err => {
         console.log(err);
       });
+  }
+  creatEmailPropertiesForm() {
+    this.EmailPropsForm = this.fb.group({
+      commentMailFooter: ['']
+    });
+  }
+  submitEmailProperties() {
+    if (this.EmailPropsForm.valid) {
+      this.adminService.updateProperties(this.EmailPropsForm.value)
+        .subscribe(res => {
+          if (res) {
+            this.matSnack.open('Saved successfully');
+          } else {
+            const sb = this.matSnack.open('Could not save properties', 'retry');
+            sb.onAction().subscribe(() => {
+              this.submitEmailProperties();
+            });
+          }
+        }, (err) => {
+          console.log(err);
+        });
+    }
+  }
+  get commentMailFooter() {
+    return this.EmailPropsForm.get('commentMailFooter');
   }
   // ================== FILE PROPERTIES FUNCTIONS ========================
   // ================== CONTACTS FUNCTIONS ===============================

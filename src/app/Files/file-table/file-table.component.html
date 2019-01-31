@@ -132,9 +132,9 @@
             <span *ngIf="milestone.comments < 1">No comments to display</span>
             <div class="comment" *ngFor="let c of milestone.comments">
               <i class="fas fa-user-tie"></i> <span style="font-weight: bold; color: darkslategray"> {{c.user?.name}}</span>
-              <span class="speech">
+              <div class="speech">
                 {{c.comment}}<small style="color: #888888"> {{c.timestamp | amTimeAgo}}</small>
-              </span>
+              </div>
             </div>
             <div class="milestoneComments">
               <div class="btn-group" role="group" aria-label="action buttons" style="margin-top: 5px;">
