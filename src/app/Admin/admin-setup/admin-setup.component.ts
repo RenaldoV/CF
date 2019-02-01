@@ -739,7 +739,7 @@ export class AdminSetupComponent implements OnInit {
         if (control.value === '') {
           resolve(null);
         } else {
-          this.contactService.getContactByEmail(control.value).subscribe((res) => {
+          this.auth.getUserByEmail(control.value).subscribe((res) => {
             if (!res) {
               resolve(null);
             } else {

@@ -31,6 +31,11 @@ export class AdminLogInComponent implements OnInit {
             alert('This account has already been registered, please log in');
             this.createForm();
           }
+        }, (err) => {
+          if (err) {
+            alert('Please log in with you credentials');
+            this.router.navigate(['admin-login']);
+          }
         });
     } else {
       this.createForm();

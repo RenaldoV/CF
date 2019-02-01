@@ -27,7 +27,7 @@ export class AuthService {
     const url = `${this.host}/userByEmail/` + email;
     return this.http.get(url);
   }
-  getUsers() { // todo: make company field  single point of reference on front and backend
+  getUsers() {
     const url = `${this.host}/users/` + this.getID();
     return this.http.get(url);
   }

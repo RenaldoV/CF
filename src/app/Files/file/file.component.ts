@@ -30,6 +30,10 @@ export class FileComponent implements OnInit {
         if (res) {
           this.file = res;
         }
+      }, (er) => {
+        if (er) {
+          alert('file not found, please use the link provided in the email.');
+        }
       });
   }
 

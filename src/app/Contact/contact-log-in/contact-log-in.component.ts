@@ -36,12 +36,16 @@ export class ContactLogInComponent implements OnInit {
             this.title = 'Client Log-In';
             this.createLoginForm(res.email);
           }
+        }, (err) => {
+          alert('Invalid client ID, please use the link provided in the email');
         });
       this.fileService.getFileRef(this.fileID)
         .subscribe(res => {
           if (res.fileRef) {
             this.fileRef = res.fileRef;
           }
+        }, (err) => {
+          alert('Invalid file ID, please use the link provided in the email');
         });
     }
   }

@@ -22,35 +22,42 @@ userRoutes.route('/addUser').post((req, res, next) => {
   let saltRounds = 10;
   bcrypt.hash(user.passwordHash, saltRounds, (err, hash) => {
     // Store hash in your password DB.
-    if (err) return next(err);
-    user.passwordHash = hash;
-    if (!user.company) {
-      user.verified = false;
-    }
-    User.create(user, (err, result) => {
-      if (err) return next(err);
-      if (result) {
-        if (!result.company) { // not top level admin, send registration email
-          const host = req.protocol + '://' + req.get('host');
-          const loginUrl = host + '/admin-login/' + encodeURI(result._id);
-          mailer.userCreated(result.name, result.email, loginUrl);
-        }
-        res.json(result);
-      }else {
-        res.send(false);
+    if (err) {
+      return next(err);
+    } else {
+      user.passwordHash = hash;
+      if (!user.company) {
+        user.verified = false;
       }
-    })
+      User.create(user, (err, result) => {
+        if (err) {
+          return next(err);
+        } else {
+          if (result) {
+            if (!result.company) { // not top level admin, send registration email
+              const host = req.protocol + '://' + req.get('host');
+              const loginUrl = host + '/admin-login/' + encodeURI(result._id);
+              mailer.userCreated(result.name, result.email, loginUrl);
+            }
+            res.json(result);
+          }else {
+            res.send(false);
+          }
+        }
+      })
+    }
   });
 });
 userRoutes.route('/userByEmail/:email').get((req, res, next) => {
-  // get user by email to checkk email availability
+  // get user by email to check email availability
   const email = req.params.email;
   User.findOne({email: email}).exec((err, user) => {
     if(err) {
-      console.log(err);
-      res.send(false);
+      return next(err);
+    } else {
+      console.log(user);
+      res.send(user);
     }
-    res.send(user);
   });
 });
 userRoutes.route('/users/:id').get((req, res, next) => {
@@ -58,10 +65,8 @@ userRoutes.route('/users/:id').get((req, res, next) => {
   const myId = req.params.id;
   User.findById(myId).exec((er, me) => {
     if (er) {
-      console.log(er);
-      res.send(false);
-    }
-    if (me.company) { // i am top level admin
+      return next(er);
+    }else if(me.company) { // i am top level admin
       User.find({_id: {$ne: myId}}).exec((err, users) => {
         if(err) {
           console.log(err);
@@ -86,10 +91,8 @@ userRoutes.route('/allUserNames').get((req, res, next) => {
   // get all  user names
   User.find({}, {name: 1}).exec((er, users) => {
     if (er) {
-      console.log(er);
-      res.send(false);
-    }
-    if (users) {
+      return next(er);
+    } else if (users) {
       res.send(users);
     } else {
       res.end(false);
@@ -101,12 +104,10 @@ userRoutes.route('/user/:id').get((req, res, next) => {
   const myId = req.params.id;
   User.findById(myId).exec((er, me) => {
     if (er) {
-      console.log(er);
-      res.send(false);
-    }
-    if (!me.company) { // i am not top level admin
+      return next(er);
+    } else if (!me.company) { // i am not top level admin
       res.send(me);
-    }else {
+    } else {
       res.send(false);
     }
   });
@@ -115,21 +116,20 @@ userRoutes.route('/login').post((req, res, next) => {
   let user = req.body;
   User.findOne({email : user.email}, '_id name surname passwordHash email company companyAdmin', (err, usr) => {
     if (err) {
-      console.log(err);
-      res.send(false);
-    };
-    if (usr) {
+      return next(err);
+    } else if (usr) {
       usr = usr.toObject();
       bcrypt.compare(user.password, usr.passwordHash, (err, pwMatch) => {
         if (err) return next(err);
-        if(pwMatch) {
+        else if(pwMatch) {
           delete usr.passwordHash;
           res.send(usr);
-        }else {
+        } else {
           res.send(false);
         }
-
       });
+    } else {
+      res.send(false);
     }
   });
 });
@@ -137,10 +137,8 @@ userRoutes.route('/getRole').post((req, res, next) => {
   let id = req.body._id;
   User.findById(id, 'role', (err, result) => {
     if (err) {
-      console.log(err);
-      res.send(false);
-    }
-    if (result) {
+      return next(err);
+    } else if (result) {
       if(result.role) {
         res.send(result);
       }else {
@@ -157,16 +155,13 @@ userRoutes.route('/updateUser').post((req, res, next) => { // update password an
     let saltRounds = 10;
     bcrypt.hash(u.passwordHash, saltRounds, (err, hash) => {
       if (err) {
-        console.log(err);
-        res.send(false);
+        return next(err);
       } else {
         u.passwordHash = hash;
         User.findByIdAndUpdate(u._id, u, {new: true}, (er, uRes) => {
           if(er) {
-            console.log(er);
-            res.send(false);
-          }
-          if(uRes) {
+            return next(er);
+          } else if(uRes) {
             res.send(uRes);
           }else {
             res.send(false);
@@ -177,10 +172,8 @@ userRoutes.route('/updateUser').post((req, res, next) => { // update password an
   } else {
     User.findByIdAndUpdate(u._id, u, {new: true}, (er, uRes) => {
       if(er) {
-        console.log(er);
-        res.send(false);
-      }
-      if(uRes) {
+        return next(er);
+      } else if(uRes) {
         res.send(uRes);
       }else {
         res.send(false);
@@ -192,10 +185,8 @@ userRoutes.route('/deleteUser').post((req, res, next) => {
   const uid = req.body.id;
   User.findOneAndRemove({_id: uid, companyAdmin: {$ne: null}}, (err, result) => { // make sure not deleting top level user
     if (err) {
-      console.log(err);
-      res.send(false);
-    }
-    else if (result) {
+      return next(err);
+    } else if (result) {
       res.send(true);
     } else {
       res.send(false);
@@ -207,23 +198,20 @@ userRoutes.route('/checkEmailUser').post((req ,res, next) => {
   let email = req.body.email;
   User.findOne({email : email}, (err, usr) => {
     if (err) {
-      console.log(err);
-      res.send(false);
+      return next(err);
     }
     if (usr) {
       if (usr.verified) {
         crypto.randomBytes(20, (er, buf) => {
           if (er) {
-            console.log(er);
-            res.send(false);
+            return next(er);
           }
           let token = buf.toString('hex');
           User.update({_id: usr._id},
             {'forgotPassword.token': token, 'forgotPassword.expiry': Date.now() + 1800000 /*30 min in epoch*/},
             (e, data) => {
               if (e) {
-                console.log(e);
-                res.send(false);
+                return next(e);
               }
               else {
                 // sendmail with link
@@ -232,8 +220,7 @@ userRoutes.route('/checkEmailUser').post((req ,res, next) => {
                   .then(result => {
                     res.send(true);
                   }).catch(err => {
-                  console.log(err);
-                  res.send(false);
+                  return next(err);
                 });
               }
             }
@@ -251,10 +238,8 @@ userRoutes.route('/checkResetToken').post((req,res,next) => {
   let token = req.body.token;
   User.findOne({'forgotPassword.token': token, 'forgotPassword.expiry': { $gt: Date.now() } }, function(err, user) {
     if(err) {
-      console.log(err);
-      res.send(false);
-    }
-    if (user) {
+      return next(err);
+    } else if (user) {
       res.send(true);
     } else {
       res.send(false);
@@ -266,9 +251,8 @@ userRoutes.route('/updateForgotPassword').post((req, res, next) => {
   let user = req.body;
   bcrypt.hash(user.passwordHash, saltRounds, (er, hash) => {
     if(er) {
-      console.log(er);
-      res.send(false);
-    }else {
+      return next(er);
+    } else {
       User.findOneAndUpdate(
         {'forgotPassword.token': req.body.token},
         {
@@ -277,10 +261,8 @@ userRoutes.route('/updateForgotPassword').post((req, res, next) => {
         },
         (err, user) => {
           if(err) {
-            console.log(err);
-            res.send(false);
-          }
-          if (user) {
+            return(err);
+          } else if (user) {
             res.send(user);
           }
           else {
@@ -298,14 +280,15 @@ userRoutes.route('/addList').post((req, res, next) => {
   list.milestones = [];
   List.create(list, (err, resList) => {
     if (err) return next(err);
-    if (resList) {
+    else if (resList) {
       User.findByIdAndUpdate(resList.updatedBy, {$push: {milestoneLists: resList._id}}, (er, userRes) => {
-      res.json(resList);
+        if(er) return next(er);
+        else res.json(resList);
     });
-  }else {
+  } else {
     res.send(false);
   }
-  })
+  });
 });
 userRoutes.route('/addMilestones').post((req, res, next) => {
   let milestones = req.body.milestones;
@@ -313,10 +296,11 @@ userRoutes.route('/addMilestones').post((req, res, next) => {
   let listID = req.body.listID;
   Milestone.insertMany(milestones, (err, resMs) => {
     if (err) return next(err);
-    if (resMs) {
+    else if (resMs) {
       let mIds = resMs.map((id) => {return id['_id']});
       List.findByIdAndUpdate(listID, {$push: {milestones:{$each: mIds}}}, {new: true}).populate('milestones').exec((er, mRes) => {
-        res.json(mRes);
+        if (er) return next(er);
+        else res.json(mRes);
       });
     }else {
       res.send(false);
@@ -329,18 +313,15 @@ userRoutes.route('/addMilestone').post((req, res, next) => {
   let listID = req.body.listID;
   Milestone.create(m, (err, resM) => {
     if (err) {
-      console.log(err);
-      res.send(false);
-    }
-    if (resM) {
+      return next(err);
+    } else if (resM) {
       let mId = resM._id;
       List.findByIdAndUpdate(listID, {$push: {milestones: mId}}, {new: true}).populate('milestones').exec((er, mRes) => {
         if (er) {
-          console.log(er);
-          res.send(false);
-        }else if(mRes) {
+          return next(er);
+        } else if(mRes) {
           res.json(mRes);
-        }else {
+        } else {
           res.send(false);
         }
       });
@@ -354,16 +335,12 @@ userRoutes.route('/deleteMilestone').post((req, res, next) => {
   const listID = req.body.listID;
   Milestone.findByIdAndRemove(id, (err, result) => {
     if (err) {
-      console.log(err);
-      res.send(false);
-    }
-    else if (result) {
+      return next(err);
+    } else if (result) {
       List.findByIdAndUpdate(listID, {$pull: {milestones: id}}, (er, result1) =>{
         if(er) {
-          console.log(er);
-          res.send(false);
-        }
-        else if(result1) {
+          return next(err);
+        } else if(result1) {
           res.send(true)
         }else {
           res.send(false);
@@ -378,8 +355,7 @@ userRoutes.route('/updateMilestone').post((req, res, next) => {
   const m = req.body;
   Milestone.findByIdAndUpdate(m._id, m, (err, result) => {
     if (err) {
-      console.log(err);
-      res.send(false);
+      return next(err);
     }
     else if (result) {
       res.send(true);
@@ -392,10 +368,10 @@ userRoutes.route('/list').get((req, res, next) => {
   // get all milestone Lists
   // TODO: get lists from specific user and not just all lists in DB
   List.find().populate({path: 'milestones', options: {sort: {'number': 1}}}).exec((err, lists) => {
-    console.log(err);
-    if (lists) {
+    if (err) return next(err);
+    else if (lists) {
       res.json(lists);
-    }else {
+    } else {
       res.send(false);
     }
   });
@@ -404,10 +380,10 @@ userRoutes.route('/lists/:id').get((req, res, next) => {
   // get all milestone Lists
   const id = req.params.id;
   List.findById(id).populate('milestones').exec((err, list) => {
-    if(err) throw next(err);
-    if (list) {
+    if(err) return next(err);
+    else if (list) {
       res.json(list);
-    }else {
+    } else {
       res.send(false);
     }
   });
@@ -417,20 +393,15 @@ userRoutes.route('/deleteList').post((req, res, next) => {
   const uid = req.body.uid;
   List.findByIdAndRemove(id, (err, result) => {
     if (err) {
-      console.log(err);
-      res.send(false);
-    }
-    else if (result) {
+      return next(err);
+    } else if (result) {
       Milestone.deleteMany({_id: {$in: result.milestones}}, (er, result1) =>{
         if(er) {
-          console.log(er);
-          res.send(false);
-        }
-        else if(result1) {
+          return next(er);
+        } else if(result1) {
           User.findByIdAndUpdate(uid, {$pull: {milestoneLists: id}}, (e, result2) => {
             if (e) {
-              console.log(e);
-              res.send(false);
+              return next(err);
             } else if (result2) {
               res.send(true);
             } else {
@@ -450,10 +421,8 @@ userRoutes.route('/updateList').post((req, res, next) => {
   const list = req.body;
   List.findByIdAndUpdate(list._id, list, {new: true}).populate('milestones').exec((err, result) => {
     if (err) {
-      console.log(err);
-      res.send(false);
-    }
-    else if (result) {
+      return next(err);
+    } else if (result) {
       res.send(result);
     } else {
       res.send(false);
@@ -467,14 +436,12 @@ userRoutes.route('/addProperties').post((req, res, next) => {
   const uid = req.body.uid;
   Properties.create(prop, (err, resP) => {
     if(err) {
-      console.log(err);
-      res.send(false);
-    }else if(resP) {
+      return next(err);
+    } else if(resP) {
       User.findByIdAndUpdate(uid, {properties: resP._id}, (er, resU) => {
         if(er) {
-          console.log(er);
-          res.send(false);
-        }else if(resU) {
+          return next(er);
+        } else if(resU) {
           res.send(resP);
         }
       });
@@ -486,10 +453,8 @@ userRoutes.route('/properties/:id').get((req, res, next) => {
   const id = req.params.id;
   User.findById(id).populate('properties').exec((err, user) => {
     if(err) {
-      console.log(err);
-      res.send(false);
-    }
-    if (user) {
+      return next(err);
+    } else if (user) {
       res.json(user.properties);
     }
   });
@@ -499,12 +464,10 @@ userRoutes.route('/hasProperties/:id').get((req, res, next) => {
   const id = req.params.id;
   User.findById(id, 'properties', (err, user) => {
     if(err) {
-      console.log(err);
-      res.send(false);
-    }
-    if (user.properties) {
+      return next(err);
+    } else if (user.properties) {
       res.json(true);
-    }else {
+    } else {
       res.send(false);
     }
   });
@@ -529,14 +492,12 @@ userRoutes.route('/updateProperties').post((req, res, next) => {
   const uid = req.body.uid;
   User.findById(uid, 'properties', (err, user) => {
     if(err) {
-      console.log(err);
-      res.send(false);
+      return next(err);
     }
     if (user) {
       Properties.findByIdAndUpdate(user.properties, prop, {new: true}, (er, pRes) => {
         if(er) {
-          console.log(er);
-          res.send(false);
+          return next(er);
         }
         if(pRes) {
           res.send(pRes);
@@ -608,16 +569,13 @@ userRoutes.route('/addOneDeedsOffice').post((req, res, next) => {
   const uid = req.body.uid;
   User.findById(uid, 'properties', (err, user) => {
     if(err) {
-      console.log(err);
-      res.send(false);
-    }
-    if (user.properties) {
+      return next(err);
+    } else if (user.properties) {
       Properties.findByIdAndUpdate(user.properties, {
         $push: {deedsOffices: d}
       }, (er, pRes) => {
         if(er) {
-          console.log(er);
-          res.send(false);
+          return next(er);
         }
         if(pRes) {
           res.send(true);
@@ -631,14 +589,12 @@ userRoutes.route('/addOneDeedsOffice').post((req, res, next) => {
       properties.deedsOffices.push(d);
       properties.save((error, prop) => {
         if (error) {
-          console.log(error);
-          res.send(false);
+          return next(error);
         }
         if (prop) {
           User.findByIdAndUpdate(uid, {properties: prop._id}, (er, result) => {
             if(er) {
-              console.log(er);
-              res.send(false);
+              return next(er);
             }
             if (result) {
               res.send(true);
@@ -670,25 +626,21 @@ userRoutes.route('/addContact').post((req, res, next) => {
   contact.verified = false;
   let uid = req.body.uid;
   contact.passwordHash = Math.random().toString(36).substring(10);
-  // console.log(contact.passwordHash);
   let saltRounds = 10;
   bcrypt.hash(contact.passwordHash, saltRounds, (err, hash) => {
     // Store hash in your password DB.
     if (err) {
-      console.log(err);
-      res.send(false);
+      return next(err);
     }
     contact.passwordHash = hash;
     Contact.create(contact, (er, ct) => {
       if (er) {
-        console.log(er);
-        res.send(false);
+        return next(er);
       }
       if (ct) {
         User.findByIdAndUpdate(uid, {$push: {contacts: ct._id}}, (e, usr) => {
           if (e) {
-            console.log(e);
-            res.send(false);
+            return next(e);
           }
           if (usr) {
             res.json(ct);
@@ -706,8 +658,7 @@ userRoutes.route('/contacts/:id').get((req, res, next) => {
   const id = req.params.id;
   User.findById(id, 'contacts').populate('contacts').exec((err, user) => {
     if(err) {
-      console.log(err);
-      res.send(false);
+      return next(err);
     }
     if (user) {
       res.json(user.contacts);
@@ -721,14 +672,12 @@ userRoutes.route('/deleteContact').post((req, res, next) => {
   const uid = req.body.uid;
   Contact.findByIdAndRemove(cid, (err, result) => {
     if (err) {
-      console.log(err);
-      res.send(false);
+      return next(err);
     }
     else if (result) {
       User.findByIdAndUpdate(uid, {$pull: {contacts: cid}}, (er, result1) => {
         if (er) {
-          console.log(er);
-          res.send(false);
+          return next(er);
         } else if (result1) {
           res.send(true);
         } else {
@@ -754,7 +703,6 @@ userRoutes.route('/updateContact').post((req, res, next) => {
       (cb) => {
         Contact.findByIdAndUpdate(ct._id, ct, {new: true}, (er, ctRes) => {
           if(er) {
-            console.log(er);
             cb(er)
           }
           if(ctRes) {
@@ -767,7 +715,11 @@ userRoutes.route('/updateContact').post((req, res, next) => {
       (ctRes, cb) => {
         if (!ct.email) {
           Contact.findByIdAndUpdate(ct._id, {$unset: {email: ""}}, {new: true}, (e, result) => {
-            cb(null, result);
+            if (e) {
+              cb(e);
+            }else {
+              cb(null, result);
+            }
           });
         } else {
           cb(null, ctRes);
@@ -776,7 +728,8 @@ userRoutes.route('/updateContact').post((req, res, next) => {
       (ctRes, cb) => {
         if (!ct.cell) {
           Contact.findByIdAndUpdate(ct._id, {$unset: {cell: ""}}, {new: true}, (e, result) => {
-            cb(null, result);
+            if (e) cb(e);
+            else cb(null, result);
           });
         } else {
           cb(null, ctRes);
@@ -785,8 +738,7 @@ userRoutes.route('/updateContact').post((req, res, next) => {
     ],
     (err, result) => {
       if (err) {
-        console.log(err);
-        res.send(false);
+        return next(err);
       } else if(result) {
         res.send(result);
       } else {
@@ -800,8 +752,7 @@ userRoutes.route('/contacts/:uid/:search').get((req, res, next) => {
   const searchTerm = req.params.search;
   User.findById(uid, 'contacts').populate('contacts', 'name email cell type surname').exec((err, user) => {
     if(err) {
-      console.log(err);
-      res.send(false);
+      return next(err);
     }
     if (user) {
       res.send(find(user.contacts, searchTerm));
@@ -817,10 +768,8 @@ userRoutes.route('/contact').post((req, res, next) => {
   email = email.toLowerCase();
   User.findById(uid, 'contacts').populate('contacts', 'name email cell type').exec((err, user) => {
     if(err) {
-      console.log(err);
-      res.send(false);
-    }
-    if (user) {
+      return next(err);
+    }else if (user) {
       let userExists = false;
       user.contacts.forEach(ct => {
         if (ct.email === email)
@@ -836,10 +785,8 @@ userRoutes.route('/contact/:id').get((req, res, next) => {
   const id = req.params.id;
   Contact.findById(id).exec((err, contact) => {
     if(err) {
-      console.log(err);
-      res.send(false);
-    }
-    if (contact) {
+      return next(err);
+    }else if (contact) {
       res.json(contact);
     }else {
       res.send(false);
@@ -852,38 +799,32 @@ userRoutes.route('/registerContact').post((req, res, next) => {
   bcrypt.hash(contact.passwordHash, saltRounds, (err, hash) => {
     // Store hash in your password DB.
     if (err) {
-      console.log(err);
-      res.send(false);
+      return next(err);
+    } else {
+      Contact.findByIdAndUpdate(contact._id, {$set : {verified: true, passwordHash: hash}}, (er, resCt) => {
+        if (er) {
+          return next(err);
+        } else if (resCt) {
+          res.json(resCt);
+        } else {
+          console.log('unsuccessful registration: \n' + resCt);
+          res.send(false);
+        }
+      })
     }
-    Contact.findByIdAndUpdate(contact._id, {$set : {verified: true, passwordHash: hash}}, (er, resCt) => {
-      if (er) {
-        console.log(er);
-        res.send(false);
-      }
-      if (resCt) {
-        res.json(resCt);
-      } else {
-        console.log('unsuccessful registration: \n' + resCt);
-        res.send(false);
-      }
-    })
   });
 });
 userRoutes.route('/loginContact').post((req, res, next) => {
   let ct = req.body;
   Contact.findById(ct._id, '_id name passwordHash email', (err, resCt) => {
     if (err) {
-      console.log(err);
-      res.send(false);
-    }
-    if (resCt) {
+      return next(err);
+    } else if (resCt) {
       resCt = resCt.toObject();
-      bcrypt.compare(ct.password, resCt.passwordHash, (err, pwMatch) => {
-        if (err) {
-          console.log(err);
-          res.send(false);
-        }
-        if(pwMatch) {
+      bcrypt.compare(ct.password, resCt.passwordHash, (er, pwMatch) => {
+        if (er) {
+          return next(er);
+        } else if(pwMatch) {
           delete resCt.passwordHash;
           res.send(resCt);
         }else {
@@ -897,37 +838,33 @@ userRoutes.route('/checkEmailContact').post((req ,res, next) => {
   let email = req.body.email;
   Contact.findOne({email : email}, (err, usr) => {
     if (err) {
-      console.log(err);
-      res.send(false);
-    }
-    if (usr) {
+      return next(err);
+    } else if (usr) {
       if (usr.verified) {
         crypto.randomBytes(20, (er, buf) => {
           if (er) {
-            console.log(er);
-            res.send(false);
+            return next(er);
+          } else {
+            let token = buf.toString('hex');
+            Contact.update({_id: usr._id},
+              {'forgotPassword.token': token, 'forgotPassword.expiry': Date.now() + 1800000 /*30 min in epoch*/},
+              (e, data) => {
+                if (e) {
+                  return next(e);
+                }
+                else {
+                  // sendmail with link
+                  const link = req.protocol + '://' + req.get('host') + '/contact-reset/' + token;
+                  mailer.forgotPassword(usr.title + ' ' + usr.surname, link, usr.email)
+                    .then(result => {
+                      res.send(true);
+                    }).catch(err => {
+                    return next(err);
+                  });
+                }
+              }
+            )
           }
-          let token = buf.toString('hex');
-          Contact.update({_id: usr._id},
-            {'forgotPassword.token': token, 'forgotPassword.expiry': Date.now() + 1800000 /*30 min in epoch*/},
-            (e, data) => {
-              if (e) {
-                console.log(e);
-                res.send(false);
-              }
-              else {
-                // sendmail with link
-                const link = req.protocol + '://' + req.get('host') + '/contact-reset/' + token;
-                mailer.forgotPassword(usr.title + ' ' + usr.surname, link, usr.email)
-                  .then(result => {
-                    res.send(true);
-                  }).catch(err => {
-                  console.log(err);
-                  res.send(false);
-                });
-              }
-            }
-          )
         });
       } else {
         res.send(false);
@@ -941,11 +878,8 @@ userRoutes.route('/checkResetTokenContact').post((req,res,next) => {
   let token = req.body.token;
   Contact.findOne({'forgotPassword.token': token, 'forgotPassword.expiry': { $gt: Date.now() } }, function(err, user) {
     if(err) {
-      console.log(err);
-      res.send(false);
-    }
-    if (user) {
-      console.log(user);
+      return next(err);
+    } else if (user) {
       res.send(true);
     } else {
       res.send(false);
@@ -957,8 +891,7 @@ userRoutes.route('/updateForgotPasswordContact').post((req, res, next) => {
   let user = req.body;
   bcrypt.hash(user.passwordHash, saltRounds, (er, hash) => {
     if(er) {
-      console.log(er);
-      res.send(false);
+      return next(er);
     }else {
       Contact.findOneAndUpdate(
         {'forgotPassword.token': req.body.token},
@@ -968,10 +901,8 @@ userRoutes.route('/updateForgotPasswordContact').post((req, res, next) => {
         },
         (err, user) => {
           if(err) {
-            console.log(err);
-            res.send(false);
-          }
-          if (user) {
+            return next(err);
+          } else if (user) {
             res.send(user);
           }
           else {
@@ -996,8 +927,7 @@ userRoutes.route('/addFile').post((req, res, next) => {
         .exec((error, list) => {
         if (error) {
           callback(error);
-        }
-        if (list) {
+        }else if (list) {
           let newList = new Object();
           newList.milestones = list.milestones.map(ms => {
             return new Object({_id: ms, completed: false, updatedBy: uid, updatedAt: new Date()})
@@ -1015,8 +945,7 @@ userRoutes.route('/addFile').post((req, res, next) => {
       File.create(file, (error, f) => {
         if (error) {
           callback(error);
-        }
-        if (f) {
+        }else if (f) {
           callback(null, f);
         } else {
           console.log('unsuccessful creation: \n');
@@ -1028,13 +957,11 @@ userRoutes.route('/addFile').post((req, res, next) => {
       User.findById(uid).exec((er, me) => {
         if (er) {
           callback(error);
-        }
-        if(me.companyAdmin) {
+        } else if(me.companyAdmin) {
           User.findByIdAndUpdate(me.companyAdmin, {$push: {files: file._id}}, (error, usr) => {
             if (error) {
               callback(error);
-            }
-            if (usr) {
+            } else if (usr) {
               callback(null, file, me);
             }
           });
@@ -1042,8 +969,7 @@ userRoutes.route('/addFile').post((req, res, next) => {
           User.findByIdAndUpdate(uid, {$push: {files: file._id}}, (error, usr) => {
             if (error) {
               callback(error);
-            }
-            if (usr) {
+            }else if (usr) {
               callback(null, file, usr);
             }
           });
@@ -1052,25 +978,26 @@ userRoutes.route('/addFile').post((req, res, next) => {
     },
     (file, usr, callback) => { // get contacts and send out emails
       File.findById(file._id).populate('contacts').populate('milestoneList._id', 'title').exec((error, f) => {
-        const host = req.protocol + '://' + req.get('host');
-        const fileURL = host  + '/file/' + encodeURI(file._id);
-        const loginUrl = host + '/login/' + encodeURI(file._id);
-        f.contacts.forEach(ct => {
+        if(error) callback(error);
+        else {
+          const host = req.protocol + '://' + req.get('host');
+          const fileURL = host  + '/file/' + encodeURI(file._id);
+          const loginUrl = host + '/login/' + encodeURI(file._id);
+          f.contacts.forEach(ct => {
             const registerURL = loginUrl + '/' + encodeURI(ct._id);
             if (ct.email) {
               mailer.contactAddedToFile(ct.email, ct.title + ' ' + ct.surname, f.milestoneList._id.title, file.fileRef, registerURL);
             }
-        });
-        mailer.adminFileCreated(usr.email, host + '/admin-home', file.fileRef);
-        callback(null, file);
+          });
+          mailer.adminFileCreated(usr.email, host + '/admin-home', file.fileRef);
+          callback(null, file);
+        }
       });
     }
   ], (err, result) => {
     if (err) {
-      console.log(err);
-      res.send(false);
-    }
-    if (result) {
+      return next(err);
+    }else if (result) {
       res.send(result);
     }
   });
@@ -1083,13 +1010,12 @@ userRoutes.route('/updateFile').post((req, res, next) => {
   delete f.milestoneList;
   File.findByIdAndUpdate(f._id, f, {new: true}, (er, fRes) => {
     if(er) {
-      console.log(er);
-      res.send(false);
-    }
-    if(fRes) {
+      return next(er);
+    } else if(fRes) {
       if (f.refUser && f.contacts) {
         File.findByIdAndUpdate(f._id, {$set: {contacts: f.contacts, refUser: f.refUser}}, {new: true},  (e, newFileRes) => {
-          if (newFileRes) {
+          if(e) return next(e);
+          else if (newFileRes) {
             res.send(newFileRes);
           } else {
             res.send(false);
@@ -1108,10 +1034,8 @@ userRoutes.route('/files/:id').get((req, res, next) => {
   const id = req.params.id;
   User.findById(id, 'files').exec((err, user) => {
     if(err) {
-      console.log(err);
-      res.send(false);
-    }
-    if (user) {
+      return next(err);
+    } else if (user) {
       File.find({_id: {$in: user.files}})
         .populate('milestoneList.milestones._id')
         .populate('milestoneList._id', 'title')
@@ -1124,8 +1048,7 @@ userRoutes.route('/files/:id').get((req, res, next) => {
         .sort({createdAt: -1})
         .exec((er, files) => {
         if (er) {
-          console.log(er);
-          res.send(false);
+          return next(er);
         } else if (files) {
           files.forEach(f => {
             f.milestoneList.milestones.sort((a, b) => {
@@ -1161,10 +1084,8 @@ userRoutes.route('/file/:id').get((req, res, next) => {
     .populate('updatedBy', 'name')
     .exec((error, file) => {
     if(error) {
-      console.log(error);
-      res.send(false);
-    }
-    if(file) {
+      return next(error);
+    } else if(file) {
       file.milestoneList.milestones = file.milestoneList.milestones.filter(m => m.completed === true);
       file.milestoneList.milestones.sort((a, b) => {
         return a._id.number - b._id.number;
@@ -1177,10 +1098,8 @@ userRoutes.route('/fileRef/:id').get((req, res, next) => {
   const id = req.params.id;
   File.findById(id, 'fileRef').exec((error, file) => {
     if(error) {
-      console.log(error);
-      res.send(false);
-    }
-    if(file) {
+      return next(error);
+    } else if(file) {
       res.send(file);
     }
   });
@@ -1202,10 +1121,8 @@ userRoutes.route('/completeMilestone').post((req, res, next) => {
     .populate('refUser', 'name email')
     .exec((err, newFile) => {
       if (err) {
-        console.log(err);
-        res.send(false);
-      }
-      if (newFile) {
+        return next(err);
+      }else if (newFile) {
         async.parallel({
           contacts: (callback) => {
             Contact.find({_id: {$in: newFile.contacts}}).exec((er, cts) => {
@@ -1224,8 +1141,7 @@ userRoutes.route('/completeMilestone').post((req, res, next) => {
           }
         }, (er, callback) => {
           if (er) {
-            console.log(err);
-            res.send(false);
+            return next(er);
           } else if (callback.contacts && callback.adminUser && callback.milestone) {
             let emailMessage = callback.milestone.emailMessage;
             let smsMessage = callback.milestone.smsMessage;
@@ -1352,10 +1268,8 @@ userRoutes.route('/addComment').post((req, res, next) => {
     .populate('refUser', 'email name')
     .exec((err, result) => {
     if (err) {
-      console.log(err);
-      res.send(false);
-    }
-      if (result) {
+      return next(err);
+    }else if (result) {
         User.findById(comment.user, 'name email')
           .populate({
             path: 'companyAdmin',
@@ -1364,45 +1278,48 @@ userRoutes.route('/addComment').post((req, res, next) => {
           })
           .populate('properties')
           .exec((er, user) => {
-            comment.user = user;
-            let commentFooter = user.properties ? user.properties.commentMailFooter : user.companyAdmin.properties.commentMailFooter;
-            if (sendNoti.email && emailContacts.length > 0) { // if send email true and contacts selected
-              emailContacts.forEach(ct => {
-                if (ct.email) {
-                  const footerContext = {
-                    deedsOffice: result.deedsOffice,
-                    propertyDescription: result.propertyDescription,
-                    myName: user.name,
-                    contactName: ct.title + ' ' + ct.surname,
-                    fileRef: result.fileRef,
-                    secNames: result.refUser.map(s => s.name),
-                    secEmails: result.refUser.map(s => s.email),
-                    bank: result.bank
-                  };
-                  const url = req.protocol + '://' + req.get('host') + '/login/' + encodeURI(fileID) + '/' + encodeURI(ct._id);
-                  mailer.commentMade(user.name, ct.email, comment.comment, result.propertyDescription, result.milestoneList.milestones[0]._id.name, url, buildMessage(commentFooter, footerContext));
-                }
-              });
+            if(er) return next(er);
+            else {
+              comment.user = user;
+              let commentFooter = user.properties ? user.properties.commentMailFooter : user.companyAdmin.properties.commentMailFooter;
+              if (sendNoti.email && emailContacts.length > 0) { // if send email true and contacts selected
+                emailContacts.forEach(ct => {
+                  if (ct.email) {
+                    const footerContext = {
+                      deedsOffice: result.deedsOffice,
+                      propertyDescription: result.propertyDescription,
+                      myName: user.name,
+                      contactName: ct.title + ' ' + ct.surname,
+                      fileRef: result.fileRef,
+                      secNames: result.refUser.map(s => s.name),
+                      secEmails: result.refUser.map(s => s.email),
+                      bank: result.bank
+                    };
+                    const url = req.protocol + '://' + req.get('host') + '/login/' + encodeURI(fileID) + '/' + encodeURI(ct._id);
+                    mailer.commentMade(user.name, ct.email, comment.comment, result.propertyDescription, result.milestoneList.milestones[0]._id.name, url, buildMessage(commentFooter, footerContext));
+                  }
+                });
+              }
+              if (sendNoti.sms && smsContacts.length > 0) {
+                smsContacts.forEach(ct => {
+                  if (ct.cell) {
+                    const footerContext = {
+                      deedsOffice: result.deedsOffice,
+                      propertyDescription: result.propertyDescription,
+                      myName: user.name,
+                      contactName: ct.title + ' ' + ct.surname,
+                      fileRef: result.fileRef,
+                      secNames: result.refUser.map(s => s.name),
+                      secEmails: result.refUser.map(s => s.email),
+                      bank: result.bank
+                    };
+                    const url = req.protocol + '://' + req.get('host') + '/login/' + encodeURI(fileID) + '/' + encodeURI(ct._id);
+                    smser.commentMade(ct.cell, comment.comment, user.name, result.propertyDescription, result.milestoneList.milestones[0]._id.name, buildMessage(commentFooter, footerContext));
+                  }
+                });
+              }
+              res.send(comment);
             }
-            if (sendNoti.sms && smsContacts.length > 0) {
-              smsContacts.forEach(ct => {
-                if (ct.cell) {
-                  const footerContext = {
-                    deedsOffice: result.deedsOffice,
-                    propertyDescription: result.propertyDescription,
-                    myName: user.name,
-                    contactName: ct.title + ' ' + ct.surname,
-                    fileRef: result.fileRef,
-                    secNames: result.refUser.map(s => s.name),
-                    secEmails: result.refUser.map(s => s.email),
-                    bank: result.bank
-                  };
-                  const url = req.protocol + '://' + req.get('host') + '/login/' + encodeURI(fileID) + '/' + encodeURI(ct._id);
-                  smser.commentMade(ct.cell, comment.comment, user.name, result.propertyDescription, result.milestoneList.milestones[0]._id.name, buildMessage(commentFooter, footerContext));
-                }
-              });
-            }
-            res.send(comment);
           });
       } else {
         res.end(false);
