@@ -142,7 +142,7 @@ class Mailer {
     });
   }
   weeklyUpdate(email, name, link, fileType, fileRef) {
-    const message = 'Hi ' + name + ', \nhere is your weekly update of the open ' + fileType + ' file with reference ' + fileRef + '. To view the file click the link below.';
+    const message = 'Dear ' + name + ', \nherewith your weekly summary report. To view the file click the link below.';
     const subject = fileType + ' file weekly report';
     return new Promise((resolve, reject) => {
       this.sendEmail(email, message, link, subject).then(res => {
