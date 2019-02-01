@@ -324,10 +324,10 @@
         <mat-expansion-panel hideToggle>
           <mat-expansion-panel-header>
             <mat-panel-title>
-              Mail Footer
+              Comment Footer
             </mat-panel-title>
             <mat-panel-description>
-              Change footer messages in emails
+              Change comment footer messages
               <i class="fas fa-envelope-square"></i>
             </mat-panel-description>
           </mat-expansion-panel-header>
@@ -335,8 +335,45 @@
             <div class="col-10 offset-1" style="margin-bottom: 10px;">
               <form [formGroup]="EmailPropsForm">
                 <mat-form-field class="innerFormFields" style="width: 100%;">
-                  <textarea matInput placeholder="Comment email footer message" formControlName="commentMailFooter"></textarea>
+                  <textarea #commFooter matInput placeholder="Comment footer message" formControlName="commentMailFooter"></textarea>
                 </mat-form-field>
+                <div class="col-12">
+                  <span style="color: lightgray">Insert Placeholders</span><br>
+                  <mat-chip-list>
+                    <mat-chip
+                      (click)="insertFooterPh($event, '*contact_name*', commFooter);">
+                      Contact's Name
+                    </mat-chip>
+                    <mat-chip
+                      (click)="insertFooterPh($event, '*property_description*', commFooter);">
+                      Prop Description
+                    </mat-chip>
+                    <mat-chip
+                      (click)="insertFooterPh($event, '*deeds_office*', commFooter);">
+                      Deeds Office
+                    </mat-chip>
+                    <mat-chip
+                      (click)="insertFooterPh($event, '*my_name*', commFooter);">
+                      My Name
+                    </mat-chip>
+                    <mat-chip
+                      (click)="insertFooterPh($event, '*sec_names*', commFooter);">
+                      Secretary name/s
+                    </mat-chip>
+                    <mat-chip
+                      (click)="insertFooterPh($event, '*sec_emails*', commFooter);">
+                      Secretary email/s
+                    </mat-chip>
+                    <mat-chip
+                      (click)="insertFooterPh($event, '*file_ref*', commFooter);">
+                      File Reference
+                    </mat-chip>
+                    <mat-chip
+                      (click)="insertFooterPh($event, '*bank*', commFooter);">
+                      Bank
+                    </mat-chip>
+                  </mat-chip-list>
+                </div>
               </form>
             </div>
           </div>

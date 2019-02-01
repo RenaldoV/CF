@@ -1346,45 +1346,67 @@ userRoutes.route('/addComment').post((req, res, next) => {
       'milestoneList.milestones.$.updatedBy': comment.user,
       'milestoneList.milestones.$.updatedAty': new Date()
     },
-    {fields: 'milestoneList.milestones.$.comments propertyDescription'})
+    {fields: 'milestoneList.milestones.$.comments propertyDescription fileRef refUser deedsOffice bank'})
     .populate('milestoneList.milestones.comments.user', 'name')
     .populate('milestoneList.milestones._id', 'name')
+    .populate('refUser', 'email name')
     .exec((err, result) => {
     if (err) {
       console.log(err);
       res.send(false);
     }
-    if (result) {
-      User.findById(comment.user, 'name email')
-        .populate({
-          path: 'companyAdmin',
-          select: {'properties': 1},
-          populate: {path: 'properties'}
-        })
-        .populate('properties')
-        .exec((er, user) => {
-        comment.user = user;
-        let commentFooter = user.properties ? user.properties.commentMailFooter : user.companyAdmin.properties.commentMailFooter;
-        if (sendNoti.email && emailContacts.length > 0) { // if send email true and contacts selected
-          emailContacts.forEach(ct => {
-            if (ct.email) {
-              const url = req.protocol + '://' + req.get('host') + '/login/' + encodeURI(fileID) + '/' + encodeURI(ct._id);
-              mailer.commentMade(user.name, ct.email, comment.comment, result.propertyDescription, result.milestoneList.milestones[0]._id.name, url, commentFooter);
+      if (result) {
+        User.findById(comment.user, 'name email')
+          .populate({
+            path: 'companyAdmin',
+            select: {'properties': 1},
+            populate: {path: 'properties'}
+          })
+          .populate('properties')
+          .exec((er, user) => {
+            comment.user = user;
+            let commentFooter = user.properties ? user.properties.commentMailFooter : user.companyAdmin.properties.commentMailFooter;
+            if (sendNoti.email && emailContacts.length > 0) { // if send email true and contacts selected
+              emailContacts.forEach(ct => {
+                if (ct.email) {
+                  const footerContext = {
+                    deedsOffice: result.deedsOffice,
+                    propertyDescription: result.propertyDescription,
+                    myName: user.name,
+                    contactName: ct.title + ' ' + ct.surname,
+                    fileRef: result.fileRef,
+                    secNames: result.refUser.map(s => s.name),
+                    secEmails: result.refUser.map(s => s.email),
+                    bank: result.bank
+                  };
+                  const url = req.protocol + '://' + req.get('host') + '/login/' + encodeURI(fileID) + '/' + encodeURI(ct._id);
+                  mailer.commentMade(user.name, ct.email, comment.comment, result.propertyDescription, result.milestoneList.milestones[0]._id.name, url, buildMessage(commentFooter, footerContext));
+                }
+              });
             }
-          });
-        } if (sendNoti.sms && smsContacts.length > 0) {
-          smsContacts.forEach(ct => {
-            if (ct.cell) {
-              const url = req.protocol + '://' + req.get('host') + '/login/' + encodeURI(fileID) + '/' + encodeURI(ct._id);
-              smser.commentMade(ct.cell, comment.comment, user.name, result.propertyDescription, result.milestoneList.milestones[0]._id.name, url);
+            if (sendNoti.sms && smsContacts.length > 0) {
+              smsContacts.forEach(ct => {
+                if (ct.cell) {
+                  const footerContext = {
+                    deedsOffice: result.deedsOffice,
+                    propertyDescription: result.propertyDescription,
+                    myName: user.name,
+                    contactName: ct.title + ' ' + ct.surname,
+                    fileRef: result.fileRef,
+                    secNames: result.refUser.map(s => s.name),
+                    secEmails: result.refUser.map(s => s.email),
+                    bank: result.bank
+                  };
+                  const url = req.protocol + '://' + req.get('host') + '/login/' + encodeURI(fileID) + '/' + encodeURI(ct._id);
+                  smser.commentMade(ct.cell, comment.comment, user.name, result.propertyDescription, result.milestoneList.milestones[0]._id.name, buildMessage(commentFooter, footerContext));
+                }
+              });
             }
+            res.send(comment);
           });
-        }
-        res.send(comment);
-      });
-    } else {
-      res.end(false);
-    }
+      } else {
+        res.end(false);
+      }
   })
 });
 module.exports = userRoutes;
@@ -1412,6 +1434,8 @@ function buildMessage(body, context) {
   resultMessage = resultMessage.split('*sec_names*').join(context.secNames.join(' / '));
   resultMessage = resultMessage.split('*sec_emails*').join(context.secEmails.join(' / '));
   resultMessage = resultMessage.split('*file_ref*').join(context.fileRef);
-  resultMessage = resultMessage.split('*bank*').join(context.bank);
+  if (context.bank) {
+    resultMessage = resultMessage.split('*bank*').join(context.bank);
+  }
   return resultMessage;
 }

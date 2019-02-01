@@ -170,7 +170,6 @@ export class AdminSetupComponent implements OnInit {
         const msgStart = value.substring(0, ctr.selectionStart);
         const msgEnd = value.substring(ctr.selectionEnd, value.length);
         this.getMilestones(i).at(k).get(control).setValue(msgStart + msg + msgEnd);
-        console.log(this.getMilestones(i).at(k).get(control).value);
       }
     }
     // this.getMilestones(i).at(k).get(control).setValue(this.getMilestones(i).at(k).get(control).value + msg);
@@ -533,6 +532,17 @@ export class AdminSetupComponent implements OnInit {
   }
   get commentMailFooter() {
     return this.EmailPropsForm.get('commentMailFooter');
+  }
+  insertFooterPh(e, msg,ctr) {
+    e.preventDefault();
+    const value = this.commentMailFooter.value;
+    if (ctr.selectionStart || ctr.selectionStart === 0) {
+      if (ctr.selectionEnd || ctr.selectionEnd === 0) {
+        const msgStart = value.substring(0, ctr.selectionStart);
+        const msgEnd = value.substring(ctr.selectionEnd, value.length);
+        this.commentMailFooter.setValue(msgStart + msg + msgEnd);
+      }
+    }
   }
   // ================== FILE PROPERTIES FUNCTIONS ========================
   // ================== CONTACTS FUNCTIONS ===============================
