@@ -21,103 +21,130 @@ class Scheduler {
 
   constructor (host) {
     console.log('new Scheduler with host : ' + host);
-    this.scheduleReports(host);
+    this.scheduleReports(host)
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+
+
   }
 
   scheduleReports (host) {
-    cron.schedule('0 15 * * Fri', function() {
-      console.log("Kicking off scheduled weekly updates");
-      async.waterfall([
-        (cb) => { // get all files in db that are not archived
-          File.find({archived: {$ne : true}})
-            .populate('contacts')
-            .populate('milestoneList._id', 'title')
-            .populate('refUser', 'email name')
-            .exec((err, files) => {
-              if(err) {
-                cb(err);
-              } else {
-                cb(null, files);
-              }
-            })
-        },
-        (files, callback) => {
-          // Iterate Files in parallel
-          let counts = {
-            files: 0,
-            contacts: 0
-          };
-          async.each(files,
-            (file, cb) => {
-              // increment number of open files
-              counts.files++;
-              // iterate contacts in file in parallel
-              async.each(file.contacts,
-                (ct, innerCb) => {
-                  const url = host + '/login/' + encodeURI(file._id) + '/' + encodeURI(ct._id);
-                  if (ct.email) {
-                    mailer.weeklyUpdate(
-                      ct.email,
-                      ct.title + ' ' + ct.surname,
-                      url,
-                      file.milestoneList._id.title,
-                      file.fileRef
-                    ).then(res => {
-                      // increment number of contacts emailed.
-                      counts.contacts++;
-                      innerCb();
-                    }, (innerError) => {
-                      innerCb(innerError);
-                    });
-                  }
-                }, (err) => {
-                  if (err) {
-                    cb(err);
-                  } else {
-                    cb();
-                  }
-                });
-            }, (err) => {
-              if(err) {
-                console.log('Weekly update completed with errors: ' + err);
-                callback(err);
-              }else {
-                console.log('All contacts successfully updated with weekly report. counts: ');
-                callback(null, files, counts);
-              }
+    let idRegex = /^[a-fA-F0-9]{24}$/;
+    let Fridays3pm = '0 15 * * Fri';
+    let minute = '* * * * *';
+    return new Promise((resolve, reject) => {
+      cron.schedule(Fridays3pm, () => {
+        console.log("Kicking off scheduled weekly updates");
+        async.waterfall([
+          (cb) => { // get all files in db that are not archived
+            File.find({archived: {$ne : true}})
+              .populate('milestoneList._id', 'title')
+              .populate('refUser', 'email name')
+              .exec((err, files) => {
+                if(err) {
+                  cb(err);
+                } else {
+                  cb(null, files);
+                }
+              })
+          },
+          (files, callback) => {
+            // Iterate Files in parallel
+            let counts = {
+              files: 0,
+              contacts: 0
+            };
+            async.each(files,
+              (file, cb) => {
+                // increment number of open files
+                counts.files++;
+                // iterate contacts in file in parallel
+                async.each(file.contacts,
+                  (ct, innerCb) => {
+                    const url = host + '/login/' + encodeURI(file._id) + '/' + encodeURI(ct._id);
+                    let strId = ct.toString();
+                    if (idRegex.exec(strId)) { // make sure id is valid before searching
+                      Contact.findById(ct).exec((err, resCt) => {
+                        if(err) innerCb(err);
+                        else if (resCt) {
+                          counts.contacts++;
+                          // check if contact has email, then email report
+                          if (resCt.email) {
+                            mailer.weeklyUpdate(
+                              resCt.email,
+                              resCt.title + ' ' + resCt.surname,
+                              url,
+                              file.milestoneList._id.title,
+                              file.fileRef
+                            ).then(res => {
+                              // increment number of contacts emailed.
+                              console.log('Contact emailed: ' + resCt.email);
+                            }, (innerError) => {
+                              innerCb(innerError);
+                            });
+                          }
+                        }
+                      });
+                    } else {
+                      console.log('Contact doesn\'t have a valid ID. \nContact: ' + ct + '\nFile: ' + file._id);
+                    }
+                    innerCb();
+                  }, (err) => {
+                    if (err) {
+                      cb(err);
+                    } else {
+                      cb();
+                    }
+                  });
+              }, (err) => {
+                if(err) {
+                  console.log('Weekly update completed with errors: ' + err);
+                  callback(err);
+                }else {
+                  console.log('All contacts successfully updated with weekly report. counts: ');
+                  callback(null, files, counts);
+                }
+              });
+          }
+        ], (err, result, counts) => {
+          // waterfall main callback
+          if(err) {
+            reject(err);
+          } else {
+            console.log(counts);
+          }
+          if(result && counts) {
+            // get distinct list of secretaries who worked on open files
+            const users = result.map(f => f.refUser);
+            const usersArray = [];
+            users.forEach(us => {
+              us.forEach(u => {
+                usersArray.push(u);
+              });
             });
-        }
-
-      ], (err, result, counts) => {
-        // waterfall main callback
-        if(err) {
-          console.log(err)
-        }
-        if(result && counts) {
-          // get distinct list of secretaries who worked on open files
-          const users = result.map(f => f.refUser);
-          const usersArray = [];
-          users.forEach(us => {
-            us.forEach(u => {
-              usersArray.push(u);
-            })
-          });
-          const distinctUsers = Array.from(new Set(usersArray.map(u => u._id)))
-            .map(id => {
-              return {
-                name: usersArray.find(u => u._id === id).name,
-                email: usersArray.find(u => u._id === id).email
-              }
+            const distinctUsers = Array.from(new Set(usersArray.map(u => u._id)))
+              .map(id => {
+                return {
+                  name: usersArray.find(u => u._id === id).name,
+                  email: usersArray.find(u => u._id === id).email
+                }
+              });
+            // mail all secretaries updates
+            distinctUsers.forEach(u => {
+              const link = host + '/admin-login/' + encodeURI(u._id);
+              mailer.weeklyUpdateSec(u.email, u.name, link, counts)
+                .then(res => {
+                  resolve();
+                }).catch(err => {
+                  reject(err);
+              });
             });
-          // mail all secretaries updates
-          distinctUsers.forEach(u => {
-            const link = host + '/admin-login/' + encodeURI(u._id);
-            mailer.weeklyUpdateSec(u.email, u.name, link, counts)
-              .then(res => {}).catch(err => {
-                console.log(err);
-            });
-          });
-        }
+          }
+        });
       });
     });
   }
