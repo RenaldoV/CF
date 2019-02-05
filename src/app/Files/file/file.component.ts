@@ -13,6 +13,7 @@ export class FileComponent implements OnInit {
   fileID;
   userID;
   file;
+  milestoneOpenState;
   constructor(
     private auth: AuthService,
     private router: Router,

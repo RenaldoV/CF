@@ -97,14 +97,24 @@
     <mat-accordion *ngIf="file">
       <p class="text-center" style="color: #888888" *ngIf="file.milestoneList.milestones.length < 1">No milestones have been completed</p>
       <h5 class="text-center" style="color: #888888" *ngIf="file.milestoneList.milestones.length > 0"><i class="fas fa-flag-checkered"></i>  Completed milestones</h5>
-      <mat-expansion-panel *ngFor="let milestone of file.milestoneList.milestones; let i = index" hideToggle>
+      <mat-expansion-panel *ngFor="let milestone of file.milestoneList.milestones; let i = index" hideToggle
+                           (opened)="milestoneOpenState = true" (closed)="milestoneOpenState = false">
         <mat-expansion-panel-header>
           <mat-panel-title>
-            <span>
+            <span class="mTitle">
               {{ milestone._id.name }}
               <small style="color: #1DA1F2">
                 &nbsp;({{milestone.comments.length}} Comment{{milestone.comments.length < 1 || milestone.comments.length > 1? 's' : ''}})
               </small>
+              <small class="comment" *ngIf="milestone.comments.length > 0 && !milestoneOpenState">
+                  <br/>
+                  <span style="color:red">Last comment:</span>
+                  <i class="fas fa-user-tie"></i> <span style="font-weight: bold; color: darkslategray"> {{milestone.comments[milestone.comments.length - 1]?.user?.name}}</span>
+                  <div class="speech">
+                    {{milestone.comments[milestone.comments.length - 1]?.comment}}<small style="color: #888888"> {{milestone.comments[milestone.comments.length - 1]?.timestamp | amTimeAgo}}</small>
+                  </div>
+                  <br>
+                </small>
             </span>
           </mat-panel-title>
           <mat-panel-description>
@@ -120,9 +130,9 @@
           <div class="comment" *ngFor="let c of milestone.comments">
             <i class="fas fa-user-tie"></i> <span
             style="font-weight: bold; color: darkslategray"> {{c.user.name}}</span>
-            <span class="speech">
+            <div class="speech">
               {{c.comment}}<small style="color: #888888"> {{c.timestamp | amTimeAgo}}</small>
-            </span>
+            </div>
           </div>
 
           <div class="milestoneComments">
