@@ -29,6 +29,7 @@ export class AdminSetupComponent implements OnInit {
   UsersForm: FormGroup;
   EmailPropsForm: FormGroup;
   origContacts;
+  contactsCount = 10;
   constructor(
     private fb: FormBuilder,
     private adminService: AdminService,
@@ -559,13 +560,14 @@ export class AdminSetupComponent implements OnInit {
       .subscribe(res => {
         if (res) {
           this.origContacts = res;
-          this.patchContacts(res);
+          this.patchContacts(res.slice(0, this.contactsCount));
         }
       }, err => {
         console.log(err);
       });
   }
   patchContacts(cts) {
+    console.log(cts);
     cts.forEach((ct, i) => {
       if (!this.contacts.at(i)) {
         this.addContact(true);

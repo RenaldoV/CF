@@ -656,7 +656,7 @@ userRoutes.route('/addContact').post((req, res, next) => {
 userRoutes.route('/contacts/:id').get((req, res, next) => {
   // get user's contacts
   const id = req.params.id;
-  User.findById(id, 'contacts').populate('contacts').exec((err, user) => {
+  User.findById(id, 'contacts').populate('contacts').maxTimeMS(2000).exec((err, user) => {
     if(err) {
       return next(err);
     }
