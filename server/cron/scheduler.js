@@ -71,9 +71,10 @@ class Scheduler {
                       Contact.findById(ct).exec((err, resCt) => {
                         if(err) innerCb(err);
                         else if (resCt) {
-                          counts.contacts++;
                           // check if contact has email, then email report
                           if (resCt.email) {
+							  counts.contacts++;
+							  innerCb();
                             mailer.weeklyUpdate(
                               resCt.email,
                               resCt.title + ' ' + resCt.surname,
@@ -86,13 +87,14 @@ class Scheduler {
                             }, (innerError) => {
                               innerCb(innerError);
                             });
-                          }
+                          }else {
+							  innerCb();
+						  }
                         }
                       });
                     } else {
                       console.log('Contact doesn\'t have a valid ID. \nContact: ' + ct + '\nFile: ' + file._id);
                     }
-                    innerCb();
                   }, (err) => {
                     if (err) {
                       cb(err);
@@ -134,6 +136,7 @@ class Scheduler {
                 }
               });
             // mail all secretaries updates
+			console.log(distinctUsers);
             distinctUsers.forEach(u => {
               const link = host + '/admin-login/' + encodeURI(u._id);
               mailer.weeklyUpdateSec(u.email, u.name, link, counts)
