@@ -74,21 +74,16 @@ class Scheduler {
                           // check if contact has email, then email report
                           if (resCt.email) {
 							  counts.contacts++;
-							  innerCb();
                             mailer.weeklyUpdate(
                               resCt.email,
                               resCt.title + ' ' + resCt.surname,
                               url,
                               file.milestoneList._id.title,
                               file.fileRef
-                            ).then(res => {
-                              // increment number of contacts emailed.
-                              console.log('Contact emailed: ' + resCt.email);
-                            }, (innerError) => {
-                              innerCb(innerError);
-                            });
+                            );
+							innerCb();
                           }else {
-							  innerCb();
+							innerCb();
 						  }
                         }
                       });
@@ -139,12 +134,12 @@ class Scheduler {
 			console.log(distinctUsers);
             distinctUsers.forEach(u => {
               const link = host + '/admin-login/' + encodeURI(u._id);
-              mailer.weeklyUpdateSec(u.email, u.name, link, counts)
+              /* mailer.weeklyUpdateSec(u.email, u.name, link, counts)
                 .then(res => {
                   resolve();
                 }).catch(err => {
                   reject(err);
-              });
+              }); */
             });
           }
         });
