@@ -47,7 +47,7 @@ class Sms {
   }
 
   commentMade(contact, comment, adminName, propDesc, milestone, footer) {
-    const message = adminName + ' added a comment: ' + propDesc + '. ' + milestone + '. ' + comment + '. ' + footer;
+    const message = adminName + ' added a comment: ' + propDesc + '. ' + comment + '. ' + footer;
     return this.send(contact, message);
   }
   // Helper function to determine if word starts with a vowel
