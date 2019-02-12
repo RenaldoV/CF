@@ -22,6 +22,9 @@ class Mailer {
     this.emailFrom = emailFrom;
     this.mailer = nodemailer.createTransport(smtpttransport({
       host: host,
+      pool: true,
+      maxMessages: 100,
+      maxConnections: 20,
       secureConnection: true,
       port: port,
       auth: {

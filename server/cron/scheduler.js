@@ -58,22 +58,25 @@ class Scheduler {
               files: 0,
               contacts: 0
             };
-            async.each(files,
-              (file, cb) => {
+            async.eachSeries(files, (file, fileCb) => {
                 // increment number of open files
                 counts.files++;
+                // wait 1 min if 50 emails have been sent.
+                if ((counts.contacts % 50) === 0) {
+                  setDelay(60000);
+                }
                 // iterate contacts in file in parallel
-                async.each(file.contacts,
-                  (ct, innerCb) => {
+                async.eachSeries(file.contacts, (ct, ctCb) => {
                     const url = host + '/login/' + encodeURI(file._id) + '/' + encodeURI(ct._id);
                     let strId = ct.toString();
-                    if (idRegex.exec(strId)) { // make sure id is valid before searching
+                    // make sure id is valid before searching
+                    if (idRegex.exec(strId)) {
                       Contact.findById(ct).exec((err, resCt) => {
-                        if(err) innerCb(err);
+                        if (err) ctCb(err);
                         else if (resCt) {
                           // check if contact has email, then email report
                           if (resCt.email) {
-							  counts.contacts++;
+                            counts.contacts++;
                             mailer.weeklyUpdate(
                               resCt.email,
                               resCt.title + ' ' + resCt.surname,
@@ -81,10 +84,10 @@ class Scheduler {
                               file.milestoneList._id.title,
                               file.fileRef
                             );
-							innerCb();
-                          }else {
-							innerCb();
-						  }
+                            ctCb();
+                          } else {
+                            ctCb();
+                          }
                         }
                       });
                     } else {
@@ -146,6 +149,11 @@ class Scheduler {
       });
     });
   }
+}
+
+function setDelay(time) {
+  setTimeout(function(){
+  }, time);
 }
 
 module.exports = Scheduler;
