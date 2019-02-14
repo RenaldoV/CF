@@ -11,7 +11,7 @@ const File = require('../models/file');
 const Mailer = require ('../mailer/mailer');
 const Sms = require('../smsModule/sms');
 const async = require('async');
-const mailer = new Mailer("slash.aserv.co.za", 465, "donotreply@conveyfeed.co.za", "D0N0tRep3y@C0nV5yF@ee#d@2018@!");
+const mailer = new Mailer("smtp.sendgrid.net", 465, "donotreply@conveyfeed.co.za", "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", 'apikey');
 
 
 // TODO: When contact gets deleted it saves null in array of top level admin.
@@ -28,8 +28,6 @@ class Scheduler {
       .catch((err) => {
         console.log(err);
       })
-
-
   }
 
   scheduleReports (host) {
@@ -61,10 +59,6 @@ class Scheduler {
             async.eachSeries(files, (file, fileCb) => {
                 // increment number of open files
                 counts.files++;
-                // wait 1 min if 50 emails have been sent.
-                if ((counts.contacts % 50) === 0) {
-                  setDelay(60000);
-                }
                 // iterate contacts in file in parallel
                 async.eachSeries(file.contacts, (ct, ctCb) => {
                     const url = host + '/login/' + encodeURI(file._id) + '/' + encodeURI(ct._id);
@@ -76,35 +70,52 @@ class Scheduler {
                         else if (resCt) {
                           // check if contact has email, then email report
                           if (resCt.email) {
-                            counts.contacts++;
                             mailer.weeklyUpdate(
-                              resCt.email,
+                              /*resCt.email,*/
+                              'renaldovd@gmail.com',
                               resCt.title + ' ' + resCt.surname,
                               url,
                               file.milestoneList._id.title,
                               file.fileRef
                             );
-                            ctCb();
+                            counts.contacts++;
+                            // wait 1 min if 50 emails have been sent.
+                            if ((counts.contacts % 50) === 0) {
+                              // console.log('entering if with wait');
+                              setTimeout(() => {
+                                console.log('\n'+ counts.contacts +' contacts sent\n');
+                                ctCb();
+                              }, 60000);
+                            } else {
+                              // console.log('callback to contact loop because 5o contacts not yet sent');
+                              ctCb();
+                            }
                           } else {
+                            // console.log('callback to contact loop because email doesn\'t exist');
                             ctCb();
                           }
+                        } else {
+                          // console.log('callback to contact loop because contact doesn\'t exist');
+                          ctCb();
                         }
                       });
                     } else {
                       console.log('Contact doesn\'t have a valid ID. \nContact: ' + ct + '\nFile: ' + file._id);
+                      ctCb();
                     }
                   }, (err) => {
                     if (err) {
-                      cb(err);
+                      fileCb(err);
                     } else {
-                      cb();
+                      // console.log('callback to file loop');
+                      fileCb();
                     }
                   });
               }, (err) => {
                 if(err) {
                   console.log('Weekly update completed with errors: ' + err);
                   callback(err);
-                }else {
+                } else {
                   console.log('All contacts successfully updated with weekly report. counts: ');
                   callback(null, files, counts);
                 }
@@ -134,15 +145,15 @@ class Scheduler {
                 }
               });
             // mail all secretaries updates
-			console.log(distinctUsers);
+			      console.log(distinctUsers);
             distinctUsers.forEach(u => {
               const link = host + '/admin-login/' + encodeURI(u._id);
-              /* mailer.weeklyUpdateSec(u.email, u.name, link, counts)
+               mailer.weeklyUpdateSec(u.email, u.name, link, counts)
                 .then(res => {
                   resolve();
                 }).catch(err => {
                   reject(err);
-              }); */
+              });
             });
           }
         });
@@ -151,9 +162,8 @@ class Scheduler {
   }
 }
 
-function setDelay(time) {
-  setTimeout(function(){
-  }, time);
-}
+const setDelay = async function () {
+  return await new Promise(resolve => setTimeout((resolve, time)));
+};
 
 module.exports = Scheduler;

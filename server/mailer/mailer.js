@@ -7,7 +7,7 @@ const config = require('../../config/config');
 
 class Mailer {
 
-  constructor(host, port, emailFrom, password) {
+  constructor(host, port, emailFrom, password, username) {
     const options = {
       viewEngine: {
         extname: '.hbs',
@@ -23,12 +23,12 @@ class Mailer {
     this.mailer = nodemailer.createTransport(smtpttransport({
       host: host,
       pool: true,
-      maxMessages: 100,
+      maxMessages: 50,
       maxConnections: 20,
       secureConnection: true,
       port: port,
       auth: {
-        user: emailFrom,
+        user: username,
         pass: password
       },
       tls: { rejectUnauthorized: false }
@@ -54,9 +54,10 @@ class Mailer {
         if (error) {
           reject(error);
         }
+        /*console.log(toEmail);
+        console.log(response);*/
         that.mailer.close();
         resolve(response);
-
       });
     });
   }
@@ -148,12 +149,8 @@ class Mailer {
   weeklyUpdate(email, name, link, fileType, fileRef) {
     const message = 'Good day ' + name + ', \nherewith your weekly summary report. To view the file click the link below.';
     const subject = fileType + ' file weekly report';
-    return new Promise((resolve, reject) => {
-      this.sendEmail(email, message, link, subject).then(res => {
-        resolve(res);
-      }).catch(err => {
-        reject(err);
-      });
+    this.sendEmail(email, message, link, subject).then(res => {}).catch(err => {
+      console.log(err);
     });
   }
   weeklyUpdateSec(email, name, link, counts) {
