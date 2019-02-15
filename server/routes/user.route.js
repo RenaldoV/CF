@@ -12,7 +12,7 @@ const Mailer = require ('../mailer/mailer');
 const Sms = require('../smsModule/sms');
 const crypto = require('crypto');
 const smser = new Sms();
-const mailer = new Mailer("smtp.sendgrid.net", 465, "donotreply@conveyfeed.co.za", "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", 'apikey');
+const mailer = new Mailer("", 465, "donotreply@conveyfeed.co.za", "", '');
 const async = require('async');
 
 

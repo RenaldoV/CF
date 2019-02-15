@@ -11,7 +11,7 @@ const File = require('../models/file');
 const Mailer = require ('../mailer/mailer');
 const Sms = require('../smsModule/sms');
 const async = require('async');
-const mailer = new Mailer("smtp.sendgrid.net", 465, "donotreply@conveyfeed.co.za", "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", 'apikey');
+const mailer = new Mailer("", 465, "donotreply@conveyfeed.co.za", "", '');
 
 
 // TODO: When contact gets deleted it saves null in array of top level admin.
