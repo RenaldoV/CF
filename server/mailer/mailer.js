@@ -146,8 +146,8 @@ class Mailer {
       });
     });
   }
-  weeklyUpdate(email, name, link, fileType, fileRef) {
-    const message = 'Good day ' + name + ', \nherewith your weekly summary report. To view the file click the link below.';
+  weeklyUpdate(email, name, link, fileType, properyDescription) {
+    const message = 'Good day ' + name + '. ' + fileType + ': ' + properyDescription + '. \n\nherewith your weekly summary report. To view the file click the link below.';
     const subject = fileType + ' file weekly report';
     this.sendEmail(email, message, link, subject).then(res => {}).catch(err => {
       console.log(err);

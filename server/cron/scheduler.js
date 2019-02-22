@@ -42,6 +42,7 @@ class Scheduler {
             File.find({archived: {$ne : true}})
               .populate('milestoneList._id', 'title')
               .populate('refUser', 'email name')
+              .select('propertyDescription contacts')
               .exec((err, files) => {
                 if(err) {
                   cb(err);
@@ -71,12 +72,11 @@ class Scheduler {
                           // check if contact has email, then email report
                           if (resCt.email) {
                             mailer.weeklyUpdate(
-                              /*resCt.email,*/
-                              'renaldovd@gmail.com',
+                              resCt.email,
                               resCt.title + ' ' + resCt.surname,
                               url,
                               file.milestoneList._id.title,
-                              file.fileRef
+                              file.propertyDescription
                             );
                             counts.contacts++;
                             // wait 1 min if 50 emails have been sent.
