@@ -31,8 +31,10 @@
     "cors": "^2.8.4",
     "express": "^4.16.4",
     "express-history-api-fallback": "^2.2.1",
+    "javascript-time-ago": "^2.0.1",
     "moment": "^2.23.0",
     "mongoose": "^5.3.8",
+    "morgan": "^1.7.0",
     "ngx-moment": "^3.3.0",
     "node-cron": "^2.0.3",
     "nodemailer": "^4.7.0",
@@ -40,8 +42,7 @@
     "nodemailer-plugin-inline-base64": "^2.1.1",
     "nodemailer-smtp-transport": "^2.7.4",
     "rxjs": "^6.0.0",
-    "zone.js": "^0.8.26",
-    "morgan": "^1.7.0"
+    "zone.js": "^0.8.26"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~0.6.6",

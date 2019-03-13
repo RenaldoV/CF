@@ -1,0 +1,56 @@
+<b>Good day {{name}}.</b>
+<br>
+<br>
+Herewith your weekly summary report.
+<br>
+{{fileType}}: {{propertyDescription}}.
+<br>
+<div style="width: 100%;">
+  <hr>
+  {{#each milestones}}
+    <div style="padding: 10px;">
+      <h4 style="font-weight: bold">{{this._id.name}} <small style="color: white; background-color: green; border-radius: 4px; padding: 2px;">Completed</small></h4>
+    </div>
+  {{#if this.comments}}
+    <p>Comments: </p>
+  {{/if}}
+    <ul>
+      {{#each this.comments}}
+        <li>
+          {{this.user.name}} -
+          <div style="background-color: #e3e3e3; border-radius: 4px">
+          {{this.comment}}
+        </div>
+        </li>
+      {{/each}}
+    </ul>
+    <hr>
+  {{/each}}
+</div>
+
+<br>
+To view the full report click the link below.
+<br>
+<a href="{{link}}" style="display: inline-block;
+  padding: 6px 12px;
+  margin-bottom: 0;
+  font-size: 14px;
+  font-weight: normal;
+  line-height: 1.42857143;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  -ms-touch-action: manipulation;
+      touch-action: manipulation;
+  cursor: pointer;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+  background-image: none;
+  border: 1px solid transparent;
+  border-radius: 4px; color: white;
+  text-decoration: none;
+    background-color: #33B6CC;">View Files</a>
+<br>
+<br>

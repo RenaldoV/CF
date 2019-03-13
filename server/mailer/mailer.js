@@ -4,6 +4,10 @@ const hbs = require('nodemailer-express-handlebars');
 const inlineBase64 = require('nodemailer-plugin-inline-base64');
 const EmailError = require('./EmailError');
 const config = require('../../config/config');
+const TimeAgo = require('javascript-time-ago');
+const en = require('javascript-time-ago/locale/en');
+TimeAgo.addLocale(en);
+const timeAgo = new TimeAgo('en-US');
 
 class Mailer {
 
@@ -41,7 +45,8 @@ class Mailer {
   send(templateName, context, toEmail, subject) {
     let that = this;
     // Returns promise
-    // console.log('sending email to ' + toEmail);
+    /*console.log(JSON.stringify(context));
+    console.log('sending email to ' + toEmail);*/
     return new Promise((resolve, reject) => {
       this.mailer.sendMail({
         from: that.emailFrom,
@@ -146,11 +151,28 @@ class Mailer {
       });
     });
   }
-  weeklyUpdate(email, name, link, fileType, properyDescription) {
-    const message = 'Good day ' + name + '. ' + fileType + ': ' + properyDescription + '. \n\nherewith your weekly summary report. To view the file click the link below.';
+  weeklyUpdate(email, name, link, file) {
+    /*const message = 'Good day ' + name + '. ' + fileType + ': ' + properyDescription + '. \n\nherewith your weekly summary report. To view the file click the link below.';
     const subject = fileType + ' file weekly report';
     this.sendEmail(email, message, link, subject).then(res => {}).catch(err => {
       console.log(err);
+    });*/
+    let context = {
+      name: name,
+      fileType: file.milestoneList._id.title,
+      propertyDescription: file.propertyDescription,
+      milestones: file.milestoneList.milestones.filter(m => m.completed),
+      link: link
+    };
+    const subject = context.fileType + ' file weekly report';
+
+    let that = this;
+    return new Promise((resolve, reject) => {
+      that.send('weeklyUpdate', context, email, subject).then(res => {
+        resolve(res);
+      }).catch(err => {
+        reject(err);
+      });
     });
   }
   weeklyUpdateSec(email, name, link, counts) {

@@ -12,7 +12,8 @@ const Mailer = require ('../mailer/mailer');
 const Sms = require('../smsModule/sms');
 const crypto = require('crypto');
 const smser = new Sms();
-const mailer = new Mailer("", 465, "donotreply@conveyfeed.co.za", "", '');
+const config = require('../../config/config');
+const mailer = new Mailer(config.emailHost, config.emailPort, config.fromEmail, config.emailApiKey, config.emailUsername);
 const async = require('async');
 
 

@@ -11,7 +11,8 @@ const File = require('../models/file');
 const Mailer = require ('../mailer/mailer');
 const Sms = require('../smsModule/sms');
 const async = require('async');
-const mailer = new Mailer("", 465, "donotreply@conveyfeed.co.za", "", '');
+const config = require('../../config/config');
+const mailer = new Mailer(config.emailHost, config.emailPort, config.fromEmail, config.emailApiKey, config.emailUsername);
 
 
 // TODO: When contact gets deleted it saves null in array of top level admin.
@@ -40,9 +41,11 @@ class Scheduler {
         async.waterfall([
           (cb) => { // get all files in db that are not archived
             File.find({archived: {$ne : true}})
+              .select('propertyDescription contacts milestoneList')
               .populate('milestoneList._id', 'title')
+              .populate('milestoneList.milestones.comments.user', 'name')
+              .populate('milestoneList.milestones._id', 'name ')
               .populate('refUser', 'email name')
-              .select('propertyDescription contacts')
               .exec((err, files) => {
                 if(err) {
                   cb(err);
@@ -75,8 +78,7 @@ class Scheduler {
                               resCt.email,
                               resCt.title + ' ' + resCt.surname,
                               url,
-                              file.milestoneList._id.title,
-                              file.propertyDescription
+                              file
                             );
                             counts.contacts++;
                             // wait 1 min if 50 emails have been sent.
