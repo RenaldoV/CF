@@ -7,6 +7,7 @@ const Milestone = require('../models/milestone');
 const Properties = require('../models/properties');
 const Contact = require('../models/contact');
 const File = require('../models/file');
+const Entity = require('../models/entity');
 const bcrypt = require('bcrypt');
 const Mailer = require ('../mailer/mailer');
 const Sms = require('../smsModule/sms');
@@ -1325,6 +1326,17 @@ userRoutes.route('/addComment').post((req, res, next) => {
       } else {
         res.end(false);
       }
+  })
+});
+// ============================ FILE ROUTES  ===========================
+// ============================ ENTITY ROUTES  =========================
+userRoutes.route('/addEntity').post((req, res, next) => {
+  let entity = req.body.entity;
+  Entity.create(entity, (err, e) => {
+    if (err) return next(err);
+    else {
+      res.send(e);
+    }
   })
 });
 module.exports = userRoutes;

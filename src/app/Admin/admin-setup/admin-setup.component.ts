@@ -27,6 +27,7 @@ export class AdminSetupComponent implements OnInit {
   PropertiesForm: FormGroup;
   ContactsForm: FormGroup;
   UsersForm: FormGroup;
+  EntitiesForm: FormGroup;
   EmailPropsForm: FormGroup;
   origContacts;
   contactsCount = 10;
@@ -48,6 +49,7 @@ export class AdminSetupComponent implements OnInit {
     this.getContacts();
     this.createUsersForm();
     this.getUsers();
+    this.createEntitiesForm();
   }
 
   ngOnInit() {}
@@ -864,6 +866,65 @@ export class AdminSetupComponent implements OnInit {
         });
     }
     // console.log(this.contacts.at(i).value);
+  }
+  // ================== USER FUNCTIONS ===================================
+  // ================== ENTITY FUNCTIONS =================================
+  createEntitiesForm() {
+    this.EntitiesForm = this.fb.group({
+      entities: this.fb.array([])
+    });
+  }
+  get entities(): FormArray {
+    return this.EntitiesForm.get('entities') as FormArray;
+  }
+  addEntity(existing?) {
+    const e = this.fb.group({
+      name: ['', Validators.required],
+      address: ['', Validators.required],
+      telephone: ['', Validators.required],
+      contactPerson: [''],
+      website: ['', Validators.required],
+      contacts: [''],
+      files: [''],
+      updatedBy: [existing ? 'existing' : 'new']
+    });
+    const arrayControl = <FormArray>this.entities;
+    arrayControl.push(e);
+  }
+  submitEntity(i) {
+
+  }
+  removeEntity(e, i) {
+    e.stopPropagation();
+    e.preventDefault();
+    const e = this.entities.at(i);
+    if (confirm('Are you sure you want to delete ' +
+      (e.get('name').value ? e.get('name').value : 'this entity') + ' from your entities list?')) {
+      const control = <FormArray>this.entities;
+      if (e.value.updatedBy === 'new') {
+        control.removeAt(i);
+        this.matSnack.open('Entity removed successfully');
+      } else {
+        /*this.auth.deleteUser(u.value._id)
+          .subscribe(res => {
+            if (res) {
+              this.matSnack.open('User removed successfully');
+              control.removeAt(i);
+            } else {
+              const sb = this.matSnack.open('User not removed successful', 'retry');
+              sb.onAction().subscribe(() => {
+                this.removeUser(e, i);
+              });
+            }
+          }, err => {
+            const sb = this.matSnack.open('User not removed successful', 'retry');
+            sb.onAction().subscribe(() => {
+              this.removeUser(e, i);
+            });
+            console.log(err);
+          });*/
+      }
+    }
   }
 
   // TODO: disable save buttons if nothings has changed or is not new.

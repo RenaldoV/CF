@@ -40,6 +40,7 @@ import { ContactResetPasswordComponent } from './Contact/contact-reset-password/
 import { ContactForgotPasswordComponent } from './Contact/contact-forgot-password/contact-forgot-password.component';
 import {MomentModule} from 'ngx-moment';
 import { AlwaysAskNotificationsComponent } from './Files/always-ask-notifications/always-ask-notifications.component';
+import { EntityFormComponent } from './Entities/entity-form/entity-form.component';
 
 
 
@@ -65,7 +66,8 @@ import { AlwaysAskNotificationsComponent } from './Files/always-ask-notification
     AdminResetPasswordComponent,
     ContactResetPasswordComponent,
     ContactForgotPasswordComponent,
-    AlwaysAskNotificationsComponent
+    AlwaysAskNotificationsComponent,
+    EntityFormComponent
   ],
   imports: [
     MatInputModule,

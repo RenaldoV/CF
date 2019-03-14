@@ -507,6 +507,74 @@
             <i class="fas fa-plus"></i> Add Contact
           </button>
         </mat-expansion-panel>
+        <mat-expansion-panel hideToggle>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Entities
+            </mat-panel-title>
+            <mat-panel-description>
+              Manage Entities
+              <i class="fas fa-id-card-alt"></i>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          <div class="row">
+            <div class="col-10 offset-1" style="margin-bottom: 10px;">
+              <form class="ContactsForm" [formGroup]="EntitiesForm">
+                <mat-accordion>
+                  <mat-expansion-panel hideToggle class="msListPanel" [expanded]="i + 1 === entities.length"
+                                       *ngFor="let e of entities.controls; let i = index" formArrayName="entities">
+                    <mat-expansion-panel-header>
+                      <mat-panel-description>
+                        {{e.get('name').value ? e.get('name').value : 'Entity ' + (i+1)}}
+                        <i class="fas fa-trash-alt float-right deleteBtn" (click)="removeEntity($event, i)"></i>
+                      </mat-panel-description>
+                    </mat-expansion-panel-header>
+                    <div [formGroupName]="i">
+                      <mat-form-field class="innerFormFields">
+                        <input matInput placeholder="Entity Name" formControlName="name" required>
+                        <mat-error>
+                          Entity name is required.
+                        </mat-error>
+                      </mat-form-field>
+                      <br>
+                      <mat-form-field class="innerFormFields">
+                        <input matInput placeholder="Address" formControlName="address" required>
+                        <mat-error>
+                          Entity address is required.
+                        </mat-error>
+                      </mat-form-field>
+                      <br>
+                      <mat-form-field class="innerFormFields">
+                        <input matInput placeholder="Telephone number" formControlName="telephone" required>
+                        <mat-error>
+                          Entity telephone number is required.
+                        </mat-error>
+                      </mat-form-field>
+                      <br>
+                      <mat-form-field class="innerFormFields">
+                        <input matInput placeholder="Website" formControlName="website" required>
+                        <mat-error>
+                          Entity website is required.
+                        </mat-error>
+                      </mat-form-field>
+                      <br>
+                      <div class="btn-group" role="group" aria-label="action buttons" style="margin-top: 5px;">
+                        <button class="btn btn-primary btn-sm saveButton" color="primary"
+                                [disabled]="!entities.at(i).valid || (loaderService.isLoading | async)" (click)="submitEntity(i)">
+                          <span *ngIf="!(loaderService.isLoading | async)"><i class="far fa-save"></i> Save</span>
+                          <i *ngIf="loaderService.isLoading | async" class="fas fa-spinner fa-spin"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </mat-expansion-panel>
+                </mat-accordion>
+              </form>
+            </div>
+          </div>
+          <button [disabled]="!EntitiesForm.valid" class="btn btn-outline-primary btn-sm" color="primary" (click)="addEntity()">
+            <i class="fas fa-plus"></i> Add Entity
+          </button>
+        </mat-expansion-panel>
         <mat-expansion-panel hideToggle *ngIf="iAmAdmin()">
           <mat-expansion-panel-header>
             <mat-panel-title>
