@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnInit} from '@angular/core';
+import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {
   AbstractControl,
   FormArray,
@@ -12,10 +12,14 @@ import {AdminService} from '../admin.service';
 import {LoaderService} from '../../Common/Loader';
 import {AuthService} from '../../auth/auth.service';
 import {computeStyle} from '@angular/animations/browser/src/util';
-import {MatSnackBar} from '@angular/material';
+import {ErrorStateMatcher, MatAutocomplete, MatAutocompleteSelectedEvent, MatAutocompleteTrigger, MatSnackBar} from '@angular/material';
 import {GlobalValidators} from '../../Common/Validators/globalValidators';
 import {Router} from '@angular/router';
 import {ContactService} from '../../Contact/contact.service';
+import {EntityService} from '../../Entities/entity.service';
+import {Observable} from 'rxjs';
+import {map, startWith} from 'rxjs/operators';
+import {COMMA, ENTER} from '@angular/cdk/keycodes';
 
 @Component({
   selector: 'app-admin-setup',
@@ -30,7 +34,22 @@ export class AdminSetupComponent implements OnInit {
   EntitiesForm: FormGroup;
   EmailPropsForm: FormGroup;
   origContacts;
-  contactsCount = 10;
+  contactsCount = 2;
+  // Used for dropdown on entity form
+  // Chips autocomplete
+  visible = true;
+  selectable = true;
+  removable = true;
+  addOnBlur = true;
+  separatorKeysCodes: number[] = [ENTER, COMMA];
+  filteredContacts: Observable<any[]>;
+  allContacts: any[] = [];
+  contactsForEntities: any[] = [];
+  matcher = new ErrorStateMatcher();
+  @ViewChild('conPersonInput') conPersonInput: ElementRef<HTMLInputElement>;
+  @ViewChild('auto') conPersonAutoComp: MatAutocomplete;
+  @ViewChild(MatAutocompleteTrigger) conInput: MatAutocompleteTrigger;
+  milestoneOpenState;
   constructor(
     private fb: FormBuilder,
     private adminService: AdminService,
@@ -38,7 +57,8 @@ export class AdminSetupComponent implements OnInit {
     private auth: AuthService,
     private router: Router,
     public loaderService: LoaderService,
-    private matSnack: MatSnackBar
+    private matSnack: MatSnackBar,
+    private entityService: EntityService
   ) {
     this.createMilestoneListForm();
     this.getAllLists();
@@ -536,7 +556,7 @@ export class AdminSetupComponent implements OnInit {
   get commentMailFooter() {
     return this.EmailPropsForm.get('commentMailFooter');
   }
-  insertFooterPh(e, msg,ctr) {
+  insertFooterPh(e, msg, ctr) {
     e.preventDefault();
     const value = this.commentMailFooter.value;
     if (ctr.selectionStart || ctr.selectionStart === 0) {
@@ -563,13 +583,23 @@ export class AdminSetupComponent implements OnInit {
         if (res) {
           this.origContacts = res;
           this.patchContacts(res.slice(0, this.contactsCount));
+          this.allContacts = res.map(c => {
+            return {
+              name: c.name + ' ' + c.surname,
+              _id: c._id
+            };
+          });
+          for (const entity of this.entities.controls) {
+            this.filteredContacts = entity.get('contactPerson').valueChanges.pipe(
+              startWith(null),
+              map((con: string | null) => con ? this._filteredContacts(con) : this._filteredContacts('')));
+          }
         }
       }, err => {
         console.log(err);
       });
   }
   patchContacts(cts) {
-    console.log(cts);
     cts.forEach((ct, i) => {
       if (!this.contacts.at(i)) {
         this.addContact(true);
@@ -879,24 +909,85 @@ export class AdminSetupComponent implements OnInit {
   }
   addEntity(existing?) {
     const e = this.fb.group({
+      _id : [''],
       name: ['', Validators.required],
       address: ['', Validators.required],
-      telephone: ['', Validators.required],
+      telephone: ['', [Validators.required, GlobalValidators.cellRegex]],
       contactPerson: [''],
+      conPersChips: [''],
       website: ['', Validators.required],
       contacts: [''],
       files: [''],
       updatedBy: [existing ? 'existing' : 'new']
     });
     const arrayControl = <FormArray>this.entities;
+    this.filteredContacts = e.get('contactPerson').valueChanges.pipe(
+      startWith(null),
+      map((con: string | null) => con ? this._filteredContacts(con) : this._filteredContacts('')));
     arrayControl.push(e);
   }
-  submitEntity(i) {
-
+  private _filteredContacts(value: string): string[] {
+    const conNames = this.contactsForEntities.map(c => c.name);
+    const filterValue = value.toLowerCase();
+    return this.allContacts.filter(con => con.name.toLowerCase().indexOf(filterValue) === 0);
   }
-  removeEntity(e, i) {
-    e.stopPropagation();
-    e.preventDefault();
+  removeContactPerson(sec, i): void {
+    const index = this.contactsForEntities.indexOf(sec);
+
+    if (index >= 0) {
+      this.contactsForEntities.splice(index, 1);
+      this.entities.at(i).get('conPersChips').setValue(this.contactsForEntities);
+    }
+  }
+  selectedContactPerson(event: MatAutocompleteSelectedEvent, i): void {
+      const selectedCon = {_id: event.option.value, name: event.option.viewValue};
+      this.contactsForEntities.push(selectedCon);
+      this.conPersonInput.nativeElement.value = '';
+      this.entities.at(i).get('contactPerson').setValue(null);
+      this.entities.at(i).get('conPersChips').setValue(this.contactsForEntities);
+  }
+  onFocus() {
+    this.conInput._onChange('');
+    this.conInput.openPanel();
+  }
+  submitEntity(i) {
+    const e = this.entities.at(i);
+    if (this.EntitiesForm.valid) {
+      if (e.value.updatedBy === 'new') {
+        const newEntity = e.value;
+        delete newEntity._id;
+        delete newEntity.updatedBy;
+        if (!newEntity.files) {
+          newEntity.files = [];
+        }
+        this.entityService.createEntity(newEntity)
+          .subscribe(res => {
+            if (res) {
+              console.log(res);
+              this.matSnack.open('Entity created successfully');
+              /*u.patchValue(res);
+              u.get('email').clearAsyncValidators();
+              u.get('email').disable();
+              u.get('updatedBy').setValue('existing');*/
+            } else {
+              const sb = this.matSnack.open('Entity not created successfully', 'retry');
+              sb.onAction().subscribe(() => {
+                this.submitEntity(i);
+              });
+            }
+          }, err => {
+            const sb = this.matSnack.open('User not created successfully', 'retry');
+            sb.onAction().subscribe(() => {
+              this.submitUser(i);
+            });
+            console.log(err);
+          });
+      }
+    }
+  }
+  removeEntity(event, i) {
+    event.stopPropagation();
+    event.preventDefault();
     const e = this.entities.at(i);
     if (confirm('Are you sure you want to delete ' +
       (e.get('name').value ? e.get('name').value : 'this entity') + ' from your entities list?')) {

@@ -514,7 +514,7 @@
             </mat-panel-title>
             <mat-panel-description>
               Manage Entities
-              <i class="fas fa-id-card-alt"></i>
+              <i class="fas fa-users"></i>
             </mat-panel-description>
           </mat-expansion-panel-header>
           <div class="row">
@@ -546,8 +546,17 @@
                       <br>
                       <mat-form-field class="innerFormFields">
                         <input matInput placeholder="Telephone number" formControlName="telephone" required>
-                        <mat-error>
+                        <mat-error *ngIf="e.get('telephone').hasError('required')">
                           Entity telephone number is required.
+                        </mat-error>
+                        <mat-error *ngIf="e.get('telephone').hasError('length')">
+                          A valid telephone must be 10 digits long.
+                        </mat-error>
+                        <mat-error *ngIf="e.get('telephone').hasError('numbers')">
+                          A valid telephone must consist of only numbers.
+                        </mat-error>
+                        <mat-error *ngIf="e.get('telephone').hasError('firstZero')">
+                          A valid telephone must start with a 0.
                         </mat-error>
                       </mat-form-field>
                       <br>
@@ -556,6 +565,37 @@
                         <mat-error>
                           Entity website is required.
                         </mat-error>
+                      </mat-form-field>
+                      <br>
+                      <mat-form-field class="example-chip-list innerFormFields">
+                        <mat-chip-list #chipList ngDefaultControl [errorStateMatcher]="matcher" [formControl]="entities.at(i).get('contactPerson')">
+                          <mat-chip
+                            *ngFor="let con of contactsForEntities"
+                            [selectable]="selectable"
+                            [removable]="removable"
+                            (removed)="removeContactPerson(con, i)">
+                            {{con.name.split(' ')[0]}}
+                            <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+                          </mat-chip>
+                          <input
+                            placeholder="Contact Person/s *"
+                            #conPersonInput
+                            formControlName="contactPerson"
+                            (focus)="onFocus()"
+                            (click)="onFocus()"
+                            [matAutocomplete]="auto"
+                            [matChipInputFor]="chipList"
+                            [matChipInputSeparatorKeyCodes]="separatorKeysCodes">
+                          <span *ngIf="loaderService.isLoading | async" matSuffix>
+                            <i class="fas fa-spinner fa-spin"></i>
+                          </span>
+                        </mat-chip-list>
+                        <mat-autocomplete #auto="matAutocomplete" #autoTrigger (optionSelected)="selectedContactPerson($event, i)">
+                          <mat-option *ngFor="let con of filteredContacts | async" [value]="con._id">
+                            {{con.name}}
+                          </mat-option>
+                        </mat-autocomplete>
+                        <mat-error>Select one entity as a reference.</mat-error>
                       </mat-form-field>
                       <br>
                       <div class="btn-group" role="group" aria-label="action buttons" style="margin-top: 5px;">

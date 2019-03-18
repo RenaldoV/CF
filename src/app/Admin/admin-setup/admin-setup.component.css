@@ -40,6 +40,7 @@ mat-accordion .mat-expansion-panel-header-description {
 
 .innerFormFields {
   margin-top: 5px;
+  width: 100%;
 }
 
 mat-expansion-panel.msPanel mat-expansion-panel-header.mat-expanded[style] {
