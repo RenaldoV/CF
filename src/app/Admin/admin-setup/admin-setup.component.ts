@@ -929,7 +929,11 @@ export class AdminSetupComponent implements OnInit {
   private _filteredContacts(value: string): string[] {
     const conNames = this.contactsForEntities.map(c => c.name);
     const filterValue = value.toLowerCase();
-    return this.allContacts.filter(con => con.name.toLowerCase().indexOf(filterValue) === 0);
+    let results = this.allContacts.filter(con => con.name.toLowerCase().indexOf(filterValue) === 0 && conNames.indexOf(con.name) === -1);
+    if (results.length < 1) {
+      results = [{name: 'Would you like to add *' + filterValue + '* as a new contact?', _id: 'new'}];
+    }
+    return results;
   }
   removeContactPerson(sec, i): void {
     const index = this.contactsForEntities.indexOf(sec);
@@ -941,10 +945,14 @@ export class AdminSetupComponent implements OnInit {
   }
   selectedContactPerson(event: MatAutocompleteSelectedEvent, i): void {
       const selectedCon = {_id: event.option.value, name: event.option.viewValue};
-      this.contactsForEntities.push(selectedCon);
-      this.conPersonInput.nativeElement.value = '';
-      this.entities.at(i).get('contactPerson').setValue(null);
-      this.entities.at(i).get('conPersChips').setValue(this.contactsForEntities);
+      if (selectedCon._id === 'new') { // contact doesn't exist, create new
+        alert('foookjaaa');
+      } else {
+        this.contactsForEntities.push(selectedCon);
+        this.conPersonInput.nativeElement.value = '';
+        this.entities.at(i).get('contactPerson').setValue(null);
+        this.entities.at(i).get('conPersChips').setValue(this.contactsForEntities);
+      }
   }
   onFocus() {
     this.conInput._onChange('');
