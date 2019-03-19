@@ -5,7 +5,7 @@ import {FileService} from '../file.service';
 import {LoaderService} from '../../Common/Loader';
 import {AddCommentDialogComponent} from '../add-comment-dialog/add-comment-dialog.component';
 import {AlwaysAskNotificationsComponent} from '../always-ask-notifications/always-ask-notifications.component';
-import {AddContactDialogComponent} from '../add-contact-dialog/add-contact-dialog.component';
+import {AddContactDialogComponent} from '../../Contact/add-contact-dialog/add-contact-dialog.component';
 import {Router} from '@angular/router';
 
 

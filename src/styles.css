@@ -86,3 +86,5 @@ mat-panel-description .mUpdated {
 mat-panel-description .mCheck {
   width: 10%;
 }
+
+.mat-dialog-content { max-width: 500px; }

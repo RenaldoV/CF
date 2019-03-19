@@ -12,7 +12,14 @@ import {AdminService} from '../admin.service';
 import {LoaderService} from '../../Common/Loader';
 import {AuthService} from '../../auth/auth.service';
 import {computeStyle} from '@angular/animations/browser/src/util';
-import {ErrorStateMatcher, MatAutocomplete, MatAutocompleteSelectedEvent, MatAutocompleteTrigger, MatSnackBar} from '@angular/material';
+import {
+  ErrorStateMatcher,
+  MatAutocomplete,
+  MatAutocompleteSelectedEvent,
+  MatAutocompleteTrigger,
+  MatDialog, MatDialogConfig,
+  MatSnackBar
+} from '@angular/material';
 import {GlobalValidators} from '../../Common/Validators/globalValidators';
 import {Router} from '@angular/router';
 import {ContactService} from '../../Contact/contact.service';
@@ -20,6 +27,8 @@ import {EntityService} from '../../Entities/entity.service';
 import {Observable} from 'rxjs';
 import {map, startWith} from 'rxjs/operators';
 import {COMMA, ENTER} from '@angular/cdk/keycodes';
+import {AddContactDialogComponent} from '../../Contact/add-contact-dialog/add-contact-dialog.component';
+import {AddEntityDialogComponent} from '../../Entities/add-entity-dialog/add-entity-dialog.component';
 
 @Component({
   selector: 'app-admin-setup',
@@ -34,7 +43,7 @@ export class AdminSetupComponent implements OnInit {
   EntitiesForm: FormGroup;
   EmailPropsForm: FormGroup;
   origContacts;
-  contactsCount = 2;
+  contactsCount = 10;
   // Used for dropdown on entity form
   // Chips autocomplete
   visible = true;
@@ -58,7 +67,8 @@ export class AdminSetupComponent implements OnInit {
     private router: Router,
     public loaderService: LoaderService,
     private matSnack: MatSnackBar,
-    private entityService: EntityService
+    private entityService: EntityService,
+    private dialog: MatDialog
   ) {
     this.createMilestoneListForm();
     this.getAllLists();
@@ -590,7 +600,7 @@ export class AdminSetupComponent implements OnInit {
             };
           });
           for (const entity of this.entities.controls) {
-            this.filteredContacts = entity.get('contactPerson').valueChanges.pipe(
+            this.filteredContacts = entity.get('contacts').valueChanges.pipe(
               startWith(null),
               map((con: string | null) => con ? this._filteredContacts(con) : this._filteredContacts('')));
           }
@@ -666,6 +676,29 @@ export class AdminSetupComponent implements OnInit {
       console.log('setting contact as updated');
       ct.get('updatedBy').setValue('updated');
     }
+  }
+  createNewContactDialog(contact, i) {
+    const dialConfig = new MatDialogConfig();
+    dialConfig.disableClose = true;
+    dialConfig.autoFocus = true;
+    dialConfig.minWidth = 200;
+    dialConfig.data = contact;
+    const dialogRef = this.dialog.open(AddContactDialogComponent, dialConfig);
+    dialogRef.afterClosed().subscribe(res => {
+      if (res) {
+        console.log(res);
+        this.allContacts.push(res);
+        this.contactsForEntities.push({
+            name: res.name,
+            _id: res._id
+          });
+        this.conPersonInput.nativeElement.value = '';
+        this.entities.at(i).get('contacts').setValue(null);
+        this.entities.at(i).get('conPersChips').setValue(this.contactsForEntities);
+        this.entities.at(i).get('contacts').clearValidators();
+        this.entities.at(i).get('contacts').updateValueAndValidity();
+      }
+    });
   }
   submitContact(i) {
     const ct = this.contacts.at(i);
@@ -908,30 +941,41 @@ export class AdminSetupComponent implements OnInit {
     return this.EntitiesForm.get('entities') as FormArray;
   }
   addEntity(existing?) {
-    const e = this.fb.group({
+    const dialConfig = new MatDialogConfig();
+    dialConfig.disableClose = true;
+    dialConfig.autoFocus = true;
+    dialConfig.data = {
+      allContact: this.allContacts
+    };
+    const dialogRef = this.dialog.open(AddEntityDialogComponent, dialConfig);
+    dialogRef.afterClosed().subscribe(res => {
+      if (res) {
+        console.log(res);
+      }
+    });
+    /*const e = this.fb.group({
       _id : [''],
       name: ['', Validators.required],
       address: ['', Validators.required],
       telephone: ['', [Validators.required, GlobalValidators.cellRegex]],
-      contactPerson: [''],
-      conPersChips: [''],
+      contacts: ['', Validators.required], // array of contact ids
+      conPersChips: ['', Validators.required], // used for chips control
       website: ['', Validators.required],
-      contacts: [''],
       files: [''],
       updatedBy: [existing ? 'existing' : 'new']
     });
     const arrayControl = <FormArray>this.entities;
-    this.filteredContacts = e.get('contactPerson').valueChanges.pipe(
+    this.filteredContacts = e.get('contacts').valueChanges.pipe(
       startWith(null),
       map((con: string | null) => con ? this._filteredContacts(con) : this._filteredContacts('')));
-    arrayControl.push(e);
+    arrayControl.push(e);*/
   }
   private _filteredContacts(value: string): string[] {
     const conNames = this.contactsForEntities.map(c => c.name);
     const filterValue = value.toLowerCase();
     let results = this.allContacts.filter(con => con.name.toLowerCase().indexOf(filterValue) === 0 && conNames.indexOf(con.name) === -1);
-    if (results.length < 1) {
-      results = [{name: 'Would you like to add *' + filterValue + '* as a new contact?', _id: 'new'}];
+    if (results.length < 1) { // contact doesn't exist create new one.
+      results = [{name: 'Would you like to add *' + value + '* as a new contact?', _id: 'new'}];
     }
     return results;
   }
@@ -942,56 +986,34 @@ export class AdminSetupComponent implements OnInit {
       this.contactsForEntities.splice(index, 1);
       this.entities.at(i).get('conPersChips').setValue(this.contactsForEntities);
     }
+    if (this.entities.at(i).get('conPersChips').value.length < 1) {
+      // no contacts chosen show error
+      this.entities.at(i).get('contacts').setValidators(Validators.required);
+      this.entities.at(i).get('contacts').updateValueAndValidity();
+    }
   }
   selectedContactPerson(event: MatAutocompleteSelectedEvent, i): void {
       const selectedCon = {_id: event.option.value, name: event.option.viewValue};
       if (selectedCon._id === 'new') { // contact doesn't exist, create new
-        alert('foookjaaa');
+        const contactArr = selectedCon.name.split('*');
+        const nameArr = contactArr[1].split(' ');
+        const contact = {
+          name: nameArr[0],
+          surname: nameArr.length > 1 ? nameArr[1] : ''
+        };
+        this.createNewContactDialog(contact, i);
       } else {
         this.contactsForEntities.push(selectedCon);
         this.conPersonInput.nativeElement.value = '';
-        this.entities.at(i).get('contactPerson').setValue(null);
+        this.entities.at(i).get('contacts').setValue(null);
         this.entities.at(i).get('conPersChips').setValue(this.contactsForEntities);
+        this.entities.at(i).get('contacts').clearValidators();
+        this.entities.at(i).get('contacts').updateValueAndValidity();
       }
   }
-  onFocus() {
+  onFocus(i) {
     this.conInput._onChange('');
     this.conInput.openPanel();
-  }
-  submitEntity(i) {
-    const e = this.entities.at(i);
-    if (this.EntitiesForm.valid) {
-      if (e.value.updatedBy === 'new') {
-        const newEntity = e.value;
-        delete newEntity._id;
-        delete newEntity.updatedBy;
-        if (!newEntity.files) {
-          newEntity.files = [];
-        }
-        this.entityService.createEntity(newEntity)
-          .subscribe(res => {
-            if (res) {
-              console.log(res);
-              this.matSnack.open('Entity created successfully');
-              /*u.patchValue(res);
-              u.get('email').clearAsyncValidators();
-              u.get('email').disable();
-              u.get('updatedBy').setValue('existing');*/
-            } else {
-              const sb = this.matSnack.open('Entity not created successfully', 'retry');
-              sb.onAction().subscribe(() => {
-                this.submitEntity(i);
-              });
-            }
-          }, err => {
-            const sb = this.matSnack.open('User not created successfully', 'retry');
-            sb.onAction().subscribe(() => {
-              this.submitUser(i);
-            });
-            console.log(err);
-          });
-      }
-    }
   }
   removeEntity(event, i) {
     event.stopPropagation();
@@ -1019,6 +1041,44 @@ export class AdminSetupComponent implements OnInit {
             const sb = this.matSnack.open('User not removed successful', 'retry');
             sb.onAction().subscribe(() => {
               this.removeUser(e, i);
+            });
+            console.log(err);
+          });*/
+      }
+    }
+  }
+  submitEntity(i) {
+    const e = this.entities.at(i);
+    if (this.EntitiesForm.valid) {
+      if (e.value.updatedBy === 'new') {
+        const newEntity = e.value;
+        delete newEntity._id;
+        delete newEntity.updatedBy;
+        newEntity.contacts = newEntity.conPersChips.map(c => c._id);
+        delete newEntity.conPersChips;
+        if (!newEntity.files) {
+          newEntity.files = [];
+        }
+        console.log(newEntity);
+        /*this.entityService.createEntity(newEntity)
+          .subscribe(res => {
+            if (res) {
+              console.log(res);
+              this.matSnack.open('Entity created successfully');
+              /!*u.patchValue(res);
+              u.get('email').clearAsyncValidators();
+              u.get('email').disable();
+              u.get('updatedBy').setValue('existing');*!/
+            } else {
+              const sb = this.matSnack.open('Entity not created successfully', 'retry');
+              sb.onAction().subscribe(() => {
+                this.submitEntity(i);
+              });
+            }
+          }, err => {
+            const sb = this.matSnack.open('User not created successfully', 'retry');
+            sb.onAction().subscribe(() => {
+              this.submitUser(i);
             });
             console.log(err);
           });*/

@@ -568,7 +568,7 @@
                       </mat-form-field>
                       <br>
                       <mat-form-field class="example-chip-list innerFormFields">
-                        <mat-chip-list #chipList ngDefaultControl [errorStateMatcher]="matcher" [formControl]="entities.at(i).get('contactPerson')">
+                        <mat-chip-list #chipList ngDefaultControl [errorStateMatcher]="matcher" [formControl]="entities.at(i).get('contacts')">
                           <mat-chip
                             *ngFor="let con of contactsForEntities"
                             [selectable]="selectable"
@@ -580,9 +580,9 @@
                           <input
                             placeholder="Contact Person/s *"
                             #conPersonInput
-                            formControlName="contactPerson"
-                            (focus)="onFocus()"
-                            (click)="onFocus()"
+                            formControlName="contacts"
+                            (focus)="onFocus(i)"
+                            (click)="onFocus(i)"
                             [matAutocomplete]="auto"
                             [matChipInputFor]="chipList"
                             [matChipInputSeparatorKeyCodes]="separatorKeysCodes">
@@ -595,7 +595,42 @@
                             {{con.name}}
                           </mat-option>
                         </mat-autocomplete>
-                        <mat-error>Select one entity as a reference.</mat-error>
+                        <mat-error *ngIf="entities.at(i).get('contacts').touched && entities.at(i).get('conPersChips').value.length < 1">
+                          Select at least one contact person as a reference.
+                        </mat-error>
+                      </mat-form-field>
+                      <br>
+                      <mat-form-field class="example-chip-list innerFormFields">
+                        <mat-chip-list #chipList ngDefaultControl [errorStateMatcher]="matcher" [formControl]="entities.at(i).get('contacts')">
+                          <mat-chip
+                            *ngFor="let con of contactsForEntities"
+                            [selectable]="selectable"
+                            [removable]="removable"
+                            (removed)="removeContactPerson(con, i)">
+                            {{con.name.split(' ')[0]}}
+                            <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+                          </mat-chip>
+                          <input
+                            placeholder="Contact Person/s *"
+                            #conPersonInput
+                            formControlName="contacts"
+                            (focus)="onFocus(i)"
+                            (click)="onFocus(i)"
+                            [matAutocomplete]="auto"
+                            [matChipInputFor]="chipList"
+                            [matChipInputSeparatorKeyCodes]="separatorKeysCodes">
+                          <span *ngIf="loaderService.isLoading | async" matSuffix>
+                            <i class="fas fa-spinner fa-spin"></i>
+                          </span>
+                        </mat-chip-list>
+                        <mat-autocomplete #auto="matAutocomplete" #autoTrigger (optionSelected)="selectedContactPerson($event, i)">
+                          <mat-option *ngFor="let con of filteredContacts | async" [value]="con._id">
+                            {{con.name}}
+                          </mat-option>
+                        </mat-autocomplete>
+                        <mat-error *ngIf="entities.at(i).get('contacts').touched && entities.at(i).get('conPersChips').value.length < 1">
+                          Select at least one contact person as a reference.
+                        </mat-error>
                       </mat-form-field>
                       <br>
                       <div class="btn-group" role="group" aria-label="action buttons" style="margin-top: 5px;">

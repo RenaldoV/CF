@@ -1,10 +1,10 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {AbstractControl, FormArray, FormBuilder, FormGroup, ValidationErrors, Validators} from '@angular/forms';
 import {MAT_DIALOG_DATA, MatDialogRef, MatSnackBar} from '@angular/material';
-import {LoaderService} from '../../Common/Loader';
+import {LoaderService} from '../../Common/Loader/index';
 import {AdminService} from '../../Admin/admin.service';
 import {GlobalValidators} from '../../Common/Validators/globalValidators';
-import {ContactService} from '../../Contact/contact.service';
+import {ContactService} from '../contact.service';
 
 @Component({
   selector: 'app-add-contact-dialog',
@@ -26,11 +26,13 @@ export class AddContactDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
     this.createContactsForm();
-    if (data) {
+    if (data.email) {
       this.existing = true;
       this.contactForm.patchValue(data);
       this.email.clearAsyncValidators();
       this.email.updateValueAndValidity();
+    } else if (data.name) {
+      this.contactForm.patchValue(data);
     }
   }
 

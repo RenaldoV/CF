@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { EntityFormComponent } from './entity-form.component';
+import { AddContactDialogComponent } from './add-contact-dialog.component';
 
-describe('EntityFormComponent', () => {
-  let component: EntityFormComponent;
-  let fixture: ComponentFixture<EntityFormComponent>;
+describe('AddEntityDialogComponent', () => {
+  let component: AddContactDialogComponent;
+  let fixture: ComponentFixture<AddContactDialogComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ EntityFormComponent ]
+      declarations: [ AddContactDialogComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(EntityFormComponent);
+    fixture = TestBed.createComponent(AddContactDialogComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

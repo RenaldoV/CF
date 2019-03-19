@@ -15,7 +15,7 @@ import {
   MatChipInputEvent,
   MatAutocomplete, MatAutocompleteTrigger, ErrorStateMatcher
 } from '@angular/material';
-import {AddContactDialogComponent} from '../add-contact-dialog/add-contact-dialog.component';
+import {AddContactDialogComponent} from '../../Contact/add-contact-dialog/add-contact-dialog.component';
 import {LoaderService} from '../../Common/Loader';
 import {FileService} from '../file.service';
 import {ContactService} from '../../Contact/contact.service';
@@ -270,7 +270,7 @@ export class AddFileComponent implements OnInit {
       /*action: ['', Validators.required],*/
       refUser: [''],
       secChips: ['', Validators.required],
-      milestoneList: ['', Validators.required], // TODO: get milestone lists from DB
+      milestoneList: ['', Validators.required],
       bank: ['']
     });
   }
@@ -356,7 +356,6 @@ export class AddFileComponent implements OnInit {
     const dialConfig = new MatDialogConfig();
     dialConfig.disableClose = true;
     dialConfig.autoFocus = true;
-    dialConfig.minWidth = 200;
     const dialogRef = this.dialog.open(AddContactDialogComponent, dialConfig);
     dialogRef.afterClosed().subscribe(res => {
       if (res) {

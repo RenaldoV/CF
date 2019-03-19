@@ -6,7 +6,7 @@ const Entity = new Schema({
     address: String,
     files: [{type: Schema.Types.ObjectId, ref: 'File'}],
     telephone: String,
-    contactPerson: {type: Schema.Types.ObjectId, ref: 'Contact'},
+    contacts: [{type: Schema.Types.ObjectId, ref: 'Contact'}],
     website: String
   },
   {
