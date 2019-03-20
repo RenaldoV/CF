@@ -23,4 +23,13 @@ export class EntityService {
     headers.set('Content-Type', 'application/json');
     return this.http.post<any>(`${this.host}/addEntity`, {entity: e});
   }
+  getAllEntities() {
+    return this.http.get<any>(`${this.host}/entities`);
+  }
+  deleteEntity(id) {
+    return this.http.delete<any>(`${this.host}/entity/${id}`);
+  }
+  updateEntity(e) {
+    return this.http.post<any>(`${this.host}/updateEntity`, {entity: e});
+  }
 }

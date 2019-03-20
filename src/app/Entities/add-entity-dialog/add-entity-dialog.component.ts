@@ -16,6 +16,8 @@ import {COMMA, ENTER} from '@angular/cdk/keycodes';
 import {Observable} from 'rxjs/index';
 import {AddContactDialogComponent} from '../../Contact/add-contact-dialog/add-contact-dialog.component';
 import {map, startWith} from 'rxjs/operators';
+import {FileService} from '../../Files/file.service';
+import {EntityService} from '../entity.service';
 
 @Component({
   selector: 'app-add-entity-dialog',
@@ -29,7 +31,6 @@ export class AddEntityDialogComponent implements OnInit {
   visible = true;
   selectable = true;
   removable = true;
-  addOnBlur = true;
   separatorKeysCodes: number[] = [ENTER, COMMA];
   filteredContacts: Observable<any[]>;
   allContacts: any[] = [];
@@ -37,18 +38,28 @@ export class AddEntityDialogComponent implements OnInit {
   matcher = new ErrorStateMatcher();
   @ViewChild('conPersonInput') conPersonInput: ElementRef<HTMLInputElement>;
   @ViewChild('auto') conPersonAutoComp: MatAutocomplete;
-  @ViewChild(MatAutocompleteTrigger) conInput: MatAutocompleteTrigger;
+  @ViewChild('conTrigger') conInput: MatAutocompleteTrigger;
+
+  filteredFiles: Observable<any[]>;
+  allFiles: any[] = [];
+  selectedFiles: any[] = [];
+  @ViewChild('fileInput') fileInput: ElementRef<HTMLInputElement>;
+  @ViewChild('autoFiles') autoFiles: MatAutocomplete;
+  @ViewChild('fileTrigger') fileInputTrigger: MatAutocompleteTrigger;
 
   constructor(
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<AddEntityDialogComponent>,
     public loaderService: LoaderService,
     private adminService: AdminService,
+    private fileService: FileService,
+    private entityService: EntityService,
     private contactService: ContactService,
     private matSnack: MatSnackBar,
     private dialog: MatDialog,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
+    console.log(this.data);
     if (this.data.entity) {
       this.existing = true;
     }
@@ -57,25 +68,32 @@ export class AddEntityDialogComponent implements OnInit {
     } else {
       this.getContacts();
     }
+    this.getFiles();
     this.createEntityForm();
+    if (this.existing) {
+      this.patchEntity();
+    }
   }
 
   ngOnInit() {
   }
-
   close() {
     this.dialogRef.close();
   }
+  getFiles() {
+    this.fileService.getAllFileNames()
+      .subscribe(res => {
+        this.allFiles = res;
+        this.filteredFiles = this.files.valueChanges.pipe(
+          startWith(null),
+          map((f: string | null) => f ? this._filteredFiles(f) : this._filteredFiles('')));
+      });
+  }
   getContacts() {
-    this.contactService.getContacts()
+    this.contactService.getAllContactNames()
       .subscribe(res => {
         if (res) {
-          this.allContacts = res.map(c => {
-            return {
-              name: c.name + ' ' + c.surname,
-              _id: c._id
-            };
-          });
+          this.allContacts = res;
           this.filteredContacts = this.contacts.valueChanges.pipe(
             startWith(null),
             map((con: string | null) => con ? this._filteredContacts(con) : this._filteredContacts('')));
@@ -86,6 +104,7 @@ export class AddEntityDialogComponent implements OnInit {
   }
   createEntityForm() {
     this.entityForm = this.fb.group({
+      _id: [],
       name: ['', Validators.required],
       address: ['', Validators.required],
       telephone: ['', [Validators.required, GlobalValidators.cellRegex]],
@@ -93,8 +112,15 @@ export class AddEntityDialogComponent implements OnInit {
       conPersChips: ['', Validators.required], // used for chips control
       website: ['', Validators.required],
       files: [''],
-      updatedBy: [this.existing ? 'existing' : 'new']
+      fileChips: ['']
     });
+  }
+  patchEntity() {
+    this.entityForm.patchValue(this.data.entity);
+    this.contactsForEntities = this.data.entity.contacts;
+    this.conPersChips.setValue(this.contactsForEntities);
+    this.selectedFiles = this.data.entity.files;
+    this.fileChips.setValue(this.selectedFiles);
   }
   get name() {
     return this.entityForm.get('name');
@@ -111,6 +137,9 @@ export class AddEntityDialogComponent implements OnInit {
   get website() {
     return this.entityForm.get('website');
   }
+  get fileChips() {
+    return this.entityForm.get('fileChips');
+  }
   get files() {
     return this.entityForm.get('files');
   }
@@ -126,7 +155,7 @@ export class AddEntityDialogComponent implements OnInit {
     }
     return results;
   }
-  removeContactPerson(sec, i): void {
+  removeContactPerson(sec): void {
     const index = this.contactsForEntities.indexOf(sec);
 
     if (index >= 0) {
@@ -158,9 +187,33 @@ export class AddEntityDialogComponent implements OnInit {
       this.contacts.updateValueAndValidity();
     }
   }
+  private _filteredFiles(value: string): string[] {
+    const fileNames = this.selectedFiles.map(f => f.fileRef);
+    const filterValue = value.toLowerCase();
+    return this.allFiles.filter(f => f.fileRef.toLowerCase().indexOf(filterValue) === 0 && fileNames.indexOf(f.fileRef) === -1);
+  }
+  removeFile(f): void {
+    const index = this.selectedFiles.indexOf(f);
+
+    if (index >= 0) {
+      this.selectedFiles.splice(index, 1);
+      this.fileChips.setValue(this.selectedFiles);
+    }
+  }
+  selectedFile(event: MatAutocompleteSelectedEvent): void {
+    const selectedF = {_id: event.option.value, fileRef: event.option.viewValue};
+    this.selectedFiles.push(selectedF);
+    this.fileInput.nativeElement.value = '';
+    this.files.setValue(null);
+    this.fileChips.setValue(this.selectedFiles);
+  }
   onFocus() {
     this.conInput._onChange('');
     this.conInput.openPanel();
+  }
+  onFileFocus() {
+    this.fileInputTrigger._onChange('');
+    this.fileInputTrigger.openPanel();
   }
   createNewContactDialog(contact) {
     const dialConfig = new MatDialogConfig();
@@ -178,13 +231,78 @@ export class AddEntityDialogComponent implements OnInit {
         this.conPersonInput.nativeElement.value = '';
         this.contacts.setValue(null);
         this.conPersChips.setValue(this.contactsForEntities);
+        this.filteredContacts = this.contacts.valueChanges.pipe(
+          startWith(null),
+          map((con: string | null) => con ? this._filteredContacts(con) : this._filteredContacts('')));
         this.contacts.clearValidators();
         this.contacts.updateValueAndValidity();
       }
     });
   }
   submitEntity() {
+    const e = this.entityForm;
+    if (e.valid) {
+      const newEntity = e.value;
+      delete newEntity._id;
+      delete newEntity.updatedBy;
+      newEntity.contacts = newEntity.conPersChips.map(c => c._id);
+      newEntity.files = newEntity.fileChips.map(f => f._id);
+      delete newEntity.conPersChips;
+      delete newEntity.fileChips;
+      if (!newEntity.files) {
+        newEntity.files = [];
+      }
+      this.entityService.createEntity(newEntity)
+        .subscribe(res => {
+          if (res) {
+            console.log(res);
+            this.matSnack.open('Entity created successfully');
+            this.dialogRef.close(res);
+          } else {
+            const sb = this.matSnack.open('Entity not created successfully', 'retry');
+            sb.onAction().subscribe(() => {
+              this.submitEntity();
+            });
+          }
+        }, err => {
+          const sb = this.matSnack.open('Entity not created successfully', 'retry');
+          sb.onAction().subscribe(() => {
+            this.submitEntity();
+          });
+          console.log(err);
+        });
+    }
   }
   updateEntity() {
+    const e = this.entityForm;
+    if (e.valid) {
+      const newEntity = e.value;
+      delete newEntity.updatedBy;
+      newEntity.contacts = newEntity.conPersChips.map(c => c._id);
+      newEntity.files = newEntity.fileChips.map(f => f._id);
+      delete newEntity.conPersChips;
+      delete newEntity.fileChips;
+      if (!newEntity.files) {
+        newEntity.files = [];
+      }
+      this.entityService.updateEntity(newEntity)
+        .subscribe(res => {
+          if (res) {
+            this.matSnack.open('Entity updated successfully');
+            this.dialogRef.close(res);
+          } else {
+            const sb = this.matSnack.open('Entity not updated successfully', 'retry');
+            sb.onAction().subscribe(() => {
+              this.updateEntity();
+            });
+          }
+        }, err => {
+          const sb = this.matSnack.open('Entity not updated successfully', 'retry');
+          sb.onAction().subscribe(() => {
+            this.updateEntity();
+          });
+          console.log(err);
+        });
+    }
   }
 }

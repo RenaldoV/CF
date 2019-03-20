@@ -669,6 +669,19 @@ userRoutes.route('/contacts/:id').get((req, res, next) => {
     }
   });
 });
+userRoutes.route('/contactNames').get((req, res, next) => {
+  Contact.find({}, 'name surname', (err, contacts) => {
+    if(err) next(err);
+    else {
+      res.send(contacts.map(c => {
+        return {
+          name: c.name + ' ' + c.surname,
+          _id: c._id
+        }
+      }))
+    }
+  });
+});
 userRoutes.route('/deleteContact').post((req, res, next) => {
   const cid = req.body.cid;
   const uid = req.body.uid;
@@ -1328,6 +1341,14 @@ userRoutes.route('/addComment').post((req, res, next) => {
       }
   })
 });
+userRoutes.route('/allFileNames').get((req, res, next) => {
+  File.find({}, 'fileRef', (err, files) => {
+    if(err) next(err);
+    else {
+      res.send(files);
+    }
+  })
+});
 // ============================ FILE ROUTES  ===========================
 // ============================ ENTITY ROUTES  =========================
 userRoutes.route('/addEntity').post((req, res, next) => {
@@ -1335,7 +1356,79 @@ userRoutes.route('/addEntity').post((req, res, next) => {
   Entity.create(entity, (err, e) => {
     if (err) return next(err);
     else {
+      Entity.populate(e, [
+        {
+          path: 'contacts',
+          select: {'name': 1, 'surname': 1, 'type': 1}
+        },
+        {
+          path: 'files',
+          select: {'fileRef': 1, 'milestoneList._id': 1},
+          populate: {
+            path: 'milestoneList._id',
+            select: {'title': 1}
+          }
+        }
+      ], (err, entity) => {
+        if(err) next(err);
+        console.log(entity);
+        res.send(entity);
+      });
+
+    }
+  })
+});
+userRoutes.route('/entities').get((req, res, next) => {
+  Entity.find({})
+    .populate('contacts', 'name surname')
+    .populate({
+      path: 'files',
+      select: {'fileRef': 1, 'milestoneList._id': 1},
+      populate: {
+        path: 'milestoneList._id',
+        select: {'title': 1}
+      }
+    })
+    .exec((err, e) => {
+    if (err) return next(err);
+    else {
       res.send(e);
+    }
+  })
+});
+userRoutes.route('/entity/:id').delete((req, res, next) => {
+  const id = req.params.id;
+  Entity.findByIdAndRemove(id, (err, result) => {
+    if(err) next(err);
+    else if(result) {
+      res.send(true);
+    } else {
+      res.send(false);
+    }
+  })
+});
+userRoutes.route('/updateEntity').post((req, res, next) => {
+  let entity = req.body.entity;
+  Entity.findByIdAndUpdate(entity._id, entity, {new: true}, (err, e) => {
+    if (err) return next(err);
+    else {
+      Entity.populate(e, [
+        {
+          path: 'contacts',
+          select: {'name': 1, 'surname': 1, 'type': 1}
+        },
+        {
+          path: 'files',
+          select: {'fileRef': 1, 'milestoneList._id': 1},
+          populate: {
+            path: 'milestoneList._id',
+            select: {'title': 1}
+          }
+        }
+      ], (err, entity) => {
+        if(err) next(err);
+        res.send(entity);
+      });
     }
   })
 });

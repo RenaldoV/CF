@@ -66,6 +66,10 @@ export class ContactService {
     const url = `${this.host}/contacts/` + uid;
     return this.http.get(url);
   }
+  getAllContactNames() {
+    const url = `${this.host}/contactNames`;
+    return this.http.get<any>(url);
+  }
   getContactByEmail(email): Observable<any> {
     let uid;
     if (this.auth.isTopLevelUser()) {

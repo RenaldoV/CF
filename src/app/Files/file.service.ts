@@ -63,5 +63,8 @@ export class FileService {
     const uid = this.auth.getID();
     return this.http.post<any>(`${this.host}/updateFile`, {file: f, uid: uid});
   }
+  getAllFileNames() {
+    return this.http.get<any>(`${this.host}/allFileNames`, {});
+  }
 
 }

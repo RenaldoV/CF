@@ -54,6 +54,7 @@
         <input
           placeholder="Contact Person/s *"
           #conPersonInput
+          #conTrigger="matAutocompleteTrigger"
           formControlName="contacts"
           (focus)="onFocus()"
           (click)="onFocus()"
@@ -64,7 +65,7 @@
                             <i class="fas fa-spinner fa-spin"></i>
                           </span>
       </mat-chip-list>
-      <mat-autocomplete #auto="matAutocomplete" #autoTrigger (optionSelected)="selectedContactPerson($event)">
+      <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectedContactPerson($event)">
         <mat-option *ngFor="let con of filteredContacts | async" [value]="con._id">
           {{con.name}}
         </mat-option>
@@ -72,6 +73,37 @@
       <mat-error *ngIf="contacts.touched && conPersChips.value.length < 1">
         Select at least one contact person as a reference.
       </mat-error>
+    </mat-form-field>
+    <br>
+    <mat-form-field class="example-chip-list innerFormFields">
+      <mat-chip-list #fileChipList ngDefaultControl [errorStateMatcher]="matcher" [formControl]="files">
+        <mat-chip
+          *ngFor="let f of selectedFiles"
+          [selectable]="selectable"
+          [removable]="removable"
+          (removed)="removeFile(f)">
+          {{f.fileRef}}
+          <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+        </mat-chip>
+        <input
+          placeholder="Files (Search by file reference)"
+          #fileInput
+          #fileTrigger="matAutocompleteTrigger"
+          formControlName="files"
+          (focus)="onFileFocus()"
+          (click)="onFileFocus()"
+          [matAutocomplete]="autoFiles"
+          [matChipInputFor]="fileChipList"
+          [matChipInputSeparatorKeyCodes]="separatorKeysCodes">
+        <span *ngIf="loaderService.isLoading | async" matSuffix>
+                            <i class="fas fa-spinner fa-spin"></i>
+                          </span>
+      </mat-chip-list>
+      <mat-autocomplete #autoFiles="matAutocomplete" (optionSelected)="selectedFile($event)">
+        <mat-option *ngFor="let f of filteredFiles | async" [value]="f._id">
+          {{f.fileRef}}
+        </mat-option>
+      </mat-autocomplete>
     </mat-form-field>
     <br>
   </div>

@@ -40,25 +40,14 @@ export class AdminSetupComponent implements OnInit {
   PropertiesForm: FormGroup;
   ContactsForm: FormGroup;
   UsersForm: FormGroup;
-  EntitiesForm: FormGroup;
   EmailPropsForm: FormGroup;
   origContacts;
-  contactsCount = 10;
+  contactsCount = 0;
   // Used for dropdown on entity form
-  // Chips autocomplete
   visible = true;
-  selectable = true;
-  removable = true;
-  addOnBlur = true;
-  separatorKeysCodes: number[] = [ENTER, COMMA];
-  filteredContacts: Observable<any[]>;
   allContacts: any[] = [];
-  contactsForEntities: any[] = [];
-  matcher = new ErrorStateMatcher();
-  @ViewChild('conPersonInput') conPersonInput: ElementRef<HTMLInputElement>;
-  @ViewChild('auto') conPersonAutoComp: MatAutocomplete;
-  @ViewChild(MatAutocompleteTrigger) conInput: MatAutocompleteTrigger;
-  milestoneOpenState;
+  allEntities: any[] = [];
+
   constructor(
     private fb: FormBuilder,
     private adminService: AdminService,
@@ -79,7 +68,7 @@ export class AdminSetupComponent implements OnInit {
     this.getContacts();
     this.createUsersForm();
     this.getUsers();
-    this.createEntitiesForm();
+    this.getAllEntities();
   }
 
   ngOnInit() {}
@@ -593,17 +582,6 @@ export class AdminSetupComponent implements OnInit {
         if (res) {
           this.origContacts = res;
           this.patchContacts(res.slice(0, this.contactsCount));
-          this.allContacts = res.map(c => {
-            return {
-              name: c.name + ' ' + c.surname,
-              _id: c._id
-            };
-          });
-          for (const entity of this.entities.controls) {
-            this.filteredContacts = entity.get('contacts').valueChanges.pipe(
-              startWith(null),
-              map((con: string | null) => con ? this._filteredContacts(con) : this._filteredContacts('')));
-          }
         }
       }, err => {
         console.log(err);
@@ -676,29 +654,6 @@ export class AdminSetupComponent implements OnInit {
       console.log('setting contact as updated');
       ct.get('updatedBy').setValue('updated');
     }
-  }
-  createNewContactDialog(contact, i) {
-    const dialConfig = new MatDialogConfig();
-    dialConfig.disableClose = true;
-    dialConfig.autoFocus = true;
-    dialConfig.minWidth = 200;
-    dialConfig.data = contact;
-    const dialogRef = this.dialog.open(AddContactDialogComponent, dialConfig);
-    dialogRef.afterClosed().subscribe(res => {
-      if (res) {
-        console.log(res);
-        this.allContacts.push(res);
-        this.contactsForEntities.push({
-            name: res.name,
-            _id: res._id
-          });
-        this.conPersonInput.nativeElement.value = '';
-        this.entities.at(i).get('contacts').setValue(null);
-        this.entities.at(i).get('conPersChips').setValue(this.contactsForEntities);
-        this.entities.at(i).get('contacts').clearValidators();
-        this.entities.at(i).get('contacts').updateValueAndValidity();
-      }
-    });
   }
   submitContact(i) {
     const ct = this.contacts.at(i);
@@ -932,15 +887,13 @@ export class AdminSetupComponent implements OnInit {
   }
   // ================== USER FUNCTIONS ===================================
   // ================== ENTITY FUNCTIONS =================================
-  createEntitiesForm() {
-    this.EntitiesForm = this.fb.group({
-      entities: this.fb.array([])
-    });
+  getAllEntities() {
+    this.entityService.getAllEntities()
+      .subscribe(res => {
+        this.allEntities = res;
+      });
   }
-  get entities(): FormArray {
-    return this.EntitiesForm.get('entities') as FormArray;
-  }
-  addEntity(existing?) {
+  addEntity() {
     const dialConfig = new MatDialogConfig();
     dialConfig.disableClose = true;
     dialConfig.autoFocus = true;
@@ -950,142 +903,64 @@ export class AdminSetupComponent implements OnInit {
     const dialogRef = this.dialog.open(AddEntityDialogComponent, dialConfig);
     dialogRef.afterClosed().subscribe(res => {
       if (res) {
+        this.allEntities.push(res);
+      }
+    });
+  }
+  editEntity(e) {
+    const dialConfig = new MatDialogConfig();
+    dialConfig.disableClose = true;
+    dialConfig.autoFocus = true;
+    const body = {...e}; // deep copy
+    body.contacts = body.contacts.map(c => {
+      return {
+        _id: c._id,
+        name: c.name + ' ' + c.surname
+      };
+    });
+    body.files = body.files.map(f => {
+      return {
+        _id: f._id,
+        fileRef: f.fileRef
+      };
+    });
+    dialConfig.data = {
+      allContact: this.allContacts,
+      entity: body
+    };
+    const dialogRef = this.dialog.open(AddEntityDialogComponent, dialConfig);
+    dialogRef.afterClosed().subscribe(res => {
+      if (res) {
         console.log(res);
+        const index = this.allEntities.indexOf(e);
+        this.allEntities[index] = res;
       }
     });
-    /*const e = this.fb.group({
-      _id : [''],
-      name: ['', Validators.required],
-      address: ['', Validators.required],
-      telephone: ['', [Validators.required, GlobalValidators.cellRegex]],
-      contacts: ['', Validators.required], // array of contact ids
-      conPersChips: ['', Validators.required], // used for chips control
-      website: ['', Validators.required],
-      files: [''],
-      updatedBy: [existing ? 'existing' : 'new']
-    });
-    const arrayControl = <FormArray>this.entities;
-    this.filteredContacts = e.get('contacts').valueChanges.pipe(
-      startWith(null),
-      map((con: string | null) => con ? this._filteredContacts(con) : this._filteredContacts('')));
-    arrayControl.push(e);*/
   }
-  private _filteredContacts(value: string): string[] {
-    const conNames = this.contactsForEntities.map(c => c.name);
-    const filterValue = value.toLowerCase();
-    let results = this.allContacts.filter(con => con.name.toLowerCase().indexOf(filterValue) === 0 && conNames.indexOf(con.name) === -1);
-    if (results.length < 1) { // contact doesn't exist create new one.
-      results = [{name: 'Would you like to add *' + value + '* as a new contact?', _id: 'new'}];
-    }
-    return results;
-  }
-  removeContactPerson(sec, i): void {
-    const index = this.contactsForEntities.indexOf(sec);
-
-    if (index >= 0) {
-      this.contactsForEntities.splice(index, 1);
-      this.entities.at(i).get('conPersChips').setValue(this.contactsForEntities);
-    }
-    if (this.entities.at(i).get('conPersChips').value.length < 1) {
-      // no contacts chosen show error
-      this.entities.at(i).get('contacts').setValidators(Validators.required);
-      this.entities.at(i).get('contacts').updateValueAndValidity();
-    }
-  }
-  selectedContactPerson(event: MatAutocompleteSelectedEvent, i): void {
-      const selectedCon = {_id: event.option.value, name: event.option.viewValue};
-      if (selectedCon._id === 'new') { // contact doesn't exist, create new
-        const contactArr = selectedCon.name.split('*');
-        const nameArr = contactArr[1].split(' ');
-        const contact = {
-          name: nameArr[0],
-          surname: nameArr.length > 1 ? nameArr[1] : ''
-        };
-        this.createNewContactDialog(contact, i);
-      } else {
-        this.contactsForEntities.push(selectedCon);
-        this.conPersonInput.nativeElement.value = '';
-        this.entities.at(i).get('contacts').setValue(null);
-        this.entities.at(i).get('conPersChips').setValue(this.contactsForEntities);
-        this.entities.at(i).get('contacts').clearValidators();
-        this.entities.at(i).get('contacts').updateValueAndValidity();
-      }
-  }
-  onFocus(i) {
-    this.conInput._onChange('');
-    this.conInput.openPanel();
-  }
-  removeEntity(event, i) {
-    event.stopPropagation();
-    event.preventDefault();
-    const e = this.entities.at(i);
-    if (confirm('Are you sure you want to delete ' +
-      (e.get('name').value ? e.get('name').value : 'this entity') + ' from your entities list?')) {
-      const control = <FormArray>this.entities;
-      if (e.value.updatedBy === 'new') {
-        control.removeAt(i);
-        this.matSnack.open('Entity removed successfully');
-      } else {
-        /*this.auth.deleteUser(u.value._id)
-          .subscribe(res => {
-            if (res) {
-              this.matSnack.open('User removed successfully');
-              control.removeAt(i);
-            } else {
-              const sb = this.matSnack.open('User not removed successful', 'retry');
-              sb.onAction().subscribe(() => {
-                this.removeUser(e, i);
-              });
-            }
-          }, err => {
-            const sb = this.matSnack.open('User not removed successful', 'retry');
-            sb.onAction().subscribe(() => {
-              this.removeUser(e, i);
+  removeEntity(e) {
+    if (confirm('Are you sure you want to delete ' + e.name + ' from your entities list?')) {
+      this.entityService.deleteEntity(e._id)
+        .subscribe(res => {
+          if (res) {
+            this.matSnack.open('Entity deleted successfully');
+            this.allEntities = this.allEntities.filter(entity => {
+              return entity._id !== e._id;
             });
-            console.log(err);
-          });*/
-      }
-    }
-  }
-  submitEntity(i) {
-    const e = this.entities.at(i);
-    if (this.EntitiesForm.valid) {
-      if (e.value.updatedBy === 'new') {
-        const newEntity = e.value;
-        delete newEntity._id;
-        delete newEntity.updatedBy;
-        newEntity.contacts = newEntity.conPersChips.map(c => c._id);
-        delete newEntity.conPersChips;
-        if (!newEntity.files) {
-          newEntity.files = [];
-        }
-        console.log(newEntity);
-        /*this.entityService.createEntity(newEntity)
-          .subscribe(res => {
-            if (res) {
-              console.log(res);
-              this.matSnack.open('Entity created successfully');
-              /!*u.patchValue(res);
-              u.get('email').clearAsyncValidators();
-              u.get('email').disable();
-              u.get('updatedBy').setValue('existing');*!/
-            } else {
-              const sb = this.matSnack.open('Entity not created successfully', 'retry');
-              sb.onAction().subscribe(() => {
-                this.submitEntity(i);
-              });
-            }
-          }, err => {
-            const sb = this.matSnack.open('User not created successfully', 'retry');
+          } else {
+            const sb = this.matSnack.open('Entity not deleted successfully', 'retry');
             sb.onAction().subscribe(() => {
-              this.submitUser(i);
+              this.removeEntity(e);
             });
-            console.log(err);
-          });*/
-      }
+          }
+        }, err => {
+          const sb = this.matSnack.open('Entity not deleted successfully', 'retry');
+          sb.onAction().subscribe(() => {
+            this.removeEntity(e);
+          });
+        });
     }
   }
 
-  // TODO: disable save buttons if nothings has changed or is not new.
+  // TODO: Take out forms and make static content. Use dialog forms for adding and updating
   // TODO: BUG when adding user form before proper load -> doesn't set updated properly
 }

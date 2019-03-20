@@ -15,7 +15,7 @@ import {
   MatFormFieldModule, MatIconModule,
   MatInputModule, MatMenuModule, MatPaginatorModule, MatRadioModule,
   MatSelectModule, MatSnackBarModule, MatSortModule,
-  MatStepperModule, MatTableModule, MatTooltipModule
+  MatStepperModule, MatTableModule, MatTabsModule, MatTooltipModule
 } from '@angular/material';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { AdminHomeComponent } from './Admin/admin-home/admin-home.component';
@@ -91,6 +91,7 @@ import { AddEntityDialogComponent } from './Entities/add-entity-dialog/add-entit
     MatCardModule,
     MomentModule,
     DragDropModule,
+    MatTabsModule,
     BrowserModule,
     HttpClientModule,
     AppRoutingModule,
