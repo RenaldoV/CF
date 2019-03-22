@@ -4,6 +4,8 @@ import {AdminService} from '../admin.service';
 import {LoaderService} from '../../Common/Loader';
 import {FileService} from '../../Files/file.service';
 import {Router} from '@angular/router';
+import {MatDialog, MatDialogConfig} from '@angular/material';
+import {AddEntityDialogComponent} from '../../Entities/add-entity-dialog/add-entity-dialog.component';
 @Component({
   selector: 'app-admin-home',
   templateUrl: './admin-home.component.html',
@@ -16,7 +18,8 @@ export class AdminHomeComponent implements OnInit {
     private adminService: AdminService,
     public loaderService: LoaderService,
     public fileService: FileService,
-    private router: Router
+    private router: Router,
+    private dialog: MatDialog
   ) {
     this.fileService.getMyFiles()
       .subscribe(res => {
@@ -36,6 +39,17 @@ export class AdminHomeComponent implements OnInit {
   }
 
   ngOnInit() {
+  }
+
+  addNewContact() {
+
+  }
+  addNewEntity() {
+    const dialConfig = new MatDialogConfig();
+    dialConfig.disableClose = true;
+    dialConfig.autoFocus = true;
+    const dialogRef = this.dialog.open(AddEntityDialogComponent, dialConfig);
+    dialogRef.afterClosed().subscribe();
   }
 
 }

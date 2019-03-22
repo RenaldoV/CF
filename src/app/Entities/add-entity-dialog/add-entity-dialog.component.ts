@@ -59,12 +59,15 @@ export class AddEntityDialogComponent implements OnInit {
     private dialog: MatDialog,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
-    console.log(this.data);
-    if (this.data.entity) {
-      this.existing = true;
-    }
-    if (this.data.allContacts) {
-      this.allContacts = this.data.allContacts;
+    if (this.data) {
+      if (this.data.entity) {
+        this.existing = true;
+      }
+      if (this.data.allContacts) {
+        this.allContacts = this.data.allContacts;
+      } else {
+        this.getContacts();
+      }
     } else {
       this.getContacts();
     }

@@ -1047,38 +1047,30 @@ userRoutes.route('/updateFile').post((req, res, next) => {
 userRoutes.route('/files/:id').get((req, res, next) => {
   // get user's Files
   const id = req.params.id;
-  User.findById(id, 'files').exec((err, user) => {
-    if(err) {
-      return next(err);
-    } else if (user) {
-      File.find({_id: {$in: user.files}})
-        .populate('milestoneList.milestones._id')
-        .populate('milestoneList._id', 'title')
-        .populate('milestoneList.milestones.updatedBy', 'name')
-        .populate('contacts', 'name surname title email cell type')
-        .populate('milestoneList.milestones.comments.user', 'name')
-        .populate('createdBy', 'name')
-        .populate('updatedBy', 'name')
-        .populate('refUser', 'name')
-        .sort({createdAt: -1})
-        .exec((er, files) => {
-        if (er) {
-          return next(er);
-        } else if (files) {
-          files.forEach(f => {
-            f.milestoneList.milestones.sort((a, b) => {
-              return a._id.number - b._id.number;
-            });
+  File.find({})
+    .populate('milestoneList.milestones._id')
+    .populate('milestoneList._id', 'title')
+    .populate('milestoneList.milestones.updatedBy', 'name')
+    .populate('contacts', 'name surname title email cell type')
+    .populate('milestoneList.milestones.comments.user', 'name')
+    .populate('createdBy', 'name')
+    .populate('updatedBy', 'name')
+    .populate('refUser', 'name')
+    .sort({createdAt: -1})
+    .exec((er, files) => {
+      if (er) {
+        return next(er);
+      } else if (files) {
+        files.forEach(f => {
+          f.milestoneList.milestones.sort((a, b) => {
+            return a._id.number - b._id.number;
           });
-          res.send(files);
-        } else {
-          res.send(false);
-        }
-      });
-    }else {
-      res.send(false);
-    }
-  });
+        });
+        res.send(files);
+      } else {
+        res.send(false);
+      }
+    });
 });
 userRoutes.route('/file/:id').get((req, res, next) => {
   const id = req.params.id;
