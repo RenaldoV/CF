@@ -32,4 +32,16 @@ export class EntityService {
   updateEntity(e) {
     return this.http.post<any>(`${this.host}/updateEntity`, {entity: e});
   }
+  entityExists(eName) {
+    return this.http.post<boolean>(`${this.host}/entityExists`, {name: eName});
+  }
+  entityNames() {
+    return this.http.get<any>(`${this.host}/entityNames`);
+  }
+  removeFileFromEntity(eId, fId) {
+    return this.http.post<boolean>(`${this.host}/removeFileFromEntity`, {eId: eId, fId: fId});
+  }
+  addFileToEntity(eId, fId) {
+    return this.http.post<boolean>(`${this.host}/addFileToEntity`, {eId: eId, fId: fId});
+  }
 }

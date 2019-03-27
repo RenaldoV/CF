@@ -991,10 +991,33 @@ userRoutes.route('/addFile').post((req, res, next) => {
         }
       });
     },
+    (file, usr, callback) => { // add file to entity
+      if (file.entity) {
+        Entity.findByIdAndUpdate(file.entity, {$push: {files: file._id}}, (err, en) => {
+          if(err) callback(err);
+          else {
+            callback(null, file, usr);
+          }
+        })
+      }
+    },
     (file, usr, callback) => { // get contacts and send out emails
-      File.findById(file._id).populate('contacts').populate('milestoneList._id', 'title').exec((error, f) => {
+      File.findById(file._id)
+        .populate('contacts')
+        .populate('milestoneList._id', 'title')
+        .populate({
+          path: 'entity',
+          select: 'contacts',
+          populate: {
+            path: 'contacts'
+          }
+        })
+        .exec((error, f) => {
         if(error) callback(error);
         else {
+          if(f.entity) {
+            f.contacts.push(...f.entity.contacts);
+          }
           const host = req.protocol + '://' + req.get('host');
           const fileURL = host  + '/file/' + encodeURI(file._id);
           const loginUrl = host + '/login/' + encodeURI(file._id);
@@ -1056,6 +1079,19 @@ userRoutes.route('/files/:id').get((req, res, next) => {
     .populate('createdBy', 'name')
     .populate('updatedBy', 'name')
     .populate('refUser', 'name')
+    .populate({ // to display entity on file
+      path: 'entity',
+      populate: {
+        path: 'contacts'
+      }
+    })
+    .populate({ // to have file info when editing entity
+      path: 'entity',
+      populate: {
+        path: 'files',
+        select: 'fileRef'
+      }
+    })
     .sort({createdAt: -1})
     .exec((er, files) => {
       if (er) {
@@ -1089,6 +1125,7 @@ userRoutes.route('/file/:id').get((req, res, next) => {
         select: {'company': 1, 'name': 1, 'surname': 1, 'email': 1}
       }})
     .populate('updatedBy', 'name')
+    .populate('entity', 'name')
     .exec((error, file) => {
     if(error) {
       return next(error);
@@ -1334,7 +1371,7 @@ userRoutes.route('/addComment').post((req, res, next) => {
   })
 });
 userRoutes.route('/allFileNames').get((req, res, next) => {
-  File.find({}, 'fileRef', (err, files) => {
+  File.find({entity: null}, 'fileRef', (err, files) => {
     if(err) next(err);
     else {
       res.send(files);
@@ -1348,25 +1385,55 @@ userRoutes.route('/addEntity').post((req, res, next) => {
   Entity.create(entity, (err, e) => {
     if (err) return next(err);
     else {
-      Entity.populate(e, [
-        {
-          path: 'contacts',
-          select: {'name': 1, 'surname': 1, 'type': 1}
-        },
-        {
-          path: 'files',
-          select: {'fileRef': 1, 'milestoneList._id': 1},
-          populate: {
-            path: 'milestoneList._id',
-            select: {'title': 1}
+      if (entity.files.length > 0) {
+        async.each(entity.files, (f, callback) => {
+          File.findByIdAndUpdate(f, {entity: e._id}, (err, f) => {
+            if (err) callback(err);
+            else {
+              callback();
+            }
+          })
+        }, (err) => {
+          if(err) next(err);
+          else {
+            Entity.populate(e, [
+              {
+                path: 'contacts',
+                select: {'name': 1, 'surname': 1, 'type': 1}
+              },
+              {
+                path: 'files',
+                select: {'fileRef': 1, 'milestoneList._id': 1},
+                populate: {
+                  path: 'milestoneList._id',
+                  select: {'title': 1}
+                }
+              }
+            ], (err, entity) => {
+              if(err) next(err);
+              res.send(entity);
+            });
           }
-        }
-      ], (err, entity) => {
-        if(err) next(err);
-        console.log(entity);
-        res.send(entity);
-      });
-
+        });
+      } else {
+        Entity.populate(e, [
+          {
+            path: 'contacts',
+            select: {'name': 1, 'surname': 1, 'type': 1}
+          },
+          {
+            path: 'files',
+            select: {'fileRef': 1, 'milestoneList._id': 1},
+            populate: {
+              path: 'milestoneList._id',
+              select: {'title': 1}
+            }
+          }
+        ], (err, entity) => {
+          if(err) next(err);
+          res.send(entity);
+        });
+      }
     }
   })
 });
@@ -1393,7 +1460,19 @@ userRoutes.route('/entity/:id').delete((req, res, next) => {
   Entity.findByIdAndRemove(id, (err, result) => {
     if(err) next(err);
     else if(result) {
-      res.send(true);
+      async.each(result.files, (fId, callback) => {
+        File.findByIdAndUpdate(fId, {entity: null}, (err, f) => {
+          if(err) callback(err);
+          else {
+            callback(null);
+          }
+        })
+      }, (err) => {
+        if(err) next(err);
+        else {
+          res.send(true);
+        }
+      });
     } else {
       res.send(false);
     }
@@ -1424,6 +1503,73 @@ userRoutes.route('/updateEntity').post((req, res, next) => {
     }
   })
 });
+userRoutes.route('/entityExists').post((req, res, next) => {
+  let entityName = req.body.name.toLowerCase().replace(/\s+/g, '');
+  let existing = false;
+  Entity.find({}, (err, entities) => {
+    if(err) next(err);
+    else if(entities) {
+      entities.forEach(e => {
+        let name = e.name.toLowerCase().replace(/\s+/g, '');
+        if(name === entityName) {
+          existing = true;
+        }
+      });
+      res.send(existing);
+    }
+  });
+});
+userRoutes.route('/entityNames').get((req, res, next) => {
+  Entity.find({}, 'name', (err, entities) => {
+    if(err) next(err);
+    else {
+      res.send(entities);
+    }
+  });
+});
+userRoutes.route('/removeFileFromEntity').post((req, res, next) => {
+  let eId = req.body.eId;
+  let fId = req.body.fId;
+  Entity.findByIdAndUpdate(eId, {$pull: {files: fId}})
+    .exec((err, ent) => {
+      if(err) next(err);
+      else if(ent) {
+        File.findByIdAndUpdate(fId, {entity: null})
+          .exec((err, f) => {
+            if(err) next(err);
+            else if(f) {
+              res.send(true);
+            } else {
+              res.send(false);
+            }
+          });
+      } else {
+        res.send(false);
+      }
+    })
+});
+userRoutes.route('/addFileToEntity').post((req, res, next) => {
+  let eId = req.body.eId;
+  let fId = req.body.fId;
+  Entity.findByIdAndUpdate(eId, {$push: {files: fId}})
+    .exec((err, ent) => {
+      if(err) next(err);
+      else if(ent) {
+        File.findByIdAndUpdate(fId, {entity: eId})
+          .exec((err, f) => {
+            if(err) next(err);
+            else if(f) {
+              res.send(true);
+            } else {
+              res.send(false);
+            }
+          });
+      } else {
+        res.send(false);
+      }
+    })
+});
+
 module.exports = userRoutes;
 
 function find(items, text) {

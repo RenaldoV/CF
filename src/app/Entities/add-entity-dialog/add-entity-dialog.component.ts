@@ -75,6 +75,13 @@ export class AddEntityDialogComponent implements OnInit {
     this.createEntityForm();
     if (this.existing) {
       this.patchEntity();
+      this.name.clearAsyncValidators();
+      this.name.updateValueAndValidity();
+    }
+    if (this.data) {
+      if (this.data.name) {
+        this.name.setValue(this.data.name);
+      }
     }
   }
 
@@ -197,18 +204,41 @@ export class AddEntityDialogComponent implements OnInit {
   }
   removeFile(f): void {
     const index = this.selectedFiles.indexOf(f);
-
-    if (index >= 0) {
-      this.selectedFiles.splice(index, 1);
-      this.fileChips.setValue(this.selectedFiles);
+    if (this.existing) { // remove file from entity and entity from file in backend
+      this.entityService.removeFileFromEntity(this.data.entity._id, f._id)
+        .subscribe(res => {
+          if (res) {
+            this.selectedFiles.splice(index, 1);
+            this.fileChips.setValue(this.selectedFiles);
+            this.matSnack.open('File successfully removed from entity');
+          }
+        });
+    } else {
+      if (index >= 0) {
+        this.selectedFiles.splice(index, 1);
+        this.fileChips.setValue(this.selectedFiles);
+      }
     }
   }
   selectedFile(event: MatAutocompleteSelectedEvent): void {
     const selectedF = {_id: event.option.value, fileRef: event.option.viewValue};
-    this.selectedFiles.push(selectedF);
-    this.fileInput.nativeElement.value = '';
-    this.files.setValue(null);
-    this.fileChips.setValue(this.selectedFiles);
+    if (this.existing) {
+      this.entityService.addFileToEntity(this.data.entity._id, selectedF._id)
+        .subscribe(res => {
+          if (res) {
+            this.selectedFiles.push(selectedF);
+            this.fileInput.nativeElement.value = '';
+            this.files.setValue(null);
+            this.fileChips.setValue(this.selectedFiles);
+            this.matSnack.open('File successfully added to entity');
+          }
+        });
+    } else {
+      this.selectedFiles.push(selectedF);
+      this.fileInput.nativeElement.value = '';
+      this.files.setValue(null);
+      this.fileChips.setValue(this.selectedFiles);
+    }
   }
   onFocus() {
     this.conInput._onChange('');
@@ -249,7 +279,9 @@ export class AddEntityDialogComponent implements OnInit {
       delete newEntity._id;
       delete newEntity.updatedBy;
       newEntity.contacts = newEntity.conPersChips.map(c => c._id);
-      newEntity.files = newEntity.fileChips.map(f => f._id);
+      if (newEntity.fileChips.length > 0) {
+        newEntity.files = newEntity.fileChips.map(f => f._id);
+      }
       delete newEntity.conPersChips;
       delete newEntity.fileChips;
       if (!newEntity.files) {
@@ -307,5 +339,40 @@ export class AddEntityDialogComponent implements OnInit {
           console.log(err);
         });
     }
+  }
+  onNameChange() {
+    if (this.existing) {
+      if (this.name.value !== this.data.name) {
+        this.name.setAsyncValidators(this.shouldBeUnique.bind(this));
+        this.name.updateValueAndValidity();
+      } else {
+        this.name.clearAsyncValidators();
+        this.name.updateValueAndValidity();
+      }
+    } else {
+      if (this.name.value !== '') {
+        this.name.setAsyncValidators(this.shouldBeUnique.bind(this));
+      } else {
+        this.name.clearAsyncValidators();
+      }
+    }
+  }
+  shouldBeUnique(control: AbstractControl): Promise<ValidationErrors> | null {
+    const q = new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (control.value === '') {
+          resolve(null);
+        } else {
+          this.entityService.entityExists(control.value).subscribe((res) => {
+            if (!res) {
+              resolve(null);
+            } else {
+              resolve({'nameNotUnique': true});
+            }
+          });
+        }
+      }, 100);
+    });
+    return q;
   }
 }

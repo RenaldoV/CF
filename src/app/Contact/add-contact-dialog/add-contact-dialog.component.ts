@@ -26,13 +26,15 @@ export class AddContactDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
     this.createContactsForm();
-    if (data.email) {
-      this.existing = true;
-      this.contactForm.patchValue(data);
-      this.email.clearAsyncValidators();
-      this.email.updateValueAndValidity();
-    } else if (data.name) {
-      this.contactForm.patchValue(data);
+    if (data) {
+      if (data.email) {
+        this.existing = true;
+        this.contactForm.patchValue(data);
+        this.email.clearAsyncValidators();
+        this.email.updateValueAndValidity();
+      } else if (data.name) {
+        this.contactForm.patchValue(data);
+      }
     }
   }
 

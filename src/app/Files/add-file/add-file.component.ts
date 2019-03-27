@@ -1,7 +1,7 @@
 import {COMMA, ENTER} from '@angular/cdk/keycodes';
 import {Component, OnChanges, OnInit, ElementRef, ViewChild} from '@angular/core';
 import { Router, ActivatedRoute, ParamMap } from '@angular/router';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import { Observable, Subject } from 'rxjs';
 import { map, startWith, switchMap } from 'rxjs/operators';
 import { AuthService } from '../../auth/auth.service';
@@ -19,6 +19,8 @@ import {AddContactDialogComponent} from '../../Contact/add-contact-dialog/add-co
 import {LoaderService} from '../../Common/Loader';
 import {FileService} from '../file.service';
 import {ContactService} from '../../Contact/contact.service';
+import {EntityService} from '../../Entities/entity.service';
+import {AddEntityDialogComponent} from '../../Entities/add-entity-dialog/add-entity-dialog.component';
 
 @Component({
   selector: 'app-add-file',
@@ -43,16 +45,23 @@ export class AddFileComponent implements OnInit {
   visible = true;
   selectable = true;
   removable = true;
-  addOnBlur = true;
   separatorKeysCodes: number[] = [ENTER, COMMA];
   filteredSecretaries: Observable<any[]>;
   allSecretaries: any[] = [];
   secretaries: any[] = [];
   matcher = new ErrorStateMatcher();
-  milestoneOpenState;
   @ViewChild('secInput') secretaryInput: ElementRef<HTMLInputElement>;
   @ViewChild('auto') secretaryAutoComp: MatAutocomplete;
-  @ViewChild(MatAutocompleteTrigger) secInput: MatAutocompleteTrigger;
+  @ViewChild('secTrigger') secInput: MatAutocompleteTrigger;
+  // Entity chips autocomplete
+  entity = new FormControl('');
+  entityChips = new FormControl('');
+  filteredEntities: Observable<any[]>;
+  allEntities: any[] = [];
+  selectedEntity: any[] = [];
+  @ViewChild('entityInput') entityInput: ElementRef<HTMLInputElement>;
+  @ViewChild('autoEntities') autoEntities: MatAutocomplete;
+  @ViewChild('enTrigger') enInputTrigger: MatAutocompleteTrigger;
   constructor(
     private fb: FormBuilder,
     private auth: AuthService,
@@ -63,7 +72,8 @@ export class AddFileComponent implements OnInit {
     private matSnack: MatSnackBar,
     private router: Router,
     private route: ActivatedRoute,
-    public loaderService: LoaderService
+    public loaderService: LoaderService,
+    public entityService: EntityService
   ) {
     this.createFileForm();
     this.createPropertyForm();
@@ -132,6 +142,17 @@ export class AddFileComponent implements OnInit {
     this.filteredSecretaries = this.refUser.valueChanges.pipe(
       startWith(null),
       map((sec: string | null) => sec ? this._filterSecretaries(sec) : this._filterSecretaries('')));
+    this.entityService.entityNames()
+      .subscribe(e => {
+        if (e) {
+          this.allEntities = e;
+        }
+      }, err => {
+        console.log(err);
+      });
+    this.filteredEntities = this.entity.valueChanges.pipe(
+      startWith(null),
+      map((en: string | null) => en ? this._filterEntities(en) : this._filterEntities('')));
   }
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
@@ -141,11 +162,16 @@ export class AddFileComponent implements OnInit {
         .subscribe(res => {
           if (res) {
             this.file = res;
+            console.log(this.file);
             this.propForm.patchValue(this.file);
             this.fileRef.setValue(this.file.fileRef);
             this.milestoneList.setValue(this.file.milestoneList._id._id);
             this.secretaries = this.file.refUser.map(s => ({name: s.name, _id: s._id}));
             this.secChips.setValue(this.secretaries);
+            if (this.file.entity) {
+              this.selectedEntity.push(this.file.entity);
+              this.entityChips.setValue(this.selectedEntity);
+            }
             if (this.file.bank) {
               this.bank.setValue(this.file.bank);
             }
@@ -397,6 +423,9 @@ export class AddFileComponent implements OnInit {
         this.propForm.value.refUser = this.secretaries.map(s => s._id);
         delete this.propForm.value.secChips;
         const file = {...this.fileForm.value, ...this.propForm.value, ...{'contacts': this.fileContactsList.map(ct => ct._id)}};
+        if (this.selectedEntity.length > 0) {
+          file.entity = this.selectedEntity[0]._id;
+        }
         this.fileService.createFile(file)
           .subscribe(res => {
             if (res) {
@@ -423,8 +452,16 @@ export class AddFileComponent implements OnInit {
     if (this.propForm.valid && this.fileForm.valid) {
       this.propForm.value.refUser = this.secretaries.map(s => s._id);
       delete this.propForm.value.secChips;
-      const file = {_id: this.route.snapshot.paramMap.get('id'), ...this.fileForm.value, ...this.propForm.value, ...{'contacts': this.fileContactsList.map(ct => ct._id)}};
-      console.log(file);
+      const file = {
+        _id: this.route.snapshot.paramMap.get('id'),
+        ...this.fileForm.value, ...this.propForm.value,
+        ...{'contacts': this.fileContactsList.map(ct => ct._id)}
+      };
+      if (this.selectedEntity.length > 0) {
+        file.entity = this.selectedEntity[0]._id;
+      } else {
+        file.entity = null;
+      }
       this.fileService.updateFile(file)
         .subscribe(res => {
           if (res) {
@@ -446,4 +483,77 @@ export class AddFileComponent implements OnInit {
       this.matSnack.open('Please check that all data is valid');
     }
   }
+  // ENTITY AUTOCOMPLETE FUNCTIONS
+  onEnFocus() {
+    this.enInputTrigger._onChange('');
+    this.enInputTrigger.openPanel();
+  }
+  private _filterEntities(value: string): string[] {
+    const filterValue = value.toLowerCase();
+    let results = this.allEntities.filter(en => en.name.toLowerCase().indexOf(filterValue) === 0);
+    if (results.length < 1 && filterValue !== '') { // entity doesn't exist create new one.
+      results = [{name: 'Would you like to add *' + value + '* as a new entity?', _id: 'new'}];
+    }
+    return results;
+  }
+  selectEntity(event: MatAutocompleteSelectedEvent): void {
+    if (this.selectedEntity.length > 0) {
+      this.matSnack.open('You can only associate one entity with a file');
+    } else {
+      const selectedEn = {_id: event.option.value, name: event.option.viewValue};
+      if (selectedEn._id === 'new') { // contact doesn't exist, create new
+        const enArr = selectedEn.name.split('*');
+        const name = enArr[1];
+        const ent = {
+          name: name
+        };
+        this.createNewEntityDialog(ent);
+      } else {
+        this.selectedEntity.push(selectedEn);
+        this.entityInput.nativeElement.value = '';
+        this.entity.setValue(null);
+        this.entityChips.setValue(this.selectedEntity);
+      }
+    }
+  }
+  createNewEntityDialog(en?) {
+    const dialConfig = new MatDialogConfig();
+    dialConfig.disableClose = true;
+    dialConfig.autoFocus = true;
+    dialConfig.data = en;
+    const dialogRef = this.dialog.open(AddEntityDialogComponent, dialConfig);
+    dialogRef.afterClosed().subscribe(res => {
+      if (res) {
+        this.allEntities.push(res);
+        this.selectedEntity.push({
+          name: res.name,
+          _id: res._id
+        });
+        this.entityInput.nativeElement.value = '';
+        this.entity.setValue(null);
+        this.entityChips.setValue(this.selectedEntity);
+      }
+    });
+  }
+  removeEntity(en): void {
+    const index = this.selectedEntity.indexOf(en);
+    if (this.file) {
+      this.entityService.removeFileFromEntity(en._id, this.file._id)
+        .subscribe(res => {
+          if (res) {
+            if (index >= 0) {
+              this.selectedEntity.splice(index, 1);
+              this.entityChips.setValue(this.selectedEntity);
+              this.matSnack.open('Entity removed successfully');
+            }
+          }
+        });
+    } else {
+      if (index >= 0) {
+        this.selectedEntity.splice(index, 1);
+        this.entityChips.setValue(this.selectedEntity);
+      }
+    }
+  }
+  // TODO: Update file, patch entity properly.
 }

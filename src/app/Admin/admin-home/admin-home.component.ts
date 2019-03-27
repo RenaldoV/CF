@@ -6,6 +6,7 @@ import {FileService} from '../../Files/file.service';
 import {Router} from '@angular/router';
 import {MatDialog, MatDialogConfig} from '@angular/material';
 import {AddEntityDialogComponent} from '../../Entities/add-entity-dialog/add-entity-dialog.component';
+import {AddContactDialogComponent} from '../../Contact/add-contact-dialog/add-contact-dialog.component';
 @Component({
   selector: 'app-admin-home',
   templateUrl: './admin-home.component.html',
@@ -40,15 +41,18 @@ export class AdminHomeComponent implements OnInit {
 
   ngOnInit() {
   }
-
-  addNewContact() {
-
-  }
   addNewEntity() {
     const dialConfig = new MatDialogConfig();
     dialConfig.disableClose = true;
     dialConfig.autoFocus = true;
     const dialogRef = this.dialog.open(AddEntityDialogComponent, dialConfig);
+    dialogRef.afterClosed().subscribe();
+  }
+  addNewContact() {
+    const dialConfig = new MatDialogConfig();
+    dialConfig.disableClose = true;
+    dialConfig.autoFocus = true;
+    const dialogRef = this.dialog.open(AddContactDialogComponent, dialConfig);
     dialogRef.afterClosed().subscribe();
   }
 

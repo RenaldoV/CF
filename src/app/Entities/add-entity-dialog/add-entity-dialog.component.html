@@ -5,9 +5,12 @@
 <mat-dialog-content [formGroup]="entityForm">
   <div style="margin-bottom: 10px;">
     <mat-form-field class="innerFormFields">
-      <input matInput placeholder="Entity Name" formControlName="name" required>
-      <mat-error>
+      <input (keyup)="onNameChange()" matInput placeholder="Entity Name" formControlName="name" required>
+      <mat-error *ngIf="name.hasError('required')">
         Entity name is required.
+      </mat-error>
+      <mat-error *ngIf="name.hasError('nameNotUnique')">
+        Entity with name {{name.value}} already exists.
       </mat-error>
     </mat-form-field>
     <br>
