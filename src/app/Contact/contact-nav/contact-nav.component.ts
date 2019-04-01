@@ -12,6 +12,8 @@ export class ContactNavComponent implements OnInit {
   fileref;
   fileID;
   userID;
+  entityID;
+  routeName;
   constructor(
     private auth: AuthService,
     private router: Router,
@@ -20,18 +22,29 @@ export class ContactNavComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.fileID = this.route.snapshot.paramMap.get('id');
-    this.userID = this.auth.getID();
-    this.fileService.getFileRef(this.fileID)
-      .subscribe(res => {
-        if (res.fileRef) {
-          this.fileref = res.fileRef;
-        }
-      });
+    this.routeName = this.router.url;
+    this.routeName = this.routeName.split('/')[1];
+    if (this.routeName === 'entity') {
+      this.entityID = this.route.snapshot.paramMap.get('id');
+      this.userID = this.auth.getID();
+    } else {
+      this.fileID = this.route.snapshot.paramMap.get('id');
+      this.userID = this.auth.getID();
+      this.fileService.getFileRef(this.fileID)
+        .subscribe(res => {
+          if (res.fileRef) {
+            this.fileref = res.fileRef;
+          }
+        });
+    }
   }
   logout() {
     this.auth.destroySession();
-    this.router.navigate(['/login', this.fileID, this.userID]);
+    if (this.entityID) {
+      this.router.navigate(['/entity-login', this.entityID, this.userID]);
+    } else {
+      this.router.navigate(['/login', this.fileID, this.userID]);
+    }
   }
   getName() {
     return this.auth.getName();

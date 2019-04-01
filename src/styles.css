@@ -94,8 +94,8 @@ mat-panel-description .mCheck {
 }
 
 .mat-badge-medium .mat-badge-content {
-  width: 27px!important;
-  height: 27px!important;
+  width: 28px!important;
+  height: 28px!important;
   line-height: 28px!important;
 }
 .mat-badge-medium.mat-badge-overlap.mat-badge-after .mat-badge-content {
@@ -104,3 +104,12 @@ mat-panel-description .mCheck {
 .mat-badge-medium.mat-badge-above .mat-badge-content {
   top: -15px;
 }
+
+.mat-tab-body.mat-tab-body-active {
+  overflow-y: hidden!important;
+}
+
+.mat-tab-body-content {
+  overflow: hidden!important;
+}
+

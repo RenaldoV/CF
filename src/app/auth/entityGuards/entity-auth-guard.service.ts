@@ -10,7 +10,7 @@ export class EntityAuthGuardService implements CanActivate {
     private auth: AuthService,
     private router: Router
   ) { }
-  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<boolean> | boolean {
+  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<any> | boolean {
     if (!this.auth.isAuthenticated()) {
       alert('You are not logged in. Please follow the link from your email to log in.');
       return new Promise((resolve, reject) => {

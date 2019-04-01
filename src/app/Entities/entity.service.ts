@@ -47,4 +47,7 @@ export class EntityService {
   getEntity(id) {
     return this.http.get<any>(`${this.host}/entity/${id}`);
   }
+  getEntityAndFiles(eId) {
+    return this.http.post<any>(`${this.host}/getEntity`, {eId: eId});
+  }
 }

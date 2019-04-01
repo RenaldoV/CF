@@ -1607,6 +1607,44 @@ userRoutes.route('/isEntity').post((req, res, next) => {
     }
   })
 });
+userRoutes.route('/getEntity').post((req, res, next) => {
+  let eId = req.body.eId;
+  Entity.findById(eId)
+    .populate({
+      path: 'files',
+      populate: [{
+        path: 'refUser',
+        select: 'name surname cell email'
+      }, {
+        path: 'milestoneList._id',
+        select: 'title'
+      }, {
+        path: 'milestoneList.milestones._id',
+        select: 'name'
+      }, {
+        path: 'milestoneList.milestones.updatedBy',
+        select: 'name'
+      }, {
+        path: 'milestoneList.milestones.updatedBy',
+        select: 'name'
+      }, {
+        path: 'milestoneList.milestones.comments.user',
+        select: 'name'
+      },  {
+        path: 'contacts',
+        select: 'name surname cell email type'
+      }]
+    })
+    .populate('contacts', 'name surname cell email type')
+    .exec((err, entity) => {
+      if(err) next(err);
+      else if(entity) {
+        res.send(entity);
+      } else {
+        res.send(false);
+      }
+  })
+});
 
 
 module.exports = userRoutes;

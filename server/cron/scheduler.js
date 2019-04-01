@@ -16,7 +16,7 @@ const mailer = new Mailer(config.emailHost, config.emailPort, config.fromEmail, 
 
 
 // TODO: When contact gets deleted it saves null in array of top level admin.
-// TODO: Test cron in every situation.
+// TODO: Scheduled mails to entities
 
 class Scheduler {
 
