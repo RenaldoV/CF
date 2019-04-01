@@ -47,11 +47,48 @@ class Sms {
   }
 
   commentMade(contact, comment, adminName, propDesc, milestone, footer) {
+    const preMessage = adminName + ' added a comment: ' + propDesc + '. ' + milestone + '. ';
+    let lengthPreComment = preMessage.length + footer.length + 2; // get length of sms body without comment
+    let totalLength = comment.length + lengthPreComment;
+    if ( totalLength > 740 ) {
+      console.log('total Length: ' + totalLength);
+      let overflow = totalLength - 740;
+      console.log('overflow: ' + overflow);
+      let cutIndice = comment.length - overflow;
+      comment = comment.substring(0, cutIndice);
+    }
     const message = adminName + ' added a comment: ' + propDesc + '. ' + milestone + '. ' + comment + '. ' + footer;
-    return this.send(contact, message);
+    console.log('final total length: ' + message.length);
+    return this.send(contact, message)
+      .then(res => {
+        // console.log(res);
+      }).catch(err => {
+        console.log(err);
+      });
   }
   // Helper function to determine if word starts with a vowel
-  getCredits () {} // TODO: implement get credits
+  getCredits () {
+    let promise = new Promise(function(resolve, reject) {
+      http.get('http://148.251.196.36/app/miscapi/' + config.smsAPIKey + '/getBalance/true/', (resp) => {
+
+        let data = '';
+
+        // A chunk of data has been recieved.
+        resp.on('data', (chunk) => {
+          data += chunk;
+        });
+
+        // The whole response has been received. Print out the result.
+        resp.on('end', () => {
+          resolve(data);
+        });
+
+      }).on("error", (err) => {
+        reject("Error: " + err.message);
+      });
+    });
+    return promise;
+  } // TODO: implement get credits
 }
 
 module.exports = Sms;

@@ -44,4 +44,7 @@ export class EntityService {
   addFileToEntity(eId, fId) {
     return this.http.post<boolean>(`${this.host}/addFileToEntity`, {eId: eId, fId: fId});
   }
+  getEntity(id) {
+    return this.http.get<any>(`${this.host}/entity/${id}`);
+  }
 }

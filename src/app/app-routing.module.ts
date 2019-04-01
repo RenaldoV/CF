@@ -14,6 +14,11 @@ import {AdminForgotPasswordComponent} from './Admin/admin-forgot-password/admin-
 import {AdminResetPasswordComponent} from './Admin/admin-reset-password/admin-reset-password.component';
 import {ContactForgotPasswordComponent} from './Contact/contact-forgot-password/contact-forgot-password.component';
 import {ContactResetPasswordComponent} from './Contact/contact-reset-password/contact-reset-password.component';
+import {EntityService} from './Entities/entity.service';
+import {EntityLoginComponent} from './Entities/entity-login/entity-login.component';
+import {EntityNotAuthGuardService} from './auth/entityGuards/entity-not-auth-guard.service';
+import {EntityComponent} from './Entities/entity/entity.component';
+import {EntityAuthGuardService} from './auth/entityGuards/entity-auth-guard.service';
 
 
 const appRoutes: Routes = [
@@ -45,7 +50,17 @@ const appRoutes: Routes = [
     component: ContactLogInComponent,
     canActivate: [ContactNotAuthGuardService]
   },
+  {
+    path: 'entity-login/:entity/:contact',
+    component: EntityLoginComponent,
+    canActivate: [EntityNotAuthGuardService]
+  },
   { path: 'file/:id', component: FileComponent},
+  {
+    path: 'entity/:id',
+    component: EntityComponent,
+    canActivate: [EntityAuthGuardService]
+  },
   {
     path: 'admin-forgot',
     component: AdminForgotPasswordComponent,

@@ -19,6 +19,16 @@ const async = require('async');
 
 
 // ============================ ADMIN ROUTES ===========================
+userRoutes.route('/getSmsCredits').get((req, res, next) => {
+  smser.getCredits()
+    .then(response => {
+      if (response) {
+        res.send(response);
+      }
+    }).catch(err => {
+      next(err);
+  })
+});
 userRoutes.route('/addUser').post((req, res, next) => {
   let user = req.body;
   let saltRounds = 10;
@@ -799,11 +809,11 @@ userRoutes.route('/contact').post((req, res, next) => {
 userRoutes.route('/contact/:id').get((req, res, next) => {
   const id = req.params.id;
   Contact.findById(id).exec((err, contact) => {
-    if(err) {
+    if (err) {
       return next(err);
-    }else if (contact) {
+    } else if (contact) {
       res.json(contact);
-    }else {
+    } else {
       res.send(false);
     }
   });
@@ -1015,11 +1025,16 @@ userRoutes.route('/addFile').post((req, res, next) => {
         .exec((error, f) => {
         if(error) callback(error);
         else {
-          if(f.entity) {
-            f.contacts.push(...f.entity.contacts);
-          }
           const host = req.protocol + '://' + req.get('host');
-          const fileURL = host  + '/file/' + encodeURI(file._id);
+          if(f.entity) {
+            const loginUrl = host + '/entity-login/' + encodeURI(f.entity._id);
+            f.entity.contacts.forEach(ct => {
+              const registerURL = loginUrl + '/' + encodeURI(ct._id);
+              if (ct.email) {
+                mailer.contactAddedToFile(ct.email, ct.title + ' ' + ct.surname, f.milestoneList._id.title, file.fileRef, registerURL);
+              }
+            });
+          }
           const loginUrl = host + '/login/' + encodeURI(file._id);
           f.contacts.forEach(ct => {
             const registerURL = loginUrl + '/' + encodeURI(ct._id);
@@ -1569,6 +1584,30 @@ userRoutes.route('/addFileToEntity').post((req, res, next) => {
       }
     })
 });
+userRoutes.route('/entity/:id').get((req, res, next) => {
+  const id = req.params.id;
+  Entity.findById(id).exec((err, entity) => {
+    if (err) {
+      return next(err);
+    } else if (entity) {
+      res.json(entity);
+    } else {
+      res.send(false);
+    }
+  });
+});
+userRoutes.route('/isEntity').post((req, res, next) => {
+  let contact = req.body.contact;
+  Entity.find({contacts: contact}, (err, entity) => {
+    if(err) next(err);
+    else if(entity.length > 0) {
+      res.send(true);
+    } else {
+      res.send(false);
+    }
+  })
+});
+
 
 module.exports = userRoutes;
 

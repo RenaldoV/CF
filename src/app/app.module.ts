@@ -11,7 +11,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {
   MAT_CHECKBOX_CLICK_ACTION, MAT_DIALOG_DEFAULT_OPTIONS,
   MAT_SNACK_BAR_DEFAULT_OPTIONS,
-  MatAutocompleteModule, MatCardModule, MatCheckboxModule, MatChipsModule, MatDialogModule, MatExpansionModule,
+  MatAutocompleteModule, MatBadgeModule, MatCardModule, MatCheckboxModule, MatChipsModule, MatDialogModule, MatExpansionModule,
   MatFormFieldModule, MatIconModule,
   MatInputModule, MatMenuModule, MatPaginatorModule, MatRadioModule,
   MatSelectModule, MatSnackBarModule, MatSortModule,
@@ -41,6 +41,8 @@ import { ContactForgotPasswordComponent } from './Contact/contact-forgot-passwor
 import { MomentModule } from 'ngx-moment';
 import { AlwaysAskNotificationsComponent } from './Files/always-ask-notifications/always-ask-notifications.component';
 import { AddEntityDialogComponent } from './Entities/add-entity-dialog/add-entity-dialog.component';
+import { EntityLoginComponent } from './Entities/entity-login/entity-login.component';
+import { EntityComponent } from './Entities/entity/entity.component';
 
 
 
@@ -67,7 +69,9 @@ import { AddEntityDialogComponent } from './Entities/add-entity-dialog/add-entit
     AdminResetPasswordComponent,
     ContactResetPasswordComponent,
     ContactForgotPasswordComponent,
-    AlwaysAskNotificationsComponent
+    AlwaysAskNotificationsComponent,
+    EntityLoginComponent,
+    EntityComponent
   ],
   imports: [
     MatInputModule,
@@ -89,6 +93,7 @@ import { AddEntityDialogComponent } from './Entities/add-entity-dialog/add-entit
     MatChipsModule,
     MatTableModule,
     MatCardModule,
+    MatBadgeModule,
     MomentModule,
     DragDropModule,
     MatTabsModule,

@@ -88,3 +88,19 @@ mat-panel-description .mCheck {
 }
 
 .mat-dialog-content { max-width: 500px; }
+
+.mat-badge-content {
+  background-color: #2476A7!important;
+}
+
+.mat-badge-medium .mat-badge-content {
+  width: 27px!important;
+  height: 27px!important;
+  line-height: 28px!important;
+}
+.mat-badge-medium.mat-badge-overlap.mat-badge-after .mat-badge-content {
+  right: -15px!important;
+}
+.mat-badge-medium.mat-badge-above .mat-badge-content {
+  top: -15px;
+}
