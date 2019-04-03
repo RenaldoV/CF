@@ -51,14 +51,14 @@ class Sms {
     let lengthPreComment = preMessage.length + footer.length + 2; // get length of sms body without comment
     let totalLength = comment.length + lengthPreComment;
     if ( totalLength > 740 ) {
-      console.log('total Length: ' + totalLength);
+      // console.log('total Length: ' + totalLength);
       let overflow = totalLength - 740;
-      console.log('overflow: ' + overflow);
+      // console.log('overflow: ' + overflow);
       let cutIndice = comment.length - overflow;
       comment = comment.substring(0, cutIndice);
     }
     const message = adminName + ' added a comment: ' + propDesc + '. ' + milestone + '. ' + comment + '. ' + footer;
-    console.log('final total length: ' + message.length);
+    // console.log('final total length: ' + message.length);
     return this.send(contact, message)
       .then(res => {
         // console.log(res);

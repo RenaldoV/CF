@@ -8,6 +8,7 @@ const Milestone = require('../models/milestone');
 const Properties = require('../models/properties');
 const Contact = require('../models/contact');
 const File = require('../models/file');
+const Entity = require('../models/entity');
 const Mailer = require ('../mailer/mailer');
 const Sms = require('../smsModule/sms');
 const async = require('async');
@@ -28,7 +29,7 @@ class Scheduler {
       })
       .catch((err) => {
         console.log(err);
-      })
+      });
   }
 
   scheduleReports (host) {
@@ -58,7 +59,8 @@ class Scheduler {
             // Iterate Files in parallel
             let counts = {
               files: 0,
-              contacts: 0
+              contacts: 0,
+              entities: 0
             };
             async.eachSeries(files, (file, fileCb) => {
                 // increment number of open files
@@ -119,42 +121,104 @@ class Scheduler {
                   callback(err);
                 } else {
                   console.log('All contacts successfully updated with weekly report. counts: ');
-                  callback(null, files, counts);
+                  callback(null, counts);
                 }
               });
+          },
+          (counts, callback) => { // get entities and their files
+            Entity.find()
+              .populate({
+                path: 'files',
+                match: {'file.archived' : {$ne : true}},
+                populate: [{
+                  path: 'refUser',
+                  select: 'name'
+                }, {
+                  path: 'milestoneList._id',
+                  select: 'title'
+                }, {
+                  path: 'milestoneList.milestones._id',
+                  select: 'name'
+                }, {
+                  path: 'milestoneList.milestones.updatedBy',
+                  select: 'name'
+                }, {
+                  path: 'milestoneList.milestones.comments.user',
+                  select: 'name'
+                }]
+              })
+              .populate('contacts', 'surname title email')
+              .exec((err, entities) => {
+                if(err) callback(err);
+                else {
+                  callback(null, entities, counts);
+                }
+              })
+          },
+          (entities, counts, callback) => { // iterate entities and send email to all contacts
+            async.eachSeries(entities, (entity, entCb) => {
+              counts.entities++;
+              let contacts = 0; // used to see how many contacts in entities mailed
+              // iterate contacts in entity in parallel
+              async.eachSeries(entity.contacts, (ct, ctCb) => {
+                const url = host + '/entity-login/' + encodeURI(entity._id) + '/' + encodeURI(ct._id);
+                // check if contact has email, then email report
+                if (ct.email) {
+                  mailer.entityWeeklyUpdate(
+                    ct.email,
+                    ct.title + ' ' + ct.surname,
+                    url,
+                    entity
+                  );
+                  contacts++;
+                  // wait 1 min if 50 emails have been sent.
+                  if ((contacts % 50) === 0) {
+                    // console.log('entering if with wait');
+                    setTimeout(() => {
+                      console.log('\n'+ counts.contacts +' contacts sent\n');
+                      ctCb();
+                    }, 60000);
+                  } else {
+                    // console.log('callback to contact loop because 5o contacts not yet sent');
+                    ctCb();
+                  }
+                } else {
+                  // console.log('callback to contact loop because email doesn\'t exist');
+                  ctCb();
+                }
+              }, (err) => {
+                // contacts loop callback
+                if(err) entCb(err);
+                else {
+                  entCb();
+                }
+              });
+            }, (err) => {
+              // entities loop callback
+              if(err) callback(err);
+              else {
+                callback(null, counts);
+              }
+            })
           }
-        ], (err, result, counts) => {
+        ], (err, counts) => {
           // waterfall main callback
           if(err) {
             reject(err);
           } else {
             console.log(counts);
           }
-          if(result && counts) {
-            // get distinct list of secretaries who worked on open files
-            const users = result.map(f => f.refUser);
-            const usersArray = [];
-            users.forEach(us => {
-              us.forEach(u => {
-                usersArray.push(u);
-              });
-            });
-            const distinctUsers = Array.from(new Set(usersArray.map(u => u._id)))
-              .map(id => {
-                return {
-                  name: usersArray.find(u => u._id === id).name,
-                  email: usersArray.find(u => u._id === id).email
-                }
-              });
-            // mail all secretaries updates
-			      console.log(distinctUsers);
-            distinctUsers.forEach(u => {
-              const link = host + '/admin-login/' + encodeURI(u._id);
-               mailer.weeklyUpdateSec(u.email, u.name, link, counts)
-                .then(res => {
-                  resolve();
-                }).catch(err => {
+          if(counts) {
+            // get list of secretaries who worked on open files
+            User.find().exec((err, usr) => {
+              usr.forEach(u => {
+                const link = host + '/admin-login/' + encodeURI(u._id);
+                mailer.weeklyUpdateSec(u.email, u.name, link, counts)
+                  .then(res => {
+                    resolve();
+                  }).catch(err => {
                   reject(err);
+                });
               });
             });
           }
@@ -162,6 +226,7 @@ class Scheduler {
       });
     });
   }
+
 }
 
 const setDelay = async function () {

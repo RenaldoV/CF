@@ -152,11 +152,6 @@ class Mailer {
     });
   }
   weeklyUpdate(email, name, link, file) {
-    /*const message = 'Good day ' + name + '. ' + fileType + ': ' + properyDescription + '. \n\nherewith your weekly summary report. To view the file click the link below.';
-    const subject = fileType + ' file weekly report';
-    this.sendEmail(email, message, link, subject).then(res => {}).catch(err => {
-      console.log(err);
-    });*/
     let context = {
       name: name,
       fileType: file.milestoneList._id.title,
@@ -169,6 +164,27 @@ class Mailer {
     let that = this;
     return new Promise((resolve, reject) => {
       that.send('weeklyUpdate', context, email, subject).then(res => {
+        resolve(res);
+      }).catch(err => {
+        reject(err);
+      });
+    });
+  }
+  entityWeeklyUpdate(email, name, link, entity) {
+    entity.files.forEach(f => {
+      f.milestoneList.milestones = f.milestoneList.milestones.filter(m => m.completed === true);
+    });
+    let context = {
+      name: name,
+      files: entity.files,
+      entity: entity,
+      link: link
+    };
+    const subject = entity.name + ' weekly report';
+
+    let that = this;
+    return new Promise((resolve, reject) => {
+      that.send('entityWeeklyUpdate', context, email, subject).then(res => {
         resolve(res);
       }).catch(err => {
         reject(err);

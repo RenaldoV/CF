@@ -4,7 +4,7 @@
       <div class="row">
         <div class="col-sm-12 reg-box-header card-box-header text-center">
           <h2>{{title}}</h2>
-          <h4>Entity: {{entityName}}</h4>
+          <h4>{{entityName}}</h4>
           <span class="subtitle">{{subtitle}}</span>
         </div>
       </div>
@@ -95,6 +95,18 @@
                     Passwords do not match.
                   </mat-error>
                 </mat-form-field>
+                <br>
+                <div class="alert alert-secondary">
+                  <small style="font-size: 12px; color: gray">
+                    a password must be at least:
+                    <ul>
+                      <li>six characters long</li>
+                      <li>contain one uppercase character</li>
+                      <li>one lowercase character</li>
+                      <li>and one special character (!@#$%*&)</li>
+                    </ul>
+                  </small>
+                </div>
               </div>
               <div class="col-sm-12 col-md-8 offset-md-2 text-right button-cols">
                 <button type="submit" class="submitBtn btn btn-lg btn-primary" (click)="register()" [disabled]="!registerForm.valid">
@@ -109,4 +121,3 @@
     </div>
   </div>
 </div>
-

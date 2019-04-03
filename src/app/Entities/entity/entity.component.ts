@@ -39,3 +39,6 @@ export class EntityComponent implements OnInit {
   }
 
 }
+
+// TODO: password tooltip on all register pages
+// TODO: BUG last comments doesn't always load correctly

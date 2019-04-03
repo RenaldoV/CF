@@ -255,7 +255,7 @@
             </div>
           </div>
           <div style="margin-top: 10px;">
-            <button class="btn btn-primary btn-sm" matStepperNext (click)="submitFile()">
+            <button [disabled]="loaderService.isLoading | async" class="btn btn-primary btn-sm" matStepperNext (click)="submitFile()">
               <span *ngIf="!(loaderService.isLoading | async)"><i class="far fa-save"></i> {{showRoute()}}</span>
               <i *ngIf="loaderService.isLoading | async" class="fas fa-spinner fa-spin"></i>
             </button>
