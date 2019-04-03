@@ -1009,6 +1009,8 @@ userRoutes.route('/addFile').post((req, res, next) => {
             callback(null, file, usr);
           }
         })
+      }else {
+        callback(null, file, usr);
       }
     },
     (file, usr, callback) => { // get contacts and send out emails
@@ -1051,6 +1053,7 @@ userRoutes.route('/addFile').post((req, res, next) => {
     if (err) {
       return next(err);
     }else if (result) {
+      console.log(result);
       res.send(result);
     }
   });

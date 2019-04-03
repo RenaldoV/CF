@@ -20,14 +20,17 @@ export class LoaderInterceptor implements HttpInterceptor {
     const i = this.requests.indexOf(req);
     if (i >= 0) {
       this.requests.splice(i, 1);
-
     }
     this.loaderService.isLoading.next(this.requests.length > 0);
   }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    const reqNameArr = req.url.split('/');
+    const reqName = reqNameArr[reqNameArr.length - 1];
     this.requests.push(req);
-    this.loaderService.isLoading.next(true);
+    if (reqName !== 'getSmsCredits') {// do not show isLoading when getting sms credits in background
+      this.loaderService.isLoading.next(true);
+    }
     return Observable.create(observer => {
       const subscription = next.handle(req)
         .subscribe(
