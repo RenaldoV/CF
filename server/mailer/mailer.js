@@ -151,12 +151,42 @@ class Mailer {
       });
     });
   }
+  summaryAdded(adminName, email, summary, propDesc, fileRef, link, footerMessage) {
+    const context = {
+      name: adminName,
+      summary: summary,
+      propDesc: propDesc,
+      link: link,
+      footer: footerMessage,
+      fileRef: fileRef
+    };
+    const subject = 'New summary added by ' + adminName;
+    return new Promise((resolve, reject) => {
+      this.send('summary', context, email, subject).then(res => {
+        resolve(res);
+      }).catch(err => {
+        reject(err);
+      });
+    });
+  }
   weeklyUpdate(email, name, link, file) {
+    let newSummaries = [];
+    if (file.summaries) {
+      file.summaries.forEach((s, i) => {
+        newSummaries.push({
+          timeAgo: timeAgo.format(s.timestamp),
+          summary: s.summary,
+          user: {name: s.user.name}
+        });
+      });
+    } else {
+      newSummaries = null;
+    }
     let context = {
       name: name,
       fileType: file.milestoneList._id.title,
       propertyDescription: file.propertyDescription,
-      milestones: file.milestoneList.milestones.filter(m => m.completed),
+      summaries: newSummaries,
       link: link
     };
     const subject = context.fileType + ' file weekly report';
@@ -171,12 +201,8 @@ class Mailer {
     });
   }
   entityWeeklyUpdate(email, name, link, entity) {
-    entity.files.forEach(f => {
-      f.milestoneList.milestones = f.milestoneList.milestones.filter(m => m.completed === true);
-    });
     let context = {
       name: name,
-      files: entity.files,
       entity: entity,
       link: link
     };

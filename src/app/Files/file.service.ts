@@ -51,6 +51,16 @@ export class FileService {
       emailContacts: comment.emailContacts, smsContacts: comment.smsContacts
     });
   }
+  addSummary(fileID, summary) {
+    const uid = this.auth.getID();
+    const headers = new HttpHeaders();
+    headers.set('Content-Type', 'application/json');
+    return this.http.post<any>(`${this.host}/addSummary`, {
+      fileID: fileID, uid: uid, summary: summary.summary,
+      sendNoti: {sms : summary.sendSMS, email: summary.sendEmail},
+      emailContacts: summary.emailContacts, smsContacts: summary.smsContacts
+    });
+  }
   getFileRef(id): Observable<any> {
     const url = `${this.host}/fileRef/` + id;
     return this.http.get(url);

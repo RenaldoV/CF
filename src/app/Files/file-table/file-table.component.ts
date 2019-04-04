@@ -195,10 +195,27 @@ export class FileTableComponent implements OnInit {
       }
     });
   }
+  addSummary(file) {
+    const dialConfig = new MatDialogConfig();
+    dialConfig.disableClose = true;
+    dialConfig.autoFocus = true;
+    dialConfig.minWidth = 300;
+    dialConfig.data = { contacts: file.contacts, summary: true };
+    const dialogRef = this.dialog.open(AddCommentDialogComponent, dialConfig);
+    dialogRef.afterClosed().subscribe(res => {
+      if (res) {
+        this.fileService.addSummary(file._id, res)
+          .subscribe(summary => {
+            file.summaries.push(summary);
+          }, err => {
+            console.log(err);
+          });
+      }
+    });
+  }
   gotoEditFile(fileID) {
     this.router.navigate(['/add-file', fileID]);
   }
-  // TODO: Update file
   // TODO: Update milestone propogates to file?
 
   // ============== HELPER FUNCTIONS ================

@@ -1094,6 +1094,7 @@ userRoutes.route('/files/:id').get((req, res, next) => {
     .populate('milestoneList.milestones.updatedBy', 'name')
     .populate('contacts', 'name surname title email cell type')
     .populate('milestoneList.milestones.comments.user', 'name')
+    .populate('summaries.user', 'name')
     .populate('createdBy', 'name')
     .populate('updatedBy', 'name')
     .populate('refUser', 'name')
@@ -1144,6 +1145,7 @@ userRoutes.route('/file/:id').get((req, res, next) => {
       }})
     .populate('updatedBy', 'name')
     .populate('entity', 'name')
+    .populate('summaries.user', 'name')
     .exec((error, file) => {
     if(error) {
       return next(error);
@@ -1381,6 +1383,82 @@ userRoutes.route('/addComment').post((req, res, next) => {
                 });
               }
               res.send(comment);
+            }
+          });
+      } else {
+        res.end(false);
+      }
+  })
+});
+userRoutes.route('/addSummary').post((req, res, next) => {
+  let fileID = req.body.fileID;
+  let summary = {
+    user: req.body.uid,
+    summary: req.body.summary,
+    timestamp: new Date()
+  };
+  let sendNoti = req.body.sendNoti;
+  let emailContacts = req.body.emailContacts;
+  let smsContacts = req.body.smsContacts;
+  File.findByIdAndUpdate(fileID,
+    { $push: {summaries: summary}},
+    {fields: 'propertyDescription fileRef refUser deedsOffice bank'})
+    .populate('summaries.user', 'name')
+    .populate('milestoneList.milestones._id', 'name')
+    .populate('refUser', 'email name')
+    .exec((err, result) => {
+    if (err) {
+      return next(err);
+    } else if (result) {
+        User.findById(summary.user, 'name email')
+          .populate({
+            path: 'companyAdmin',
+            select: {'properties': 1},
+            populate: {path: 'properties'}
+          })
+          .populate('properties')
+          .exec((er, user) => {
+            if(er) return next(er);
+            else {
+              summary.user = user;
+              let commentFooter = user.properties ? user.properties.commentMailFooter : user.companyAdmin.properties.commentMailFooter;
+              if (sendNoti.email && emailContacts.length > 0) { // if send email true and contacts selected
+                emailContacts.forEach(ct => {
+                  if (ct.email) {
+                    const footerContext = {
+                      deedsOffice: result.deedsOffice,
+                      propertyDescription: result.propertyDescription,
+                      myName: user.name,
+                      contactName: ct.title + ' ' + ct.surname,
+                      fileRef: result.fileRef,
+                      secNames: result.refUser.map(s => s.name),
+                      secEmails: result.refUser.map(s => s.email),
+                      bank: result.bank
+                    };
+                    const url = req.protocol + '://' + req.get('host') + '/login/' + encodeURI(fileID) + '/' + encodeURI(ct._id);
+                    mailer.summaryAdded(user.name, ct.email, summary.summary, result.propertyDescription, result.fileRef, url, buildMessage(commentFooter, footerContext));
+                  }
+                });
+              }
+              if (sendNoti.sms && smsContacts.length > 0) {
+                smsContacts.forEach(ct => {
+                  if (ct.cell) {
+                    const footerContext = {
+                      deedsOffice: result.deedsOffice,
+                      propertyDescription: result.propertyDescription,
+                      myName: user.name,
+                      contactName: ct.title + ' ' + ct.surname,
+                      fileRef: result.fileRef,
+                      secNames: result.refUser.map(s => s.name),
+                      secEmails: result.refUser.map(s => s.email),
+                      bank: result.bank
+                    };
+                    const url = req.protocol + '://' + req.get('host') + '/login/' + encodeURI(fileID) + '/' + encodeURI(ct._id);
+                    smser.summaryAdded(ct.cell, summary.summary, user.name, result.propertyDescription, result.fileRef, buildMessage(commentFooter, footerContext));
+                  }
+                });
+              }
+              res.send(summary);
             }
           });
       } else {
@@ -1636,6 +1714,9 @@ userRoutes.route('/getEntity').post((req, res, next) => {
       },  {
         path: 'contacts',
         select: 'name surname cell email type'
+      }, {
+        path: 'summaries.user',
+        select: 'name'
       }]
     })
     .populate('contacts', 'name surname cell email type')

@@ -30,6 +30,11 @@ let File = new mongoose.Schema({
     createdBy: {type: Schema.Types.ObjectId, ref: 'User'},
     updatedBy: {type: Schema.Types.ObjectId, ref: 'User'},
     entity: {type: Schema.Types.ObjectId, ref: 'Entity', required: false},
+    summaries: [{
+      user: {type: Schema.Types.ObjectId, ref: 'User'},
+      timestamp: Date,
+      summary: String
+    }]
   },
   {
     collection: 'files',

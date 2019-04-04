@@ -14,6 +14,10 @@ const Sms = require('../smsModule/sms');
 const async = require('async');
 const config = require('../../config/config');
 const mailer = new Mailer(config.emailHost, config.emailPort, config.fromEmail, config.emailApiKey, config.emailUsername);
+const TimeAgo = require('javascript-time-ago');
+const en = require('javascript-time-ago/locale/en');
+TimeAgo.addLocale(en);
+const timeAgo = new TimeAgo('en-US');
 
 
 // TODO: When contact gets deleted it saves null in array of top level admin.
@@ -42,15 +46,15 @@ class Scheduler {
         async.waterfall([
           (cb) => { // get all files in db that are not archived
             File.find({archived: {$ne : true}})
-              .select('propertyDescription contacts milestoneList')
+              .select('propertyDescription contacts milestoneList summaries')
               .populate('milestoneList._id', 'title')
-              .populate('milestoneList.milestones.comments.user', 'name')
-              .populate('milestoneList.milestones._id', 'name ')
+              .populate('summaries.user', 'name')
               .populate('refUser', 'email name')
               .exec((err, files) => {
                 if(err) {
                   cb(err);
                 } else {
+
                   cb(null, files);
                 }
               })
@@ -125,28 +129,8 @@ class Scheduler {
                 }
               });
           },
-          (counts, callback) => { // get entities and their files
+          (counts, callback) => { // get entities
             Entity.find()
-              .populate({
-                path: 'files',
-                match: {'file.archived' : {$ne : true}},
-                populate: [{
-                  path: 'refUser',
-                  select: 'name'
-                }, {
-                  path: 'milestoneList._id',
-                  select: 'title'
-                }, {
-                  path: 'milestoneList.milestones._id',
-                  select: 'name'
-                }, {
-                  path: 'milestoneList.milestones.updatedBy',
-                  select: 'name'
-                }, {
-                  path: 'milestoneList.milestones.comments.user',
-                  select: 'name'
-                }]
-              })
               .populate('contacts', 'surname title email')
               .exec((err, entities) => {
                 if(err) callback(err);

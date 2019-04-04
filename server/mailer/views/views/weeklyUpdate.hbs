@@ -6,7 +6,25 @@ Herewith your weekly summary report.
 {{fileType}}: {{propertyDescription}}.
 <br>
 <br>
-To view the full progress report click the link below.
+{{#if summaries}}
+  <p>Current progress summary:</p>
+  {{#each summaries}}
+    <div>
+      <div style="width: 30%; float: left; position: relative">
+        <span style="font-weight: bold; color: dimgray"><i class="fas fa-user-tie"></i> &nbsp;{{this.user.name}}</span>
+        <small style="color: #888888; float: right"> {{this.timeAgo}}</small>
+      </div>
+      <div style="background-color: #F5F5F5; padding: 0px 8px 0px 8px; color: darkslategrey; font-size: 15px; width: 60%; float: left; position: relative">
+        <span>{{this.summary}}</span>
+      </div>
+    </div>
+  {{/each}}
+{{else}}
+  <p style="color: gray;">No summary added.</p>
+{{/if}}
+<br>
+<br>
+<p style="float: left; width: 100%">To view the full progress report click the link below.</p>
 <br>
 <a href="{{link}}" style="display: inline-block;
   padding: 6px 12px;

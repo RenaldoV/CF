@@ -129,6 +129,27 @@
               </div>
             <br>
           </mat-tab>
+          <mat-tab label="Progress Summary">
+            <div class="row">
+              <div class="col-12" style="padding-top: 20px; padding-bottom: 20px;">
+                <div class="row" *ngFor="let summary of element.summaries; let i = index;" style="width: 80%; margin-left: 10%;">
+                  <div class="col-3">
+                    <span style="font-weight: bold; color: dimgray"><i class="fas fa-user-tie"></i> &nbsp;{{summary.user.name}}</span>
+                    <small style="color: #888888; float: right"> {{summary.timestamp | amTimeAgo}}</small>
+                  </div>
+                  <div class="col-9" style="background-color: #F5F5F5; padding: 0px 8px 0px 8px; color: darkslategrey; font-size: 15px;"
+                       [ngStyle]="{'border-radius' : i === 0 ? '10px 10px 0px 0px' : i === element.summaries.length - 1 ? '0px 0px 10px 10px' : ''}">
+                    <span>{{summary.summary}}</span>
+                  </div>
+                </div>
+                <p class="text-center" *ngIf="element.summaries.length < 1" style="color: gray;">No summary added.</p>
+                <button style="margin-left: 45%; margin-top: 20px;" class="btn btn-primary btn-sm saveButton" color="primary" (click)="addSummary(element)">
+                  <span *ngIf="!(loaderService.isLoading | async)"><i class="fas fa-newspaper"></i> Add summary</span>
+                  <i *ngIf="loaderService.isLoading | async" class="fas fa-spinner fa-spin"></i>
+                </button>
+              </div>
+            </div>
+          </mat-tab>
           <mat-tab label="Contacts">
             <br>
               <div class="contactsBox row">
@@ -214,7 +235,6 @@
         </mat-tab-group>
       </div>
     </div>
-
   </div>
 </ng-template>
 

@@ -85,5 +85,9 @@ export class FileComponent implements OnInit {
       return this.file.contacts.length + 1 + this.file.refUser.length - this.file.contacts.filter(ct => ct.type === 'Agent').length <= 4 ? '' : '-3';
     }
   }
+  formatDate(date) {
+    date = new Date(date);
+    return date.getDate() + '/' + date.getMonth() + '/' + date.getFullYear();
+  }
 
 }
