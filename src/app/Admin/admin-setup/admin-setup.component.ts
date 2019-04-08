@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnInit} from '@angular/core';
+import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {
   AbstractControl,
   FormArray,
@@ -12,10 +12,23 @@ import {AdminService} from '../admin.service';
 import {LoaderService} from '../../Common/Loader';
 import {AuthService} from '../../auth/auth.service';
 import {computeStyle} from '@angular/animations/browser/src/util';
-import {MatSnackBar} from '@angular/material';
+import {
+  ErrorStateMatcher,
+  MatAutocomplete,
+  MatAutocompleteSelectedEvent,
+  MatAutocompleteTrigger,
+  MatDialog, MatDialogConfig,
+  MatSnackBar
+} from '@angular/material';
 import {GlobalValidators} from '../../Common/Validators/globalValidators';
 import {Router} from '@angular/router';
 import {ContactService} from '../../Contact/contact.service';
+import {EntityService} from '../../Entities/entity.service';
+import {Observable} from 'rxjs';
+import {map, startWith} from 'rxjs/operators';
+import {COMMA, ENTER} from '@angular/cdk/keycodes';
+import {AddContactDialogComponent} from '../../Contact/add-contact-dialog/add-contact-dialog.component';
+import {AddEntityDialogComponent} from '../../Entities/add-entity-dialog/add-entity-dialog.component';
 
 @Component({
   selector: 'app-admin-setup',
@@ -29,7 +42,12 @@ export class AdminSetupComponent implements OnInit {
   UsersForm: FormGroup;
   EmailPropsForm: FormGroup;
   origContacts;
-  contactsCount = 10;
+  contactsCount = 0;
+  // Used for dropdown on entity form
+  visible = true;
+  allContacts: any[] = [];
+  allEntities: any[] = [];
+
   constructor(
     private fb: FormBuilder,
     private adminService: AdminService,
@@ -37,7 +55,9 @@ export class AdminSetupComponent implements OnInit {
     private auth: AuthService,
     private router: Router,
     public loaderService: LoaderService,
-    private matSnack: MatSnackBar
+    private matSnack: MatSnackBar,
+    private entityService: EntityService,
+    private dialog: MatDialog
   ) {
     this.createMilestoneListForm();
     this.getAllLists();
@@ -48,6 +68,7 @@ export class AdminSetupComponent implements OnInit {
     this.getContacts();
     this.createUsersForm();
     this.getUsers();
+    this.getAllEntities();
   }
 
   ngOnInit() {}
@@ -534,7 +555,7 @@ export class AdminSetupComponent implements OnInit {
   get commentMailFooter() {
     return this.EmailPropsForm.get('commentMailFooter');
   }
-  insertFooterPh(e, msg,ctr) {
+  insertFooterPh(e, msg, ctr) {
     e.preventDefault();
     const value = this.commentMailFooter.value;
     if (ctr.selectionStart || ctr.selectionStart === 0) {
@@ -567,7 +588,6 @@ export class AdminSetupComponent implements OnInit {
       });
   }
   patchContacts(cts) {
-    console.log(cts);
     cts.forEach((ct, i) => {
       if (!this.contacts.at(i)) {
         this.addContact(true);
@@ -865,7 +885,82 @@ export class AdminSetupComponent implements OnInit {
     }
     // console.log(this.contacts.at(i).value);
   }
+  // ================== USER FUNCTIONS ===================================
+  // ================== ENTITY FUNCTIONS =================================
+  getAllEntities() {
+    this.entityService.getAllEntities()
+      .subscribe(res => {
+        this.allEntities = res;
+      });
+  }
+  addEntity() {
+    const dialConfig = new MatDialogConfig();
+    dialConfig.disableClose = true;
+    dialConfig.autoFocus = true;
+    dialConfig.data = {
+      allContact: this.allContacts
+    };
+    const dialogRef = this.dialog.open(AddEntityDialogComponent, dialConfig);
+    dialogRef.afterClosed().subscribe(res => {
+      if (res) {
+        this.allEntities.push(res);
+      }
+    });
+  }
+  editEntity(e) {
+    const dialConfig = new MatDialogConfig();
+    dialConfig.disableClose = true;
+    dialConfig.autoFocus = true;
+    const body = {...e}; // deep copy
+    body.contacts = body.contacts.map(c => {
+      return {
+        _id: c._id,
+        name: c.name + ' ' + c.surname
+      };
+    });
+    body.files = body.files.map(f => {
+      return {
+        _id: f._id,
+        fileRef: f.fileRef
+      };
+    });
+    dialConfig.data = {
+      allContact: this.allContacts,
+      entity: body
+    };
+    const dialogRef = this.dialog.open(AddEntityDialogComponent, dialConfig);
+    dialogRef.afterClosed().subscribe(res => {
+      if (res) {
+        console.log(res);
+        const index = this.allEntities.indexOf(e);
+        this.allEntities[index] = res;
+      }
+    });
+  }
+  removeEntity(e) {
+    if (confirm('Are you sure you want to delete ' + e.name + ' from your entities list?')) {
+      this.entityService.deleteEntity(e._id)
+        .subscribe(res => {
+          if (res) {
+            this.matSnack.open('Entity deleted successfully');
+            this.allEntities = this.allEntities.filter(entity => {
+              return entity._id !== e._id;
+            });
+          } else {
+            const sb = this.matSnack.open('Entity not deleted successfully', 'retry');
+            sb.onAction().subscribe(() => {
+              this.removeEntity(e);
+            });
+          }
+        }, err => {
+          const sb = this.matSnack.open('Entity not deleted successfully', 'retry');
+          sb.onAction().subscribe(() => {
+            this.removeEntity(e);
+          });
+        });
+    }
+  }
 
-  // TODO: disable save buttons if nothings has changed or is not new.
+  // TODO: Take out forms and make static content. Use dialog forms for adding and updating
   // TODO: BUG when adding user form before proper load -> doesn't set updated properly
 }

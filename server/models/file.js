@@ -29,10 +29,17 @@ let File = new mongoose.Schema({
     contacts: [{type: Schema.Types.ObjectId, ref: 'Contact'}],
     createdBy: {type: Schema.Types.ObjectId, ref: 'User'},
     updatedBy: {type: Schema.Types.ObjectId, ref: 'User'},
+    entity: {type: Schema.Types.ObjectId, ref: 'Entity', required: false},
+    summaries: [{
+      user: {type: Schema.Types.ObjectId, ref: 'User'},
+      timestamp: Date,
+      summary: String
+    }]
   },
   {
     collection: 'files',
     timestamps: {createdAt: 'createdAt', updatedAt: 'updatedAt'}
   });
+File.index({createdAt: -1});
 
 module.exports = mongoose.model('File', File);

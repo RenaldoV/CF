@@ -1,5 +1,5 @@
 import {Component, Inject, OnInit} from '@angular/core';
-import {AddContactDialogComponent} from '../add-contact-dialog/add-contact-dialog.component';
+import {AddContactDialogComponent} from '../../Contact/add-contact-dialog/add-contact-dialog.component';
 import {MAT_DIALOG_DATA, MatDialogRef, MatSnackBar} from '@angular/material';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {LoaderService} from '../../Common/Loader';
@@ -12,7 +12,9 @@ import {GlobalValidators} from '../../Common/Validators/globalValidators';
   styleUrls: ['./add-comment-dialog.component.css']
 })
 export class AddCommentDialogComponent implements OnInit {
+  formType;
   commentForm: FormGroup;
+  summaryForm: FormGroup;
   filteredEmailContacts; // to filter out contacts without emails
   filteredCellContacts; // to filter out contacts without cells
   constructor(
@@ -23,7 +25,13 @@ export class AddCommentDialogComponent implements OnInit {
   ) {
     this.filteredEmailContacts = this.data.contacts.filter(ct => ct.email !== undefined);
     this.filteredCellContacts = this.data.contacts.filter(ct => ct.cell !== undefined);
-    this.createCommentForm();
+    if (this.data.summary) {
+      this.createSummaryForm();
+      this.formType = 'Summary';
+    } else {
+      this.formType = 'Comment';
+      this.createCommentForm();
+    }
   }
 
   ngOnInit() {}
@@ -40,47 +48,85 @@ export class AddCommentDialogComponent implements OnInit {
       emailContacts: [this.filteredEmailContacts]
     });
   }
+  createSummaryForm() {
+    this.summaryForm = this.fb.group({
+      summary: ['', Validators.required],
+      sendSMS: [true],
+      sendEmail: [true],
+      smsContacts: [this.filteredCellContacts],
+      emailContacts: [this.filteredEmailContacts]
+    });
+  }
   get sendSMS() {
-    return this.commentForm.get('sendSMS');
+    if (this.data.summary) {
+      return this.summaryForm.get('sendSMS');
+    } else {
+      return this.commentForm.get('sendSMS');
+    }
   }
   get sendEmail() {
-    return this.commentForm.get('sendEmail');
+    if (this.data.summary) {
+      return this.summaryForm.get('sendEmail');
+    } else {
+      return this.commentForm.get('sendEmail');
+    }
   }
   get comment() {
     return this.commentForm.get('comment');
   }
+  get summary() {
+    return this.summaryForm.get('summary');
+  }
   get smsContacts () {
-    return this.commentForm.get('smsContacts');
+    if (this.data.summary) {
+      return this.summaryForm.get('smsContacts');
+    } else {
+      return this.commentForm.get('smsContacts');
+    }
   }
   get emailContacts () {
-    return this.commentForm.get('emailContacts');
+    if (this.data.summary) {
+      return this.summaryForm.get('emailContacts');
+    } else {
+      return this.commentForm.get('emailContacts');
+    }
   }
   changeSend(e, name) {
+    let form = this.commentForm;
+    if (this.data.summary) {
+      form = this.summaryForm;
+    }
     if (name === 'sendSMS') {
       if (e.checked) {
-        this.commentForm.get('smsContacts').setValue(this.filteredCellContacts);
-        this.commentForm.get('smsContacts').setValidators(Validators.required);
-        this.commentForm.get('smsContacts').updateValueAndValidity();
+        form.get('smsContacts').setValue(this.filteredCellContacts);
+        form.get('smsContacts').setValidators(Validators.required);
+        form.get('smsContacts').updateValueAndValidity();
       } else {
-        this.commentForm.get('smsContacts').setValue('');
-        this.commentForm.get('smsContacts').clearValidators();
-        this.commentForm.get('smsContacts').updateValueAndValidity();
+        form.get('smsContacts').setValue('');
+        form.get('smsContacts').clearValidators();
+        form.get('smsContacts').updateValueAndValidity();
       }
     } else if (name === 'sendEmail') {
       if (e.checked) {
-        this.commentForm.get('emailContacts').setValue(this.filteredEmailContacts);
-        this.commentForm.get('emailContacts').setValidators(Validators.required);
-        this.commentForm.get('emailContacts').updateValueAndValidity();
+        form.get('emailContacts').setValue(this.filteredEmailContacts);
+        form.get('emailContacts').setValidators(Validators.required);
+        form.get('emailContacts').updateValueAndValidity();
       } else {
-        this.commentForm.get('emailContacts').setValue('');
-        this.commentForm.get('emailContacts').clearValidators();
-        this.commentForm.get('emailContacts').updateValueAndValidity();
+        form.get('emailContacts').setValue('');
+        form.get('emailContacts').clearValidators();
+        form.get('emailContacts').updateValueAndValidity();
       }
     }
   }
   submitComment() {
-    if (this.commentForm.valid) {
-      this.dialogRef.close(this.commentForm.value);
+    if (this.data.summary) {
+      if (this.summaryForm.valid) {
+        this.dialogRef.close(this.summaryForm.value);
+      }
+    } else {
+      if (this.commentForm.valid) {
+        this.dialogRef.close(this.commentForm.value);
+      }
     }
   }
 

@@ -5,8 +5,9 @@ import {FileService} from '../file.service';
 import {LoaderService} from '../../Common/Loader';
 import {AddCommentDialogComponent} from '../add-comment-dialog/add-comment-dialog.component';
 import {AlwaysAskNotificationsComponent} from '../always-ask-notifications/always-ask-notifications.component';
-import {AddContactDialogComponent} from '../add-contact-dialog/add-contact-dialog.component';
+import {AddContactDialogComponent} from '../../Contact/add-contact-dialog/add-contact-dialog.component';
 import {Router} from '@angular/router';
+import {AddEntityDialogComponent} from '../../Entities/add-entity-dialog/add-entity-dialog.component';
 
 
 @Component({
@@ -100,7 +101,7 @@ export class FileTableComponent implements OnInit {
       };
   }
   numCards(file) {
-    return file.contacts.length + 1 <= 3 ? '' : '-4';
+    return file.contacts.length <= 3 ? '' : '-4';
   }
   applyFilter(filterValue: string) {
     filterValue = filterValue.trim(); // Remove whitespace
@@ -194,10 +195,27 @@ export class FileTableComponent implements OnInit {
       }
     });
   }
+  addSummary(file) {
+    const dialConfig = new MatDialogConfig();
+    dialConfig.disableClose = true;
+    dialConfig.autoFocus = true;
+    dialConfig.minWidth = 300;
+    dialConfig.data = { contacts: file.contacts, summary: true };
+    const dialogRef = this.dialog.open(AddCommentDialogComponent, dialConfig);
+    dialogRef.afterClosed().subscribe(res => {
+      if (res) {
+        this.fileService.addSummary(file._id, res)
+          .subscribe(summary => {
+            file.summaries.push(summary);
+          }, err => {
+            console.log(err);
+          });
+      }
+    });
+  }
   gotoEditFile(fileID) {
     this.router.navigate(['/add-file', fileID]);
   }
-  // TODO: Update file
   // TODO: Update milestone propogates to file?
 
   // ============== HELPER FUNCTIONS ================
@@ -284,6 +302,25 @@ export class FileTableComponent implements OnInit {
       }
     });
   }
+  editEntity(e) {
+    console.log(e);
+    const dialConfig = new MatDialogConfig();
+    dialConfig.disableClose = true;
+    dialConfig.autoFocus = true;
+    const entity = {...e};
+    entity.contacts = entity.contacts.map(c => {
+      return {_id: c._id, name: c.name + ' ' + c.surname};
+    });
+    dialConfig.data = {
+      entity: entity
+    };
+    const dialogRef = this.dialog.open(AddEntityDialogComponent, dialConfig);
+    dialogRef.afterClosed().subscribe(res => {
+      if (res) {
+        window.location.reload(true);
+      }
+    });
+  }
 
 }
 
@@ -300,6 +337,7 @@ export interface File {
   updatedAt: any;
   createdAt: any;
   archived: boolean;
+  entity: any;
   _v: any;
 }
 export interface MilestoneList {

@@ -134,4 +134,7 @@ export class AdminService {
     headers.set('Content-Type', 'application/json');
     return this.http.post<any>(`${this.host}/addOneDeedsOffice`, {deedsOffice: d, uid: uid});
   }
+  getSmsCredits(): Observable<any> {
+    return this.http.get<any>(`${this.host}/getSmsCredits`);
+  }
 }

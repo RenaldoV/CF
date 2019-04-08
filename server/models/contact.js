@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
 let Contact = new mongoose.Schema({
     passwordHash: String,
@@ -12,7 +13,8 @@ let Contact = new mongoose.Schema({
       token: String,
       expiry: Date
     },
-    verified: Boolean
+    verified: Boolean,
+    entity: {type: Schema.Types.ObjectId, ref: 'Entity'}
   },
   {
     collection: 'contacts'

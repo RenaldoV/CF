@@ -9,13 +9,13 @@ import { WINDOW_PROVIDERS } from './window.service';
 import { AdminLogInComponent } from './Admin/admin-login/admin-log-in.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {
-  MAT_CHECKBOX_CLICK_ACTION,
+  MAT_CHECKBOX_CLICK_ACTION, MAT_DIALOG_DEFAULT_OPTIONS,
   MAT_SNACK_BAR_DEFAULT_OPTIONS,
-  MatAutocompleteModule, MatCardModule, MatCheckboxModule, MatChipsModule, MatDialogModule, MatExpansionModule,
+  MatAutocompleteModule, MatBadgeModule, MatCardModule, MatCheckboxModule, MatChipsModule, MatDialogModule, MatExpansionModule,
   MatFormFieldModule, MatIconModule,
   MatInputModule, MatMenuModule, MatPaginatorModule, MatRadioModule,
   MatSelectModule, MatSnackBarModule, MatSortModule,
-  MatStepperModule, MatTableModule, MatTooltipModule
+  MatStepperModule, MatTableModule, MatTabsModule, MatTooltipModule
 } from '@angular/material';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { AdminHomeComponent } from './Admin/admin-home/admin-home.component';
@@ -24,7 +24,7 @@ import { AddFileComponent } from './Files/add-file/add-file.component';
 import { AdminSetupComponent } from './Admin/admin-setup/admin-setup.component';
 import { LoaderModule } from './Common/Loader';
 import { DragDropModule } from '@angular/cdk/drag-drop';
-import { AddContactDialogComponent } from './Files/add-contact-dialog/add-contact-dialog.component';
+import { AddContactDialogComponent } from './Contact/add-contact-dialog/add-contact-dialog.component';
 import { FileTableComponent } from './Files/file-table/file-table.component';
 import { CdkDetailRowDirective } from './Files/file-table/cdk-detail-row.directive';
 import { FileService } from './Files/file.service';
@@ -38,8 +38,11 @@ import { AdminForgotPasswordComponent } from './Admin/admin-forgot-password/admi
 import { AdminResetPasswordComponent } from './Admin/admin-reset-password/admin-reset-password.component';
 import { ContactResetPasswordComponent } from './Contact/contact-reset-password/contact-reset-password.component';
 import { ContactForgotPasswordComponent } from './Contact/contact-forgot-password/contact-forgot-password.component';
-import {MomentModule} from 'ngx-moment';
+import { MomentModule } from 'ngx-moment';
 import { AlwaysAskNotificationsComponent } from './Files/always-ask-notifications/always-ask-notifications.component';
+import { AddEntityDialogComponent } from './Entities/add-entity-dialog/add-entity-dialog.component';
+import { EntityLoginComponent } from './Entities/entity-login/entity-login.component';
+import { EntityComponent } from './Entities/entity/entity.component';
 
 
 
@@ -53,6 +56,7 @@ import { AlwaysAskNotificationsComponent } from './Files/always-ask-notification
     AddFileComponent,
     AdminSetupComponent,
     AddContactDialogComponent,
+    AddEntityDialogComponent,
     FileTableComponent,
     CdkDetailRowDirective,
     AddCommentDialogComponent,
@@ -65,7 +69,9 @@ import { AlwaysAskNotificationsComponent } from './Files/always-ask-notification
     AdminResetPasswordComponent,
     ContactResetPasswordComponent,
     ContactForgotPasswordComponent,
-    AlwaysAskNotificationsComponent
+    AlwaysAskNotificationsComponent,
+    EntityLoginComponent,
+    EntityComponent
   ],
   imports: [
     MatInputModule,
@@ -87,8 +93,10 @@ import { AlwaysAskNotificationsComponent } from './Files/always-ask-notification
     MatChipsModule,
     MatTableModule,
     MatCardModule,
+    MatBadgeModule,
     MomentModule,
     DragDropModule,
+    MatTabsModule,
     BrowserModule,
     HttpClientModule,
     AppRoutingModule,
@@ -101,13 +109,16 @@ import { AlwaysAskNotificationsComponent } from './Files/always-ask-notification
     AuthService,
     FileService,
     WINDOW_PROVIDERS,
-    {provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue:  {duration: 4000}}
+    {provide: MAT_SNACK_BAR_DEFAULT_OPTIONS, useValue:  {duration: 4000}},
+    {provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue:  {maxWidth: '400px', minWidth: '60vw'}}
+
   ],
   bootstrap: [AppComponent],
   entryComponents: [
     AddContactDialogComponent,
     AddCommentDialogComponent,
-    AlwaysAskNotificationsComponent
+    AlwaysAskNotificationsComponent,
+    AddEntityDialogComponent
   ]
 })
 export class AppModule { }

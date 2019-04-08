@@ -67,44 +67,22 @@
 
 <ng-template #tpl let-element>
   <div class="mat-row detail-row" [@detailExpand] style="overflow: hidden">
-    <div class="contactsBox row">
-      <div class="col-sm-12 col-md-6 col-lg{{numCards(element)}}">
-        <mat-card>
-          <mat-card-header>
-            <mat-card-title><i class="fas fa-home"></i> Property Description</mat-card-title>
-            <mat-card-subtitle>
-              <small style="white-space: pre-wrap;">{{element.propertyDescription}}</small><br>
-            </mat-card-subtitle>
-          </mat-card-header>
-        </mat-card>
-      </div>
-      <div class="col-sm-12 col-md-6 col-lg{{numCards(element)}}" *ngFor="let ct of element.contacts; let i = index">
-        <mat-card>
-          <i (click)="editContact(ct)" class="fas fa-user-edit float-right text-right" style="cursor: pointer; color: black"></i>
-          <mat-card-header>
-            <mat-card-title style="justify-content: space-between">
-              <i class="far fa-id-card"></i>
-              {{ct.name + ' ' + ct.surname}}
-            </mat-card-title>
-            <mat-card-subtitle>
-              <small><i class="fas fa-user-friends"></i> {{ct?.type}}</small><br>
-              <small *ngIf="ct?.email"><i class="far fa-envelope"></i> {{ ct?.email }}</small><br *ngIf="ct?.email">
-              <small *ngIf="ct?.cell"><i class="fas fa-phone-square"></i> {{ ct?.cell }}</small>
-            </mat-card-subtitle>
-          </mat-card-header>
-        </mat-card>
-      </div>
-    </div>
-    <div class="milestonesBox">
-      <mat-accordion>
-        <mat-expansion-panel *ngFor="let milestone of element.milestoneList.milestones; let i = index"
-                             hideToggle (opened)="milestoneOpenState = true" (closed)="milestoneOpenState = false">
-          <mat-expansion-panel-header collapsedHeight="*" expandedHeight="*">
-            <mat-panel-title [style.text-decoration]="milestone.completed ? 'line-through' : 'none'"
-                             [style.text-decoration-color]="milestone.completed ? 'red' : ''">
-              Milestone {{i + 1}}
-            </mat-panel-title>
-            <mat-panel-description>
+    <div class="row">
+      <div class="col-12" style="min-height: 200px;">
+        <mat-tab-group mat-align-tabs="center">
+          <mat-tab label="Milestones">
+            <br>
+              <div class="row">
+                <div class="milestonesBox col-12">
+                  <mat-accordion>
+                    <mat-expansion-panel *ngFor="let milestone of element.milestoneList.milestones; let i = index"
+                                         hideToggle (opened)="milestoneOpenState = true" (closed)="milestoneOpenState = false">
+                      <mat-expansion-panel-header collapsedHeight="*" expandedHeight="*">
+                        <mat-panel-title [style.text-decoration]="milestone.completed ? 'line-through' : 'none'"
+                                         [style.text-decoration-color]="milestone.completed ? 'red' : ''">
+                          Milestone {{i + 1}}
+                        </mat-panel-title>
+                        <mat-panel-description>
               <span class="mTitle">{{ milestone._id.name }}
                 <small style="color: #1DA1F2">({{milestone.comments.length}} Comment{{milestone.comments.length > 1 || milestone.comments.length < 1? 's' : ''}})</small>
                 <small class="comment" *ngIf="milestone.comments.length > 0 && !milestoneOpenState">
@@ -117,36 +95,145 @@
                   <br>
                 </small>
               </span>
-              <small class="mUpdated" style="color: darkgrey">
-                Last Updated: {{convertDate('dd/mm/yyyy', milestone.updatedAt)}} <br>by {{milestone.updatedBy.name}}
-              </small>
-              <div class="mCheck">
-                <mat-checkbox
-                  *ngIf="!milestone.completed" (click)="$event.stopPropagation()"
-                  [checked]="milestone.completed" (change)="markMilestone($event, milestone, element, chbx)" #chbx></mat-checkbox>
+                          <small class="mUpdated" style="color: darkgrey">
+                            Last Updated: {{convertDate('dd/mm/yyyy', milestone.updatedAt)}} <br>by {{milestone.updatedBy.name}}
+                          </small>
+                          <div class="mCheck">
+                            <mat-checkbox
+                              *ngIf="!milestone.completed" (click)="$event.stopPropagation()"
+                              [checked]="milestone.completed" (change)="markMilestone($event, milestone, element, chbx)" #chbx></mat-checkbox>
+                          </div>
+                        </mat-panel-description>
+                      </mat-expansion-panel-header>
+                      <h5 style="color: darkslategray">Comments: </h5>
+                      <div class="comments" style="text-indent: 2em">
+                        <span *ngIf="milestone.comments < 1">No comments to display</span>
+                        <div class="comment" *ngFor="let c of milestone.comments">
+                          <i class="fas fa-user-tie"></i> <span style="font-weight: bold; color: darkslategray"> {{c.user?.name}}</span>
+                          <div class="speech">
+                            {{c.comment}}<small style="color: #888888"> {{c.timestamp | amTimeAgo}}</small>
+                          </div>
+                        </div>
+                        <div class="milestoneComments">
+                          <div class="btn-group" role="group" aria-label="action buttons" style="margin-top: 5px;">
+                            <button class="btn btn-primary btn-sm saveButton" color="primary" (click)="addComment(milestone, i, element)">
+                              <span *ngIf="!(loaderService.isLoading | async)"><i class="far fa-comment"></i> Add comment</span>
+                              <i *ngIf="loaderService.isLoading | async" class="fas fa-spinner fa-spin"></i>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </mat-expansion-panel>
+                  </mat-accordion>
+                </div>
               </div>
-            </mat-panel-description>
-          </mat-expansion-panel-header>
-          <h5 style="color: darkslategray">Comments: </h5>
-          <div class="comments" style="text-indent: 2em">
-            <span *ngIf="milestone.comments < 1">No comments to display</span>
-            <div class="comment" *ngFor="let c of milestone.comments">
-              <i class="fas fa-user-tie"></i> <span style="font-weight: bold; color: darkslategray"> {{c.user?.name}}</span>
-              <div class="speech">
-                {{c.comment}}<small style="color: #888888"> {{c.timestamp | amTimeAgo}}</small>
-              </div>
-            </div>
-            <div class="milestoneComments">
-              <div class="btn-group" role="group" aria-label="action buttons" style="margin-top: 5px;">
-                <button class="btn btn-primary btn-sm saveButton" color="primary" (click)="addComment(milestone, i, element)">
-                  <span *ngIf="!(loaderService.isLoading | async)"><i class="far fa-comment"></i> Add comment</span>
+            <br>
+          </mat-tab>
+          <mat-tab label="Progress Summary">
+            <div class="row">
+              <div class="col-12" style="padding-top: 20px; padding-bottom: 20px;">
+                <div class="row" *ngFor="let summary of element.summaries; let i = index;" style="width: 80%; margin-left: 10%;">
+                  <div class="col-3">
+                    <span style="font-weight: bold; color: dimgray"><i class="fas fa-user-tie"></i> &nbsp;{{summary.user.name}}</span>
+                    <small style="color: #888888; float: right"> {{summary.timestamp | amTimeAgo}}</small>
+                  </div>
+                  <div class="col-9" style="background-color: #F5F5F5; padding: 0px 8px 0px 8px; color: darkslategrey; font-size: 15px;"
+                       [ngStyle]="{'border-radius' : i === 0 ? '10px 10px 0px 0px' : i === element.summaries.length - 1 ? '0px 0px 10px 10px' : ''}">
+                    <span>{{summary.summary}}</span>
+                  </div>
+                </div>
+                <p class="text-center" *ngIf="element.summaries.length < 1" style="color: gray;">No summary added.</p>
+                <button style="margin-left: 45%; margin-top: 20px;" class="btn btn-primary btn-sm saveButton" color="primary" (click)="addSummary(element)">
+                  <span *ngIf="!(loaderService.isLoading | async)"><i class="fas fa-newspaper"></i> Add summary</span>
                   <i *ngIf="loaderService.isLoading | async" class="fas fa-spinner fa-spin"></i>
                 </button>
               </div>
             </div>
-          </div>
-        </mat-expansion-panel>
-      </mat-accordion>
+          </mat-tab>
+          <mat-tab label="Contacts">
+            <br>
+              <div class="contactsBox row">
+                <div class="col-sm-12 col-md-6 col-lg{{numCards(element)}}" *ngFor="let ct of element.contacts; let i = index">
+                  <mat-card>
+                    <i (click)="editContact(ct)" class="fas fa-user-edit float-right text-right" style="cursor: pointer; color: black"></i>
+                    <mat-card-header>
+                      <mat-card-title style="justify-content: space-between">
+                        <i class="far fa-id-card"></i>
+                        {{ct.name + ' ' + ct.surname}}
+                      </mat-card-title>
+                      <mat-card-subtitle>
+                        <small><i class="fas fa-user-friends"></i> {{ct?.type}}</small><br>
+                        <small *ngIf="ct?.email"><i class="far fa-envelope"></i> {{ ct?.email }}</small><br *ngIf="ct?.email">
+                        <small *ngIf="ct?.cell"><i class="fas fa-phone-square"></i> {{ ct?.cell }}</small>
+                      </mat-card-subtitle>
+                    </mat-card-header>
+                  </mat-card>
+                </div>
+              </div>
+            <br>
+          </mat-tab>
+          <mat-tab label="Property Description">
+            <br>
+            <div class="contactsBox row">
+              <div class="col-sm-12">
+                <mat-card>
+                  <mat-card-header>
+                    <mat-card-title><i class="fas fa-home"></i> Property Description</mat-card-title>
+                    <mat-card-subtitle>
+                      <small style="white-space: pre-wrap;">{{element.propertyDescription}}</small><br>
+                    </mat-card-subtitle>
+                  </mat-card-header>
+                </mat-card>
+              </div>
+            </div>
+            <br>
+          </mat-tab>
+          <mat-tab label="Entity" *ngIf="element.entity">
+            <br>
+              <div class="contactsBox row">
+                <div class="col-sm-12">
+                  <mat-card>
+                    <i (click)="editEntity(element.entity)"  class="fas fa-edit float-right text-right" style="cursor: pointer; color: black"></i>
+                    <mat-card-header>
+                      <mat-card-title style="justify-content: space-between">
+                        <i class="far fa-building"></i>
+                        {{element.entity.name}}
+                      </mat-card-title>
+                      <mat-card-subtitle>
+                        <small>
+                          <i class="fas fa-map-marker-alt"></i> {{element.entity.address}} &nbsp;
+                          <i class="fas fa-globe"></i> {{element.entity.website}}
+                        </small>
+                        <br>
+                      </mat-card-subtitle>
+                    </mat-card-header>
+                    <mat-card-content>
+                      <div class="contactsBox row">
+                        <div class="col-sm-12 col-md-6 col-lg{{numCards(element.entity)}}" *ngFor="let ct of element.entity.contacts; let i = index">
+                          <mat-card>
+                            <i (click)="editContact(ct)" class="fas fa-user-edit float-right text-right" style="cursor: pointer; color: black"></i>
+                            <mat-card-header>
+                              <mat-card-title style="justify-content: space-between">
+                                <i class="far fa-id-card"></i>
+                                {{ct.name + ' ' + ct.surname}}
+                              </mat-card-title>
+                              <mat-card-subtitle>
+                                <small><i class="fas fa-user-friends"></i> {{ct?.type}}</small><br>
+                                <small *ngIf="ct?.email"><i class="far fa-envelope"></i> {{ ct?.email }}</small><br *ngIf="ct?.email">
+                                <small *ngIf="ct?.cell"><i class="fas fa-phone-square"></i> {{ ct?.cell }}</small>
+                              </mat-card-subtitle>
+                            </mat-card-header>
+                          </mat-card>
+                        </div>
+                      </div>
+                    </mat-card-content>
+                  </mat-card>
+                </div>
+              </div>
+            <br>
+          </mat-tab>
+        </mat-tab-group>
+      </div>
     </div>
   </div>
 </ng-template>

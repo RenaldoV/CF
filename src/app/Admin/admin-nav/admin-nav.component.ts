@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import {AuthService} from '../../auth/auth.service';
 import {ActivatedRoute, Router} from '@angular/router';
+import {interval} from 'rxjs';
+import {startWith, switchMap} from 'rxjs/operators';
+import {AdminService} from '../admin.service';
 
 @Component({
   selector: 'app-nav',
@@ -8,14 +11,23 @@ import {ActivatedRoute, Router} from '@angular/router';
   styleUrls: ['./admin-nav.component.css']
 })
 export class AdminNavComponent implements OnInit {
-
+  smsCredits;
   constructor(
     private auth: AuthService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private adminService: AdminService
   ) { }
 
   ngOnInit() {
+    interval(20000)
+      .pipe(
+        startWith(0),
+        switchMap(() => this.adminService.getSmsCredits())
+      )
+      .subscribe(res => {
+        this.smsCredits = res;
+      });
   }
   logout() {
     this.auth.destroySession();

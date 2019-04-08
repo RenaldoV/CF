@@ -40,6 +40,7 @@ mat-accordion .mat-expansion-panel-header-description {
 
 .innerFormFields {
   margin-top: 5px;
+  width: 100%;
 }
 
 mat-expansion-panel.msPanel mat-expansion-panel-header.mat-expanded[style] {
@@ -57,5 +58,18 @@ mat-expansion-panel.msPanel mat-expansion-panel-header.mat-expanded[style] {
 
 mat-panel-title.mTitle {
   width: 90%;
+}
+mat-card-title {
+  font-size: 14px!important;
+}
+mat-card-title i.far {
+  color: #2476A7!important;
+}
+mat-card-subtitle i.fas {
+  color: #2476A7!important;
+}
+.fa-ellipsis-h {
+  cursor: pointer;
+  float: right;
 }
 

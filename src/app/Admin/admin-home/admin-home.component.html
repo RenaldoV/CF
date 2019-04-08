@@ -15,35 +15,10 @@
     </div>
     <div class="row">
       <div class="col-12">
-        <a class="btn btn-md btn-primary" role="button" [routerLink]="['/add-file']">New File</a>
+        <a class="btn btn-md btn-primary actionButtons" role="button" [routerLink]="['/add-file']">New File</a>
+        <button class="btn btn-md btn-primary actionButtons" (click)="addNewContact()">New Contact</button>
+        <button class="btn btn-md btn-primary actionButtons" (click)="addNewEntity()">New Entity</button>
       </div>
-     <!--  <div class="col-8">
-        <form [formGroup]="filterForm">
-          <div class="row">
-            <div class="col-3">
-              <mat-form-field>
-                <input matInput placeholder="File Ref" formControlName="fileRef">
-              </mat-form-field>
-            </div>
-            <div class="col-3">
-              <mat-form-field>
-                <input matInput placeholder="Our Ref" formControlName="ourRed">
-              </mat-form-field>
-            </div>
-            <div class="col-3">
-              <mat-form-field>
-                <input matInput placeholder="Buyer / Seller" formControlName="buyerSeller">
-              </mat-form-field>
-            </div>
-            <div class="col-3">
-              <mat-form-field>
-                <input matInput placeholder="Agent" formControlName="agent">
-              </mat-form-field>
-            </div>
-          </div>
-
-        </form>
-      </div>-->
       <div class="col-12">
         <hr>
       </div>

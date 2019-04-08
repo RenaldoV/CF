@@ -76,10 +76,43 @@ mat-row.archived {
 mat-row.archived:hover {
   background-color: darkgrey;
 }
-
-div.contactsBox  .col-sm-12 {
-  margin-bottom: 2px;
+div.contactsBox.row {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display:         flex;
+  flex-wrap: wrap;
 }
+div.contactsBox.row > [class*='col-'] {
+  margin-bottom: 2px;
+  display: flex;
+  flex-direction: column;
+}
+div.mat-tab-body-content.ng-trigger[style] {
+  overflow: hidden!important;
+}
+mat-card {
+  height: 100%;
+}
+::-webkit-scrollbar {
+  width: 7px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
 
 
 

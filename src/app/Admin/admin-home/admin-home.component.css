@@ -9,3 +9,8 @@
 mat-form-field {
   width: 100%;
 }
+
+.actionButtons {
+  color: white;
+  margin-left: 5px;
+}

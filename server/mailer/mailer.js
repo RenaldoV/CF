@@ -151,17 +151,42 @@ class Mailer {
       });
     });
   }
+  summaryAdded(adminName, email, summary, propDesc, fileRef, link, footerMessage) {
+    const context = {
+      name: adminName,
+      summary: summary,
+      propDesc: propDesc,
+      link: link,
+      footer: footerMessage,
+      fileRef: fileRef
+    };
+    const subject = 'New summary added by ' + adminName;
+    return new Promise((resolve, reject) => {
+      this.send('summary', context, email, subject).then(res => {
+        resolve(res);
+      }).catch(err => {
+        reject(err);
+      });
+    });
+  }
   weeklyUpdate(email, name, link, file) {
-    /*const message = 'Good day ' + name + '. ' + fileType + ': ' + properyDescription + '. \n\nherewith your weekly summary report. To view the file click the link below.';
-    const subject = fileType + ' file weekly report';
-    this.sendEmail(email, message, link, subject).then(res => {}).catch(err => {
-      console.log(err);
-    });*/
+    let newSummaries = [];
+    if (file.summaries) {
+      file.summaries.forEach((s, i) => {
+        newSummaries.push({
+          timeAgo: timeAgo.format(s.timestamp),
+          summary: s.summary,
+          user: {name: s.user.name}
+        });
+      });
+    } else {
+      newSummaries = null;
+    }
     let context = {
       name: name,
       fileType: file.milestoneList._id.title,
       propertyDescription: file.propertyDescription,
-      milestones: file.milestoneList.milestones.filter(m => m.completed),
+      summaries: newSummaries,
       link: link
     };
     const subject = context.fileType + ' file weekly report';
@@ -169,6 +194,23 @@ class Mailer {
     let that = this;
     return new Promise((resolve, reject) => {
       that.send('weeklyUpdate', context, email, subject).then(res => {
+        resolve(res);
+      }).catch(err => {
+        reject(err);
+      });
+    });
+  }
+  entityWeeklyUpdate(email, name, link, entity) {
+    let context = {
+      name: name,
+      entity: entity,
+      link: link
+    };
+    const subject = entity.name + ' weekly report';
+
+    let that = this;
+    return new Promise((resolve, reject) => {
+      that.send('entityWeeklyUpdate', context, email, subject).then(res => {
         resolve(res);
       }).catch(err => {
         reject(err);

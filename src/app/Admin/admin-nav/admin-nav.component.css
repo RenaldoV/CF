@@ -40,3 +40,26 @@ a.navbar-brand:hover {
   color: #f3f3f3;
   margin-right: 10px;
 }
+
+span.smsCredsLabel {
+  color: black;
+}
+
+small.creds {
+  padding: 2px;
+  border-radius: 50%;
+  color: white;
+}
+small.red {
+  background-color: red;
+}
+small.green {
+  background-color: green;
+}
+
+.fas.fa-sms {
+  font-size: 30px;
+}
+
+
+

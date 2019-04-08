@@ -116,6 +116,22 @@ export class AuthService {
         });
     });
   }
+  isEntity() {
+    return new Promise((resolve, reject) => {
+      const contact = JSON.parse(localStorage.getItem('user'));
+      this.http.post<any>(`${this.host}/isEntity`, {contact: contact})
+        .toPromise()
+        .then(res => {
+          if (res) {
+            resolve(true);
+          } else {
+            reject(false);
+          }
+        }).catch(e => {
+        reject(false);
+      });
+    });
+  }
   isContact() {
     return !!JSON.parse(localStorage.getItem('user')).type;
   }

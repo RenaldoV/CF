@@ -1,0 +1,127 @@
+<h2 mat-dialog-title>
+  {{existing ? 'Update Entity' : 'Add New Entity'}}
+</h2>
+
+<mat-dialog-content [formGroup]="entityForm">
+  <div style="margin-bottom: 10px;">
+    <mat-form-field class="innerFormFields">
+      <input (keyup)="onNameChange()" matInput placeholder="Entity Name" formControlName="name" required>
+      <mat-error *ngIf="name.hasError('required')">
+        Entity name is required.
+      </mat-error>
+      <mat-error *ngIf="name.hasError('nameNotUnique')">
+        Entity with name {{name.value}} already exists.
+      </mat-error>
+    </mat-form-field>
+    <br>
+    <mat-form-field class="innerFormFields">
+      <input matInput placeholder="Address" formControlName="address" required>
+      <mat-error>
+        Entity address is required.
+      </mat-error>
+    </mat-form-field>
+    <br>
+    <mat-form-field class="innerFormFields">
+      <input matInput placeholder="Telephone number" formControlName="telephone" required>
+      <mat-error *ngIf="telephone.hasError('required')">
+        Entity telephone number is required.
+      </mat-error>
+      <mat-error *ngIf="telephone.hasError('length')">
+        A valid telephone must be 10 digits long.
+      </mat-error>
+      <mat-error *ngIf="telephone.hasError('numbers')">
+        A valid telephone must consist of only numbers.
+      </mat-error>
+      <mat-error *ngIf="telephone.hasError('firstZero')">
+        A valid telephone must start with a 0.
+      </mat-error>
+    </mat-form-field>
+    <br>
+    <mat-form-field class="innerFormFields">
+      <input matInput placeholder="Website" formControlName="website" required>
+      <mat-error>
+        Entity website is required.
+      </mat-error>
+    </mat-form-field>
+    <br>
+    <mat-form-field class="example-chip-list innerFormFields">
+      <mat-chip-list #chipList ngDefaultControl [errorStateMatcher]="matcher" [formControl]="contacts">
+        <mat-chip
+          *ngFor="let con of contactsForEntities"
+          [selectable]="selectable"
+          [removable]="removable"
+          (removed)="removeContactPerson(con)">
+          {{con.name.split(' ')[0]}}
+          <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+        </mat-chip>
+        <input
+          placeholder="Contact Person/s *"
+          #conPersonInput
+          #conTrigger="matAutocompleteTrigger"
+          formControlName="contacts"
+          (focus)="onFocus()"
+          (click)="onFocus()"
+          [matAutocomplete]="auto"
+          [matChipInputFor]="chipList"
+          [matChipInputSeparatorKeyCodes]="separatorKeysCodes">
+        <span *ngIf="loaderService.isLoading | async" matSuffix>
+                            <i class="fas fa-spinner fa-spin"></i>
+                          </span>
+      </mat-chip-list>
+      <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selectedContactPerson($event)">
+        <mat-option *ngFor="let con of filteredContacts | async" [value]="con._id">
+          {{con.name}}
+        </mat-option>
+      </mat-autocomplete>
+      <mat-error *ngIf="contacts.touched && conPersChips.value.length < 1">
+        Select at least one contact person as a reference.
+      </mat-error>
+    </mat-form-field>
+    <br>
+    <mat-form-field class="example-chip-list innerFormFields">
+      <mat-chip-list #fileChipList ngDefaultControl [errorStateMatcher]="matcher" [formControl]="files">
+        <mat-chip
+          *ngFor="let f of selectedFiles"
+          [selectable]="selectable"
+          [removable]="removable"
+          (removed)="removeFile(f)">
+          {{f.fileRef}}
+          <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+        </mat-chip>
+        <input
+          placeholder="Files (Search by file reference)"
+          #fileInput
+          #fileTrigger="matAutocompleteTrigger"
+          formControlName="files"
+          (focus)="onFileFocus()"
+          (click)="onFileFocus()"
+          [matAutocomplete]="autoFiles"
+          [matChipInputFor]="fileChipList"
+          [matChipInputSeparatorKeyCodes]="separatorKeysCodes">
+        <span *ngIf="loaderService.isLoading | async" matSuffix>
+                            <i class="fas fa-spinner fa-spin"></i>
+                          </span>
+      </mat-chip-list>
+      <mat-autocomplete #autoFiles="matAutocomplete" (optionSelected)="selectedFile($event)">
+        <mat-option *ngFor="let f of filteredFiles | async" [value]="f._id">
+          {{f.fileRef}}
+        </mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+    <br>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+  <button class="btn btn-outline-secondary btn-sm closeBtn"(click)="close()">Close</button>
+  <button *ngIf="!existing" [disabled]="entityForm.invalid || (loaderService.isLoading | async)"
+          class="btn btn-primary btn-sm" (click)="submitEntity()">
+    <span *ngIf="!(loaderService.isLoading | async)"><i class="far fa-save"></i> Add Entity</span>
+    <i *ngIf="loaderService.isLoading | async" class="fas fa-spinner fa-spin"></i>
+  </button>
+  <button *ngIf="existing" [disabled]="entityForm.invalid || (loaderService.isLoading | async)"
+          class="btn btn-primary btn-sm" (click)="updateEntity()">
+    <span *ngIf="!(loaderService.isLoading | async)"><i class="far fa-save"></i> Save</span>
+    <i *ngIf="loaderService.isLoading | async" class="fas fa-spinner fa-spin"></i>
+  </button>
+</mat-dialog-actions>

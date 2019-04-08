@@ -14,7 +14,7 @@
           <form [formGroup]="fileForm">
             <ng-template matStepLabel>File Details</ng-template>
             <div class="row">
-              <div *ngIf="!(loaderService.isLoading | async) || file" class="col-sm-12 col-md-8 offset-md-2">
+              <div class="col-sm-12 col-md-8 offset-md-2">
                 <mat-form-field>
                 <input matInput placeholder="Our File Reference" formControlName="fileRef" required>
                 <mat-error *ngIf="fileRef.hasError('required')">
@@ -45,6 +45,7 @@
                     <input
                       placeholder="Secretary Name/s *"
                       #secInput
+                      #secTrigger="matAutocompleteTrigger"
                       formControlName="refUser"
                       (focus)="onFocus()"
                       (click)="onFocus()"
@@ -87,7 +88,6 @@
                   </mat-error>
                 </mat-form-field>
               </div>
-              <div *ngIf="loaderService.isLoading | async"  class="text-center col-12"><i class="fas fa-spinner fa-spin x3"></i></div>
             </div>
             <div>
               <button class="btn btn-primary btn-sm" matStepperNext>Next</button>
@@ -213,12 +213,53 @@
             </div>
           </div>
           <div style="margin-top: 10px;">
-            <button class="btn btn-primary btn-sm" matStepperNext [disabled]="fileContactsList.length < 1 || (loaderService.isLoading | async)" (click)="submitFile()">
+            <button [disabled]="fileContactsList.length < 1 || (loaderService.isLoading | async)" class="btn btn-primary btn-sm" matStepperNext>Next</button>
+            <button style="margin-right: 5px;" class="btn btn-outline-secondary btn-sm" matStepperPrevious>Back</button>
+            <button style="margin-right: 5px;" class="btn btn-outline-secondary btn-sm" (click)="createNewContactDialog()"><i class="fas fa-plus"></i> Add New Contact</button>
+          </div>
+        </mat-step>
+        <mat-step>
+          <ng-template matStepLabel>Add Entity</ng-template>
+          <div class="row">
+            <div class="col-sm-12 col-md-8 offset-md-2">
+              <mat-form-field class="example-chip-list innerFormFields">
+                <mat-chip-list #enChipList ngDefaultControl [errorStateMatcher]="matcher" [formControl]="entityChips">
+                  <mat-chip
+                    *ngFor="let en of selectedEntity"
+                    [selectable]="selectable"
+                    [removable]="removable"
+                    (removed)="removeEntity(en)">
+                    {{en.name}}
+                    <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+                  </mat-chip>
+                  <input
+                    placeholder="Associate an Entity with this file"
+                    #entityInput
+                    #enTrigger="matAutocompleteTrigger"
+                    [formControl]="entity"
+                    (focus)="onEnFocus()"
+                    (click)="onEnFocus()"
+                    [matAutocomplete]="enAuto"
+                    [matChipInputFor]="enChipList"
+                    [matChipInputSeparatorKeyCodes]="separatorKeysCodes">
+                  <span *ngIf="loaderService.isLoading | async" matSuffix>
+                            <i class="fas fa-spinner fa-spin"></i>
+                          </span>
+                </mat-chip-list>
+                <mat-autocomplete #enAuto="matAutocomplete" (optionSelected)="selectEntity($event)">
+                  <mat-option *ngFor="let en of filteredEntities | async" [value]="en._id">
+                    {{en.name}}
+                  </mat-option>
+                </mat-autocomplete>
+              </mat-form-field>
+            </div>
+          </div>
+          <div style="margin-top: 10px;">
+            <button [disabled]="loaderService.isLoading | async" class="btn btn-primary btn-sm" matStepperNext (click)="submitFile()">
               <span *ngIf="!(loaderService.isLoading | async)"><i class="far fa-save"></i> {{showRoute()}}</span>
               <i *ngIf="loaderService.isLoading | async" class="fas fa-spinner fa-spin"></i>
             </button>
             <button style="margin-right: 5px;" class="btn btn-outline-secondary btn-sm" matStepperPrevious>Back</button>
-            <button style="margin-right: 5px;" class="btn btn-outline-secondary btn-sm" (click)="createNewContactDialog()"><i class="fas fa-plus"></i> Add New Contact</button>
           </div>
         </mat-step>
       </mat-horizontal-stepper>
