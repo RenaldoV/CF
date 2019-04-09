@@ -2,7 +2,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { AddEntityDialogComponent } from './add-entity-dialog.component';
 
-describe('AddEntityDialogComponent', () => {
+describe('AddUploadDialogComponent', () => {
   let component: AddEntityDialogComponent;
   let fixture: ComponentFixture<AddEntityDialogComponent>;
 

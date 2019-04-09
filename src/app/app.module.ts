@@ -43,6 +43,7 @@ import { AlwaysAskNotificationsComponent } from './Files/always-ask-notification
 import { AddEntityDialogComponent } from './Entities/add-entity-dialog/add-entity-dialog.component';
 import { EntityLoginComponent } from './Entities/entity-login/entity-login.component';
 import { EntityComponent } from './Entities/entity/entity.component';
+import {AddUploadDialogComponent} from './RequiredDocuments/add-upload-dialog/add-upload-dialog.component';
 
 
 
@@ -71,7 +72,8 @@ import { EntityComponent } from './Entities/entity/entity.component';
     ContactForgotPasswordComponent,
     AlwaysAskNotificationsComponent,
     EntityLoginComponent,
-    EntityComponent
+    EntityComponent,
+    AddUploadDialogComponent
   ],
   imports: [
     MatInputModule,
@@ -118,7 +120,8 @@ import { EntityComponent } from './Entities/entity/entity.component';
     AddContactDialogComponent,
     AddCommentDialogComponent,
     AlwaysAskNotificationsComponent,
-    AddEntityDialogComponent
+    AddEntityDialogComponent,
+    AddUploadDialogComponent
   ]
 })
 export class AppModule { }

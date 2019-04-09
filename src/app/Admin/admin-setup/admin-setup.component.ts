@@ -29,6 +29,7 @@ import {map, startWith} from 'rxjs/operators';
 import {COMMA, ENTER} from '@angular/cdk/keycodes';
 import {AddContactDialogComponent} from '../../Contact/add-contact-dialog/add-contact-dialog.component';
 import {AddEntityDialogComponent} from '../../Entities/add-entity-dialog/add-entity-dialog.component';
+import {AddUploadDialogComponent} from '../../RequiredDocuments/add-upload-dialog/add-upload-dialog.component';
 
 @Component({
   selector: 'app-admin-setup',
@@ -37,6 +38,7 @@ import {AddEntityDialogComponent} from '../../Entities/add-entity-dialog/add-ent
 })
 export class AdminSetupComponent implements OnInit {
   MilestoneListForm: FormGroup;
+  allLists;
   PropertiesForm: FormGroup;
   ContactsForm: FormGroup;
   UsersForm: FormGroup;
@@ -199,6 +201,7 @@ export class AdminSetupComponent implements OnInit {
   getAllLists() {
     this.adminService.getAllMilestoneLists()
       .subscribe(res => {
+        this.allLists = res;
         this.patchLists(res);
       });
   }
@@ -959,6 +962,22 @@ export class AdminSetupComponent implements OnInit {
           });
         });
     }
+  }
+  // ================== ENTITY FUNCTIONS =================================
+  // ================== REQ DOCUMENTS FUNCTIONS ==========================
+  addUpload() {
+    const dialConfig = new MatDialogConfig();
+    dialConfig.disableClose = true;
+    dialConfig.autoFocus = true;
+    dialConfig.data = {
+      milestoneLists: this.allLists
+    };
+    const dialogRef = this.dialog.open(AddUploadDialogComponent, dialConfig);
+    dialogRef.afterClosed().subscribe(res => {
+      if (res) {
+        this.allEntities.push(res);
+      }
+    });
   }
 
   // TODO: Take out forms and make static content. Use dialog forms for adding and updating
