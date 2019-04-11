@@ -1400,10 +1400,11 @@ userRoutes.route('/addSummary').post((req, res, next) => {
   let smsContacts = req.body.smsContacts;
   File.findByIdAndUpdate(fileID,
     { $push: {summaries: summary}},
-    {fields: 'propertyDescription fileRef refUser deedsOffice bank'})
+    {fields: 'propertyDescription fileRef refUser deedsOffice bank milestoneList'})
     .populate('summaries.user', 'name')
     .populate('milestoneList.milestones._id', 'name')
     .populate('refUser', 'email name')
+    .populate('milestoneList._id', 'title')
     .exec((err, result) => {
     if (err) {
       return next(err);
@@ -1434,7 +1435,7 @@ userRoutes.route('/addSummary').post((req, res, next) => {
                       bank: result.bank
                     };
                     const url = req.protocol + '://' + req.get('host') + '/login/' + encodeURI(fileID) + '/' + encodeURI(ct._id);
-                    mailer.summaryAdded(user.name, ct.email, summary.summary, result.propertyDescription, result.fileRef, url, buildMessage(commentFooter, footerContext));
+                    mailer.summaryAdded(user.name, ct.email, summary.summary, result.propertyDescription, result.fileRef, url, buildMessage(commentFooter, footerContext), result.milestoneList._id.title);
                   }
                 });
               }

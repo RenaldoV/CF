@@ -151,14 +151,15 @@ class Mailer {
       });
     });
   }
-  summaryAdded(adminName, email, summary, propDesc, fileRef, link, footerMessage) {
+  summaryAdded(adminName, email, summary, propDesc, fileRef, link, footerMessage, fileType) {
     const context = {
       name: adminName,
       summary: summary,
       propDesc: propDesc,
       link: link,
       footer: footerMessage,
-      fileRef: fileRef
+      fileRef: fileRef,
+      fileType: fileType
     };
     const subject = 'New summary added by ' + adminName;
     return new Promise((resolve, reject) => {
