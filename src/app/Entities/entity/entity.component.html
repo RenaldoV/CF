@@ -53,6 +53,53 @@
                 </mat-expansion-panel-header>
                 <div class="container" style="min-height: 200px">
                   <mat-tab-group mat-align-tabs="center">
+                    <mat-tab label="File Details">
+                      <br>
+                      <div class="row">
+                        <br>
+                        <div class="col-6">
+                          <i class="fas fa-home"></i> {{file.propertyDescription}}
+                        </div>
+                        <div class="col-6">
+                          <i class="fas fa-calendar-day"></i> {{formatDate(file.createdAt)}}
+                        </div>
+                        <br>
+                        <div class="col-sm-12 col-md-6 col-lg contactCards" *ngFor="let user of file.refUser">
+                          <mat-card>
+                            <mat-card-header>
+                              <mat-card-title style="justify-content: space-between">
+                                <i class="fas fa-user-tie"></i>
+                                {{user.name + ' ' + user.surname}}
+                              </mat-card-title>
+                              <mat-card-subtitle>
+                                <small><i class="fas fa-user-friends"></i> Conveyancing Secretary</small>
+                                <br>
+                                <small *ngIf="user?.email"><i class="far fa-envelope"></i> {{ user?.email }}</small>
+                                <br *ngIf="user?.email">
+                                <small *ngIf="user?.cell"><i class="fas fa-phone-square"></i> {{ user?.cell }}</small>
+                              </mat-card-subtitle>
+                            </mat-card-header>
+                          </mat-card>
+                        </div>
+                        <div class="col-sm-12 col-md-6 col-lg contactCards" *ngFor="let ct of file.contacts">
+                          <mat-card>
+                            <mat-card-header>
+                              <mat-card-title style="justify-content: space-between">
+                                <i class="far fa-id-card"></i>
+                                {{ct.name + ' ' + ct.surname}}
+                              </mat-card-title>
+                              <mat-card-subtitle>
+                                <small><i class="fas fa-user-friends"></i> {{ct.type}}</small>
+                                <br>
+                                <small *ngIf="ct?.email"><i class="far fa-envelope"></i> {{ ct?.email }}</small>
+                                <br *ngIf="ct?.email">
+                                <small *ngIf="ct?.cell"><i class="fas fa-phone-square"></i> {{ ct?.cell }}</small>
+                              </mat-card-subtitle>
+                            </mat-card-header>
+                          </mat-card>
+                        </div>
+                      </div>
+                    </mat-tab>
                     <mat-tab label="Completed Milestones">
                       <div class="row">
                         <div class="col-12">
@@ -113,53 +160,6 @@
                               </div>
                             </mat-expansion-panel>
                           </mat-accordion>
-                        </div>
-                      </div>
-                    </mat-tab>
-                    <mat-tab label="{{file.milestoneList._id.title}} Details">
-                      <br>
-                      <div class="row">
-                        <br>
-                        <div class="col-6">
-                          <i class="fas fa-home"></i> {{file.propertyDescription}}
-                        </div>
-                        <div class="col-6">
-                          <i class="fas fa-calendar-day"></i> {{formatDate(file.createdAt)}}
-                        </div>
-                        <br>
-                        <div class="col-sm-12 col-md-6 col-lg contactCards" *ngFor="let user of file.refUser">
-                          <mat-card>
-                            <mat-card-header>
-                              <mat-card-title style="justify-content: space-between">
-                                <i class="fas fa-user-tie"></i>
-                                {{user.name + ' ' + user.surname}}
-                              </mat-card-title>
-                              <mat-card-subtitle>
-                                <small><i class="fas fa-user-friends"></i> Conveyancing Secretary</small>
-                                <br>
-                                <small *ngIf="user?.email"><i class="far fa-envelope"></i> {{ user?.email }}</small>
-                                <br *ngIf="user?.email">
-                                <small *ngIf="user?.cell"><i class="fas fa-phone-square"></i> {{ user?.cell }}</small>
-                              </mat-card-subtitle>
-                            </mat-card-header>
-                          </mat-card>
-                        </div>
-                        <div class="col-sm-12 col-md-6 col-lg contactCards" *ngFor="let ct of file.contacts">
-                          <mat-card>
-                            <mat-card-header>
-                              <mat-card-title style="justify-content: space-between">
-                                <i class="far fa-id-card"></i>
-                                {{ct.name + ' ' + ct.surname}}
-                              </mat-card-title>
-                              <mat-card-subtitle>
-                                <small><i class="fas fa-user-friends"></i> {{ct.type}}</small>
-                                <br>
-                                <small *ngIf="ct?.email"><i class="far fa-envelope"></i> {{ ct?.email }}</small>
-                                <br *ngIf="ct?.email">
-                                <small *ngIf="ct?.cell"><i class="fas fa-phone-square"></i> {{ ct?.cell }}</small>
-                              </mat-card-subtitle>
-                            </mat-card-header>
-                          </mat-card>
                         </div>
                       </div>
                     </mat-tab>

@@ -9,7 +9,7 @@
   </div>
   <div class="home-container">
     <mat-tab-group *ngIf="file" mat-align-tabs="center">
-      <mat-tab label="{{file.milestoneList._id.title}} Details">
+      <mat-tab label="File Details">
         <br>
         <div class="row">
           <br>
@@ -142,5 +142,143 @@
         <i class="fas fa-3x fa-spinner fa-spin x3"></i>
       </div>
     </div>
+    <!--<div class="row headerRow">
+      <div class="col-3">
+        <p>Action Type</p>
+      </div>
+      <div class="col-3">
+        <p>Deeds Office</p>
+      </div>
+      <div class="col-3">
+        <p>Created</p>
+      </div>
+      <div class="col-3">
+        <p>Updated</p>
+      </div>
+    </div>
+    <hr style="margin: 0px">
+    <div class="row" *ngIf="!file">
+      <div class="text-center col-12">
+        <i class="fas fa-3x fa-spinner fa-spin x3"></i>
+      </div>
+    </div>
+    <div class="row detailRow" *ngIf="file">
+      <div class="col-3">
+        <p>{{file.milestoneList._id.title}}</p>
+      </div>
+      <div class="col-3">
+        <p>{{file.deedsOffice}}</p>
+      </div>
+      <div class="col-3">
+        <small style="color: #888888">{{convertDate('yyyy/mm/dd', file.createdAt)}}<br>by {{file.createdBy.name}}</small>
+      </div>
+      <div class="col-3">
+        <small style="color: #888888">{{convertDate('yyyy/mm/dd', file.updatedAt)}}<br>by {{file.updatedBy.name}}</small>
+      </div>
+      <div class="col-12"><hr></div>
+    </div>
+    <div class="row card-cols" *ngIf="file">
+      <div *ngIf="file.companyAdmin" class="col-sm-12 col-md-6 col-lg{{numCards()}}">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title><i class="far fa-building"></i> {{getCompanyInfo().company}}</mat-card-title>
+            <mat-card-subtitle>
+              <small><i class="fas fa-map-marker-alt"></i> {{file.deedsOffice}}</small><br>
+              <small><i class="fas fa-user-friends"></i> {{getCompanyInfo().name}}</small><br>
+              <small><i class="far fa-envelope"></i> {{getCompanyInfo().email}}</small><br>
+            </mat-card-subtitle>
+          </mat-card-header>
+        </mat-card>
+      </div>
+      <div class="col-sm-12 col-md-6 col-lg{{numCards()}}">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title><i class="fas fa-home"></i> Property Description</mat-card-title>
+            <mat-card-subtitle>
+              <small style="white-space: pre-wrap;">{{file.propertyDescription}}</small><br>
+            </mat-card-subtitle>
+          </mat-card-header>
+        </mat-card>
+      </div>
+      <div *ngFor="let ct of getContacts()"
+           class="col-sm-12 col-md-6 col-lg{{numCards()}}">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title><i class="fas fa-user{{ct.type === 'Agent' ? '-tie' : ''}}"></i> {{ct.name + ' ' + ct.surname}}</mat-card-title>
+            <mat-card-subtitle>
+              <small><i class="fas fa-user-friends"></i> {{ct?.type}}</small><br>
+              <small><i class="far fa-envelope"></i> {{ ct?.email }}</small><br>
+              <small><i class="fas fa-phone-square"></i> {{ ct?.cell }}</small>
+            </mat-card-subtitle>
+          </mat-card-header>
+        </mat-card>
+      </div>
+      <div *ngFor="let s of file.refUser"
+           class="col-sm-12 col-md-6 col-lg{{numCards()}}">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title><i class="fas fa-user-tie"></i> {{s.name}}</mat-card-title>
+            <mat-card-subtitle>
+              <small><i class="fas fa-user-friends"></i> Secretary</small><br>
+              <small><i class="far fa-envelope"></i> {{ s?.email }}</small><br>
+              <small><i class="fas fa-phone-square"></i> {{ s?.cell }}</small>
+            </mat-card-subtitle>
+          </mat-card-header>
+        </mat-card>
+      </div>
+    </div>
+    <br>
+    <mat-accordion *ngIf="file">
+      <p class="text-center" style="color: #888888" *ngIf="file.milestoneList.milestones.length < 1">No milestones have been completed</p>
+      <h5 class="text-center" style="color: #888888" *ngIf="file.milestoneList.milestones.length > 0"><i class="fas fa-flag-checkered"></i>  Completed milestones</h5>
+      <mat-expansion-panel *ngFor="let milestone of file.milestoneList.milestones; let i = index" hideToggle
+                           (opened)="milestoneOpenState = true" (closed)="milestoneOpenState = false">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <span class="mTitle">
+              {{ milestone._id.name }}
+              <small style="color: #1DA1F2">
+                &nbsp;({{milestone.comments.length}} Comment{{milestone.comments.length < 1 || milestone.comments.length > 1? 's' : ''}})
+              </small>
+              <small class="comment" *ngIf="milestone.comments.length > 0 && !milestoneOpenState">
+                  <br/>
+                  <span style="color:red">Last comment:</span>
+                  <i class="fas fa-user-tie"></i> <span style="font-weight: bold; color: darkslategray"> {{milestone.comments[milestone.comments.length - 1]?.user?.name}}</span>
+                  <div class="speech">
+                    {{milestone.comments[milestone.comments.length - 1]?.comment}}<small style="color: #888888"> {{milestone.comments[milestone.comments.length - 1]?.timestamp | amTimeAgo}}</small>
+                  </div>
+                  <br>
+                </small>
+            </span>
+          </mat-panel-title>
+          <mat-panel-description>
+            <small style="color: darkgrey">
+              Last Updated: {{convertDate('dd/mm/yyyy', milestone.updatedAt)}} <br>by {{milestone.updatedBy.name}}
+            </small>
+            <h4><i class="far fa{{milestone.completed ? '-check' : ''}}-square"></i></h4>
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+        <h5 style="color: darkslategray">Comments: </h5>
+        <div class="comments" style="text-indent: 2em">
+          <span *ngIf="milestone.comments < 1">No comments to display</span>
+          <div class="comment" *ngFor="let c of milestone.comments">
+            <i class="fas fa-user-tie"></i> <span
+            style="font-weight: bold; color: darkslategray"> {{c.user.name}}</span>
+            <div class="speech">
+              {{c.comment}}<small style="color: #888888"> {{c.timestamp | amTimeAgo}}</small>
+            </div>
+          </div>
+
+          <div class="milestoneComments">
+            &lt;!&ndash;<div class="btn-group" role="group" aria-label="action buttons" style="margin-top: 5px;">
+              <button class="btn btn-secondary btn-sm saveButton" color="primary" (click)="addComment(milestone, i, element._id)">
+                <span *ngIf="!(loaderService.isLoading | async)"><i class="far fa-comment"></i> Add comment</span>
+                <i *ngIf="loaderService.isLoading | async" class="fas fa-spinner fa-spin"></i>
+              </button>
+            </div>&ndash;&gt;
+          </div>
+        </div>
+      </mat-expansion-panel>
+    </mat-accordion>-->
   </div>
 </div>
