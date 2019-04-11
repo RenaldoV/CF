@@ -378,7 +378,6 @@ userRoutes.route('/updateMilestone').post((req, res, next) => {
 });
 userRoutes.route('/list').get((req, res, next) => {
   // get all milestone Lists
-  // TODO: get lists from specific user and not just all lists in DB
   List.find().populate({path: 'milestones', options: {sort: {'number': 1}}}).exec((err, lists) => {
     if (err) return next(err);
     else if (lists) {
@@ -1053,7 +1052,6 @@ userRoutes.route('/addFile').post((req, res, next) => {
     if (err) {
       return next(err);
     }else if (result) {
-      console.log(result);
       res.send(result);
     }
   });
