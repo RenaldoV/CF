@@ -70,6 +70,22 @@
     <div class="row">
       <div class="col-12" style="min-height: 200px;">
         <mat-tab-group mat-align-tabs="center">
+          <mat-tab label="{{element.milestoneList._id.title}} Details">
+            <br>
+            <div class="contactsBox row">
+              <div class="col-sm-12">
+                <mat-card>
+                  <mat-card-header>
+                    <mat-card-title><i class="fas fa-home"></i> {{element.milestoneList._id.title}} Details</mat-card-title>
+                    <mat-card-subtitle>
+                      <small style="white-space: pre-wrap;">{{element.propertyDescription}}</small><br>
+                    </mat-card-subtitle>
+                  </mat-card-header>
+                </mat-card>
+              </div>
+            </div>
+            <br>
+          </mat-tab>
           <mat-tab label="Milestones">
             <br>
               <div class="row">
@@ -170,22 +186,6 @@
                   </mat-card>
                 </div>
               </div>
-            <br>
-          </mat-tab>
-          <mat-tab label="Property Description">
-            <br>
-            <div class="contactsBox row">
-              <div class="col-sm-12">
-                <mat-card>
-                  <mat-card-header>
-                    <mat-card-title><i class="fas fa-home"></i> Property Description</mat-card-title>
-                    <mat-card-subtitle>
-                      <small style="white-space: pre-wrap;">{{element.propertyDescription}}</small><br>
-                    </mat-card-subtitle>
-                  </mat-card-header>
-                </mat-card>
-              </div>
-            </div>
             <br>
           </mat-tab>
           <mat-tab label="Entity" *ngIf="element.entity">
