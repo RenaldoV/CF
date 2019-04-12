@@ -38,7 +38,7 @@
 </mat-dialog-content>
 
 <mat-dialog-actions>
-  <button class="btn btn-outline-secondary btn-sm closeBtn" (click)="close()">Close</button>
+  <button class="btn btn-outline-secondary btn-sm closeBtn">Close</button>
   <button *ngIf="!existing" [disabled]="uploadForm.invalid || (loaderService.isLoading | async)"
           class="btn btn-primary btn-sm" >
     <span *ngIf="!(loaderService.isLoading | async)"><i class="far fa-save"></i> Add Required Doc</span>
