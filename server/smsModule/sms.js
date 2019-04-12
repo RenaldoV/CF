@@ -67,7 +67,7 @@ class Sms {
       });
   }
   summaryAdded(contact, summary, adminName, propDesc, fileRef, footer) {
-    const preMessage = adminName + ' added a summary: ' + propDesc + '. ' + fileRef + '. ';
+    const preMessage = adminName + ' added a summary progress report: ' + propDesc + '. ' + fileRef + '. ';
     let lengthPreComment = preMessage.length + footer.length + 2; // get length of sms body without comment
     let totalLength = summary.length + lengthPreComment;
     if ( totalLength > 740 ) {
@@ -77,7 +77,7 @@ class Sms {
       let cutIndice = summary.length - overflow;
       summary = summary.substring(0, cutIndice);
     }
-    const message = adminName + ' added a summary: ' + propDesc + '. ' + fileRef + '. ' + summary + '. ' + footer;
+    const message = adminName + ' added a summary progress report: ' + propDesc + '. ' + fileRef + '. ' + summary + '. ' + footer;
     // console.log('final total length: ' + message.length);
     return this.send(contact, message)
       .then(res => {
