@@ -186,7 +186,7 @@ class Mailer {
       name: name,
       fileType: file.milestoneList._id.title,
       propertyDescription: file.propertyDescription,
-      summaries: newSummaries,
+      summaries: newSummaries[newSummaries.length - 1],
       link: link
     };
     const subject = context.fileType + ' file weekly report';

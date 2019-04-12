@@ -8,19 +8,17 @@ Herewith your weekly summary report.
 <br>
 {{#if summaries}}
   <p>Current summary progress report:</p>
-  {{#each summaries}}
     <div>
       <div style="width: 30%; float: left; position: relative">
-        <span style="font-weight: bold; color: dimgray"><i class="fas fa-user-tie"></i> &nbsp;{{this.user.name}}</span>
-        <small style="color: #888888; float: right"> {{this.timeAgo}}</small>
+        <span style="font-weight: bold; color: dimgray"><i class="fas fa-user-tie"></i> &nbsp;{{summaries.user.name}}</span>
+        <small style="color: #888888; float: right"> {{summaries.timeAgo}}</small>
       </div>
       <div style="background-color: #F5F5F5; padding: 0px 8px 0px 8px; color: darkslategrey; font-size: 15px; width: 60%; float: left; position: relative">
-        <span>{{this.summary}}</span>
+        <span>{{summaries.summary}}</span>
       </div>
     </div>
-  {{/each}}
 {{else}}
-  <p style="color: gray;">No summary added.</p>
+  <p style="color: gray;">No summary progress report added.</p>
 {{/if}}
 <br>
 <br>
