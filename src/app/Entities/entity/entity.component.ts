@@ -34,11 +34,11 @@ export class EntityComponent implements OnInit {
   ngOnInit() {
   }
   formatDate(date) {
-    date = new Date(date);
-    return date.getDate() + '/' + date.getMonth() + '/' + date.getFullYear();
+    const d = new Date(date);
+    return [d.getDate(), d.getMonth() + 1, d.getFullYear()]
+      .map(n => n < 10 ? `0${n}` : `${n}`).join('/');
   }
 
 }
 
-// TODO: password tooltip on all register pages
 // TODO: BUG last comments doesn't always load correctly
