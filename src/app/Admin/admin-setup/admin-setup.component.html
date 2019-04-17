@@ -574,10 +574,10 @@
             <i class="fas fa-plus"></i> Add Entity
           </button>
         </mat-expansion-panel>
-        <!--<mat-expansion-panel hideToggle>
+        <mat-expansion-panel hideToggle>
           <mat-expansion-panel-header>
             <mat-panel-title>
-              Uploads
+              Required Documents
             </mat-panel-title>
             <mat-panel-description>
               Manage required document uploads for milestones
@@ -585,62 +585,34 @@
             </mat-panel-description>
           </mat-expansion-panel-header>
           <div class="row">
-            &lt;!&ndash;<div class="col-10 offset-1" style="margin-bottom: 10px;">
+            <div class="col-10 offset-1" style="margin-bottom: 10px;">
               <mat-accordion>
-                <mat-expansion-panel hideToggle class="msListPanel" [expanded]="i + 1 === allEntities.length"
-                                     *ngFor="let e of allEntities; let i = index">
+                <mat-expansion-panel hideToggle class="msListPanel" [expanded]="i + 1 === allRDs.length"
+                                     *ngFor="let rd of allRDs; let i = index">
                   <mat-expansion-panel-header>
                     <mat-panel-description>
-                      {{e.name}}
-                      <i class="fas fa-ellipsis-h float-right" [matMenuTriggerFor]="actionsMenu" (click)="$event.stopPropagation()"></i>
+                      {{rd.name}}
+                      <i class="fas fa-ellipsis-h float-right" [matMenuTriggerFor]="RDactionsMenu" (click)="$event.stopPropagation()"></i>
                     </mat-panel-description>
                   </mat-expansion-panel-header>
-                  <mat-menu #actionsMenu="matMenu">
-                    <button mat-menu-item (click)="editEntity(e)"><i class="far fa-edit"></i> Edit</button>
-                    <button mat-menu-item (click)="removeEntity(e)"><i class="fas fa-trash-alt deleteBtn"></i> Delete</button>
+                  <mat-menu #RDactionsMenu="matMenu">
+                    <button mat-menu-item (click)="editRD(rd)"><i class="far fa-edit"></i> Edit</button>
+                    <button mat-menu-item (click)="removeRD(rd)"><i class="fas fa-trash-alt deleteBtn"></i> Delete</button>
                   </mat-menu>
                   <div class="row">
                     <div class="col-12">
                       <br>
-                      <p><i class="fas fa-map-marker-alt"></i> {{e.address}}</p>
-                      <p><i class="fas fa-globe"></i> <a [href]="'//' + e.website" target="_blank">{{' ' + e.website}}</a></p>
-                    </div>
-                    <div class="col-12" style="min-height: 200px;">
-                      <mat-tab-group mat-align-tabs="center">
-                        <mat-tab label="Contacts">
-                          <br>
-                          <div class="col-12" style="margin-top: 5px" *ngFor="let c of e.contacts">
-                            <mat-card>
-                              <mat-card-title>
-                                <i class="far fa-id-card"></i> {{' ' + c.name +  ' ' + c.surname}}
-                              </mat-card-title>
-                            </mat-card>
-                          </div>
-                          <br>
-                        </mat-tab>
-                        <mat-tab label="Files">
-                          <br>
-                          <div class="col-12" style="margin-top: 5px" *ngFor="let f of e.files">
-                            <mat-card>
-                              <mat-card-title>
-                                <i class="far fa-file"></i> {{' ' + f.fileRef}}
-                              </mat-card-title>
-                              <mat-card-subtitle>{{f.milestoneList._id.title}}</mat-card-subtitle>
-                            </mat-card>
-                          </div>
-                          <br>
-                        </mat-tab>
-                      </mat-tab-group>
+                      <p><i class="fas fa-flag"></i> {{' ' + rd.milestone.number + ': ' + rd.milestone.name}}</p>
                     </div>
                   </div>
                 </mat-expansion-panel>
               </mat-accordion>
-            </div>&ndash;&gt;
+            </div>
           </div>
-          <button class="btn btn-outline-primary btn-sm" color="primary" (click)="addUpload()">
-            <i class="fas fa-plus"></i> Add Upload
-          </button>
-        </mat-expansion-panel>-->
+          <button class="btn btn-outline-primary btn-sm" color="primary" (click)="addReqDoc()">
+          <i class="fas fa-plus"></i> Add Required Doc
+        </button>
+        </mat-expansion-panel>
         <mat-expansion-panel hideToggle *ngIf="iAmAdmin()">
           <mat-expansion-panel-header>
             <mat-panel-title>

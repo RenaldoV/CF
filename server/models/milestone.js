@@ -11,7 +11,8 @@ const Milestone = new Schema({
   sendEmail: Boolean,
   sendSMS: Boolean,
   alwaysAsk: Boolean,
-  updatedBy: {type: Schema.Types.ObjectId, ref: 'User'}
+  updatedBy: {type: Schema.Types.ObjectId, ref: 'User'},
+  requiredDocument: {type: Schema.Types.ObjectId, ref: 'RequiredDocument'}
 },
 {
   collection: 'milestones',

@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 let RequiredDocument = new mongoose.Schema({
     name: String,
-    milestoneID: {type: Schema.Types.ObjectId, ref: 'Milestone'},
+    milestone: {type: Schema.Types.ObjectId, ref: 'Milestone'},
   },
   {
     collection: 'requiredDocuments'

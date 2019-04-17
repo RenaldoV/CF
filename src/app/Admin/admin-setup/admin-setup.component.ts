@@ -29,7 +29,8 @@ import {map, startWith} from 'rxjs/operators';
 import {COMMA, ENTER} from '@angular/cdk/keycodes';
 import {AddContactDialogComponent} from '../../Contact/add-contact-dialog/add-contact-dialog.component';
 import {AddEntityDialogComponent} from '../../Entities/add-entity-dialog/add-entity-dialog.component';
-import {AddUploadDialogComponent} from '../../RequiredDocuments/add-upload-dialog/add-upload-dialog.component';
+import {AddRequiredDocumentDialogComponent} from '../../RequiredDocuments/add-required-document-dialog/add-required-document-dialog.component';
+import {RequiredDocumentsService} from '../../RequiredDocuments/required-documents.service';
 
 @Component({
   selector: 'app-admin-setup',
@@ -49,6 +50,7 @@ export class AdminSetupComponent implements OnInit {
   visible = true;
   allContacts: any[] = [];
   allEntities: any[] = [];
+  allRDs: any[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -59,7 +61,8 @@ export class AdminSetupComponent implements OnInit {
     public loaderService: LoaderService,
     private matSnack: MatSnackBar,
     private entityService: EntityService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private rdService: RequiredDocumentsService
   ) {
     this.createMilestoneListForm();
     this.getAllLists();
@@ -71,6 +74,7 @@ export class AdminSetupComponent implements OnInit {
     this.createUsersForm();
     this.getUsers();
     this.getAllEntities();
+    this.getAllReqDocs();
   }
 
   ngOnInit() {}
@@ -965,19 +969,68 @@ export class AdminSetupComponent implements OnInit {
   }
   // ================== ENTITY FUNCTIONS =================================
   // ================== REQ DOCUMENTS FUNCTIONS ==========================
-  addUpload() {
+  addReqDoc() {
     const dialConfig = new MatDialogConfig();
     dialConfig.disableClose = true;
     dialConfig.autoFocus = true;
     dialConfig.data = {
       milestoneLists: this.allLists
     };
-    const dialogRef = this.dialog.open(AddUploadDialogComponent, dialConfig);
+    const dialogRef = this.dialog.open(AddRequiredDocumentDialogComponent, dialConfig);
     dialogRef.afterClosed().subscribe(res => {
       if (res) {
-        this.allEntities.push(res);
+        this.allRDs.push(res);
       }
     });
+  }
+  getAllReqDocs() {
+    this.rdService.getllReqDocs()
+      .subscribe(res => {
+        if (res) {
+          this.allRDs = res;
+        }
+      }, err => {
+        console.log(err);
+    });
+  }
+  editRD(rd) {
+    const dialConfig = new MatDialogConfig();
+    dialConfig.disableClose = true;
+    dialConfig.autoFocus = true;
+    dialConfig.data = {
+      milestoneList: this.allLists,
+      rd: rd
+    };
+    const dialogRef = this.dialog.open(AddRequiredDocumentDialogComponent, dialConfig);
+    dialogRef.afterClosed().subscribe(res => {
+      if (res) {
+        const index = this.allRDs.indexOf(rd);
+        this.allRDs[index] = res;
+      }
+    });
+  }
+  removeRD(rd) {
+    if (confirm('Are you sure you want to delete ' + rd.name + ' from your required documents list?')) {
+      this.rdService.deleteRequiredDocument(rd._id)
+        .subscribe(res => {
+          if (res) {
+            this.matSnack.open('Required Document deleted successfully');
+            this.allRDs = this.allRDs.filter(RD => {
+              return RD._id !== rd._id;
+            });
+          } else {
+            const sb = this.matSnack.open('Required Document not deleted successfully', 'retry');
+            sb.onAction().subscribe(() => {
+              this.removeRD(rd);
+            });
+          }
+        }, err => {
+          const sb = this.matSnack.open('Required Document not deleted successfully', 'retry');
+          sb.onAction().subscribe(() => {
+            this.removeRD(rd);
+          });
+        });
+    }
   }
 
   // TODO: Take out forms and make static content. Use dialog forms for adding and updating

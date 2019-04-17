@@ -8,6 +8,7 @@ const Properties = require('../models/properties');
 const Contact = require('../models/contact');
 const File = require('../models/file');
 const Entity = require('../models/entity');
+const RequiredDocument = require('../models/reqDocuments');
 const bcrypt = require('bcrypt');
 const Mailer = require ('../mailer/mailer');
 const Sms = require('../smsModule/sms');
@@ -1728,7 +1729,52 @@ userRoutes.route('/getEntity').post((req, res, next) => {
       }
   })
 });
-
+// ============================ ENTITY ROUTES  =========================
+// ============================ REQUIRED DOCUMENTS ROUTES  =============
+userRoutes.route('/createRequiredDocument').post((req, res, next) => {
+  let rd = req.body.rd;
+  RequiredDocument.create(rd, (err, rd) => {
+    if (err) return next(err);
+    else {
+      RequiredDocument.populate(rd, [{path: 'milestone', select: {'name': 1, 'number': 1}}], (err, requiredDoc) => {
+        if(err) next(err);
+        else {
+          res.send(requiredDoc);
+        }
+      });
+    }
+  })
+});
+userRoutes.route('/requiredDocuments').get((req, res, next) => {
+  RequiredDocument.find({})
+    .populate('milestone', 'name number')
+    .exec((err, rds) => {
+      if (err) return next(err);
+      else {
+        res.send(rds);
+      }
+    })
+});
+userRoutes.route('/updateRequiredDocument').post((req, res, next) => {
+  let rd = req.body.rd;
+  RequiredDocument.findByIdAndUpdate(rd._id, rd, {new: true})
+    .populate('milestone', 'name number')
+    .exec((err, rds) => {
+      if (err) return next(err);
+      else {
+        res.send(rds);
+      }
+    })
+});
+userRoutes.route('/RequiredDocument/:id').delete((req, res, next) => {
+  const id = req.params.id;
+  RequiredDocument.findByIdAndRemove(id, (err, result) => {
+    if(err) next(err);
+    else {
+      res.send(true);
+    }
+  })
+});
 
 module.exports = userRoutes;
 

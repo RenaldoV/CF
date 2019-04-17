@@ -2,7 +2,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { AddContactDialogComponent } from './add-contact-dialog.component';
 
-describe('AddUploadDialogComponent', () => {
+describe('AddRequiredDocumentDialogComponent', () => {
   let component: AddContactDialogComponent;
   let fixture: ComponentFixture<AddContactDialogComponent>;
 
