@@ -1,0 +1,19 @@
+<app-general-nav></app-general-nav>
+<div class="mainContainer container" *ngIf="contact && file && requiredDoc">
+  <div class="row">
+    <div class="col-12 text-center">
+      <br>
+      <h3>Required Document Uploads for:</h3>
+      <h3 class="routeHeader" style="color: gray">File: {{file.fileRef}}</h3>
+      <h3 class="routeHeader" style="color: gray">Milestone: {{requiredDoc.milestone.name}}</h3>
+    </div>
+    <br>
+  </div>
+</div>
+
+<p style="color: gray" class="text-center" *ngIf="!(contact || file || requiredDoc) && !(loaderService.isLoading | async)">>You are not authorised to upload documents to this file</p>
+<div class="row" *ngIf="loaderService.isLoading | async">
+  <div class="text-center col-12">
+    <i class="fas fa-3x fa-spinner fa-spin x3"></i>
+  </div>
+</div>

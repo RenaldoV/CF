@@ -33,4 +33,7 @@ export class RequiredDocumentsService {
   getllReqDocs() {
     return this.http.get<any>(`${this.host}/requiredDocuments`);
   }
+  getRequiredDoc(id) {
+    return this.http.get<any>(`${this.host}/requiredDocument/${id}`);
+  }
 }

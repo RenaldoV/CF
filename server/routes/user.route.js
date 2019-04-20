@@ -1185,7 +1185,7 @@ userRoutes.route('/completeMilestone').post((req, res, next) => {
     .exec((err, newFile) => {
       if (err) {
         return next(err);
-      }else if (newFile) {
+      } else if (newFile) {
         async.parallel({
           contacts: (callback) => {
             Contact.find({_id: {$in: newFile.contacts}}).exec((er, cts) => {
@@ -1201,6 +1201,11 @@ userRoutes.route('/completeMilestone').post((req, res, next) => {
             Milestone.findById(milestoneID, (er, m) => {
               callback(er, milestoneID);
             });
+          },
+          requiredDocuments: (callback) => {
+            RequiredDocument.find({milestone: milestoneID}, (er, rds) => {
+              callback(er, rds);
+            })
           }
         }, (er, callback) => {
           if (er) {
@@ -1213,6 +1218,13 @@ userRoutes.route('/completeMilestone').post((req, res, next) => {
               if (notiProps.sendEmail) { // send email
                 if (notiProps.emailContacts) { // contacts have been chosen for emails
                   notiProps.emailContacts.forEach(ct => {
+                    let requiredDocuments = null;
+                    if (callback.requiredDocuments.length > 0) { // build required document upload links for buttons in email
+                      requiredDocuments = [];
+                      callback.requiredDocuments.forEach(rd => {
+                        requiredDocuments.push({name: rd.name, link: req.protocol + '://' + req.get('host') + '/upload/' + encodeURI(fileID) + '/' + encodeURI(rd._id) + '/' + encodeURI(ct._id)});
+                      });
+                    }
                     const url = req.protocol + '://' + req.get('host') + '/login/' + encodeURI(fileID) + '/' + encodeURI(ct._id);
                     const email = ct.email;
                     // All fields that must replace placeholders in messages
@@ -1227,11 +1239,12 @@ userRoutes.route('/completeMilestone').post((req, res, next) => {
                       bank: newFile.bank
                     };
                     if (email) { // check if contact has email address
-                      mailer.sendEmail(
+                      mailer.milestoneAchieved(
                         email,
                         buildMessage(emailMessage, emailContext),
                         url,
-                        milestoneName + ' milestone has been completed.'
+                        milestoneName + ' milestone has been completed.',
+                        requiredDocuments
                       );
                     }
                   });
@@ -1279,7 +1292,13 @@ userRoutes.route('/completeMilestone').post((req, res, next) => {
                 };
                 if (callback.milestone.sendEmail) { // send email
                   if (email) {
-                    mailer.sendEmail(email, buildMessage(emailMessage, emailContext), url, milestoneName + ' milestone has been completed.');
+                    mailer.milestoneAchieved(
+                      email,
+                      buildMessage(emailMessage, emailContext),
+                      url,
+                      milestoneName + ' milestone has been completed.',
+                      requiredDocuments
+                    );
                   }
                 }
                 if (callback.milestone.sendSMS) { // send sms
@@ -1766,7 +1785,7 @@ userRoutes.route('/updateRequiredDocument').post((req, res, next) => {
       }
     })
 });
-userRoutes.route('/RequiredDocument/:id').delete((req, res, next) => {
+userRoutes.route('/requiredDocument/:id').delete((req, res, next) => {
   const id = req.params.id;
   RequiredDocument.findByIdAndRemove(id, (err, result) => {
     if(err) next(err);
@@ -1774,6 +1793,19 @@ userRoutes.route('/RequiredDocument/:id').delete((req, res, next) => {
       res.send(true);
     }
   })
+});
+userRoutes.route('/requiredDocument/:id').get((req, res, next) => {
+  const id = req.params.id;
+  RequiredDocument.findById(id)
+    .populate('milestone', 'name')
+    .exec((err, rd) => {
+      if(err) next(err);
+      else if(rd) {
+        res.send(rd);
+      } else {
+        res.send(false);
+      }
+    });
 });
 
 module.exports = userRoutes;

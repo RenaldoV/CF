@@ -102,7 +102,21 @@ class Mailer {
       });
     });
   }
-
+  milestoneAchieved(email, body, link, subject, requiredDocs) {
+    let context = {
+      body: body,
+      link: link,
+      requiredDocs: requiredDocs
+    };
+    let that = this;
+    return new Promise((resolve, reject) => {
+      that.send("milestoneAchieved", context, email, subject).then(res => {
+        resolve(res);
+      }).catch(err => {
+        reject(err);
+      });
+    });
+  }
   adminFileCreated(email, link, fileRef) {
     const message = 'Your file with reference ' + fileRef + ' has successfully been created. \n to view the file click the link below.';
     const subject = 'File successfully created';

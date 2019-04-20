@@ -19,6 +19,7 @@ import {EntityLoginComponent} from './Entities/entity-login/entity-login.compone
 import {EntityNotAuthGuardService} from './auth/entityGuards/entity-not-auth-guard.service';
 import {EntityComponent} from './Entities/entity/entity.component';
 import {EntityAuthGuardService} from './auth/entityGuards/entity-auth-guard.service';
+import {UploadComponent} from './Uploads/upload/upload.component';
 
 
 const appRoutes: Routes = [
@@ -89,6 +90,11 @@ const appRoutes: Routes = [
   {
     path: 'contact-reset/:token',
     component: ContactResetPasswordComponent,
+    canActivate: [NotAuthService]
+  },
+  {
+    path: 'upload/:file/:requiredDoc/:contact',
+    component: UploadComponent,
     canActivate: [NotAuthService]
   },
   { path: '**',  redirectTo: ''}

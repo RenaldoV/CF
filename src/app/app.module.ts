@@ -44,6 +44,9 @@ import { AddEntityDialogComponent } from './Entities/add-entity-dialog/add-entit
 import { EntityLoginComponent } from './Entities/entity-login/entity-login.component';
 import { EntityComponent } from './Entities/entity/entity.component';
 import {AddRequiredDocumentDialogComponent} from './RequiredDocuments/add-required-document-dialog/add-required-document-dialog.component';
+import { UploadComponent } from './Uploads/upload/upload.component';
+import { NavComponent } from './Common/nav/nav.component';
+import {FileUploadModule} from 'ng2-file-upload';
 
 
 
@@ -73,7 +76,9 @@ import {AddRequiredDocumentDialogComponent} from './RequiredDocuments/add-requir
     AlwaysAskNotificationsComponent,
     EntityLoginComponent,
     EntityComponent,
-    AddRequiredDocumentDialogComponent
+    AddRequiredDocumentDialogComponent,
+    UploadComponent,
+    NavComponent
   ],
   imports: [
     MatInputModule,
@@ -105,7 +110,8 @@ import {AddRequiredDocumentDialogComponent} from './RequiredDocuments/add-requir
     BrowserAnimationsModule,
     ReactiveFormsModule,
     LoaderModule,
-    FormsModule
+    FormsModule,
+    FileUploadModule
   ],
   providers: [
     AuthService,
