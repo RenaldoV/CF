@@ -11,6 +11,9 @@
 # config files
 /config
 
+# uploaded files
+/uploads
+
 # IDEs and editors
 /.idea
 .project

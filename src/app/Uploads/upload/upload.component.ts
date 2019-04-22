@@ -1,9 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, Inject, OnInit} from '@angular/core';
 import {ContactService} from '../../Contact/contact.service';
 import {RequiredDocumentsService} from '../../RequiredDocuments/required-documents.service';
 import {FileService} from '../../Files/file.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {LoaderService} from '../../Common/Loader';
+import {FileItem, FileLikeObject, FileUploader} from 'ng2-file-upload';
+import {WINDOW} from '../../window.service';
+import {MatSnackBar} from '@angular/material';
 
 @Component({
   selector: 'app-upload',
@@ -14,18 +17,51 @@ export class UploadComponent implements OnInit {
   file;
   contact;
   requiredDoc;
+  url;
+  public uploader: FileUploader;
+  public hasBaseDropZoneOver: boolean = false;
+  allowedFileTypes = [
+    'image/jpeg',
+    'image/gif',
+    'image/png',
+    'image/svg+xml',
+    'application/pdf',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/msword',
+    'application/vnd.oasis.opendocument.text'
+  ];
   constructor(
     private contacService: ContactService,
     private rdService: RequiredDocumentsService,
     private fileService: FileService,
     private route: ActivatedRoute,
     private router: Router,
-    public loaderService: LoaderService
+    public loaderService: LoaderService,
+    public matSnack: MatSnackBar,
+    @Inject(WINDOW) private window: Window
   ) {
+    this.url = 'http://' + window.location.hostname + ':4000/user/upload';
      // route snapshot in order upload/fileID/reqDocID/contactID
     const fileID = route.snapshot.paramMap.get('file');
     const contactID = route.snapshot.paramMap.get('contact');
     const reqDocID = route.snapshot.paramMap.get('requiredDoc');
+    this.uploader = new FileUploader({
+      url: this.url,
+      additionalParameter: {contactID: contactID, requiredDocumentID: reqDocID, fileID: fileID},
+      allowedMimeType: this.allowedFileTypes,
+      maxFileSize: 10 * 1024 * 1024
+    });
+    this.uploader.onAfterAddingFile = (file: FileItem) => {
+      file.file.name = this.requiredDoc.name.replace(/[^a-z0-9_\-]/gi, '_') +
+        (this.uploader.getIndexOfItem(file) + 1) + file.file.name.substring(file.file.name.lastIndexOf('.'), file.file.name.length);
+    };
+    this.uploader.onWhenAddingFileFailed = (item: FileLikeObject, filter: any, options: any) => {
+      if (this.allowedFileTypes.indexOf(item.type) === - 1) {
+        this.matSnack.open('This file type is not supported');
+      } else if (item.size > (10 * 1024 * 1024)) {
+        this.matSnack.open('This file exceeds the size limit of 10 MB');
+      }
+    };
     this.contacService.getContact(contactID)
       .subscribe(res => {
         if (!res) {
@@ -67,6 +103,16 @@ export class UploadComponent implements OnInit {
   }
 
   ngOnInit() {
+  }
+
+  public fileOverBase(e: any): void {
+    this.hasBaseDropZoneOver = e;
+  }
+  changeName(i) {
+    const whole =  this.requiredDoc.name.replace(/[^a-z0-9_\-]/gi, '_');
+    const preExt = whole.substring(0, whole.lastIndexOf('.'));
+    const ext = whole.substring(whole.lastIndexOf('.'), whole.length);
+    return preExt + i + '.' + ext;
   }
 
 }

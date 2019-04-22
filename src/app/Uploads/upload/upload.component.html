@@ -3,13 +3,81 @@
   <div class="row">
     <div class="col-12 text-center">
       <br>
-      <h3>Required Document Uploads for:</h3>
-      <h3 class="routeHeader" style="color: gray">File: {{file.fileRef}}</h3>
-      <h3 class="routeHeader" style="color: gray">Milestone: {{requiredDoc.milestone.name}}</h3>
+      <h3>Upload <b>{{requiredDoc.name}}</b> for:</h3>
+      <h4 class="routeHeader" style="color: gray">File: {{file.fileRef}}</h4>
+      <h4 class="routeHeader" style="color: gray">Milestone: {{requiredDoc.milestone.name}}</h4>
+      <small style="color: lightgray">Note: No action is required if you are not the relevant party.</small>
+      <br>
+      <br>
+      <br>
     </div>
-    <br>
+  </div>
+  <div class="row">
+    <div class="col-6">
+      <div ng2FileDrop
+           [ngClass]="{'nv-file-over': hasBaseDropZoneOver}"
+           (fileOver)="fileOverBase($event)"
+           [uploader]="uploader"
+           class="well my-drop-zone text-center">
+        Drag and drop document/s here. <br>
+        <small><b>images (png, jpg, gif, svg)</b></small>
+        <br>
+        <small><b>documents (pdf, doc, docx, odt)</b></small>
+        <br>
+        <small><b>max size per document 10 MB</b></small>
+        <br>
+      </div>
+    </div>
+    <div class="col-1">Or</div>
+    <div class="col-5">
+      <button class="btn btn-primary" (click)="fileSelect.click()">
+        Choose document/s
+      </button>
+    </div>
+  </div>
+  <div class="row" *ngIf="uploader?.queue?.length > 0">
+    <div class="col-12" style="margin-bottom: 40px">
+      <br>
+      <table class="table">
+        <thead>
+        <tr>
+          <th width="50%">Name</th>
+          <th>Size</th>
+          <th>Progress</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let item of uploader.queue; let i = index">
+          <td><strong>{{ item?.file?.name }}</strong></td>
+          <td nowrap>{{ item?.file?.size/1024/1024 | number:'.2' }} MB</td>
+          <td>
+            <div class="progress" style="margin-bottom: 0;">
+              <div class="progress-bar" role="progressbar" [ngStyle]="{ 'width': item.progress + '%' }"></div>
+            </div>
+          </td>
+          <td class="text-center">
+            <span *ngIf="item.isSuccess"><i style="color: #5fba7d" class="fas fa-check-circle"></i></span>
+            <span *ngIf="item.isError"><i style="color: #941214" class="fas fa-times"></i></span>
+          </td>
+          <td nowrap>
+            <button type="button" class="btn btn-primary btn-xs"
+                    (click)="item.upload()" [disabled]="item.isReady || item.isUploading || item.isSuccess">
+              <i class="fas fa-file-upload"></i> Upload
+            </button>
+            <button [disabled]="item.isSuccess" type="button" class="btn btn-danger btn-xs"
+                    (click)="item.remove()">
+              <i class="fas fa-trash-alt"></i> Remove
+            </button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
+
 
 <p style="color: gray" class="text-center" *ngIf="!(contact || file || requiredDoc) && !(loaderService.isLoading | async)">>You are not authorised to upload documents to this file</p>
 <div class="row" *ngIf="loaderService.isLoading | async">
@@ -17,3 +85,6 @@
     <i class="fas fa-3x fa-spinner fa-spin x3"></i>
   </div>
 </div>
+
+<input #fileSelect type="file" ng2FileSelect [uploader]="uploader" multiple  hidden/>
+

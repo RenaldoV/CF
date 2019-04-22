@@ -9,6 +9,7 @@ const Contact = require('../models/contact');
 const File = require('../models/file');
 const Entity = require('../models/entity');
 const RequiredDocument = require('../models/reqDocuments');
+const Document = require('../models/document');
 const bcrypt = require('bcrypt');
 const Mailer = require ('../mailer/mailer');
 const Sms = require('../smsModule/sms');
@@ -17,6 +18,19 @@ const smser = new Sms();
 const config = require('../../config/config');
 const mailer = new Mailer(config.emailHost, config.emailPort, config.fromEmail, config.emailApiKey, config.emailUsername);
 const async = require('async');
+const multer = require('multer');
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, './uploads/')
+  },
+  filename: function (req, file, cb) {
+    let extArray = file.mimetype.split("/");
+    let origName = file.originalname.substring(0, file.originalname.lastIndexOf("."));
+    let ext = file.originalname.substring(file.originalname.lastIndexOf("."), file.originalname.length);
+    cb(null, origName + '_' + Date.now() + ext)
+  }
+});
+const upload = multer({storage: storage}).any();
 
 
 // ============================ ADMIN ROUTES ===========================
@@ -1807,6 +1821,24 @@ userRoutes.route('/requiredDocument/:id').get((req, res, next) => {
       }
     });
 });
+// ============================ REQUIRED DOCUMENTS ROUTES  =============
+// ============================ UPLOAD ROUTES  =========================
+userRoutes.route('/upload').post(upload, (req, res, next) => {
+  console.log(req);
+  let contactID = req.body.contactID;
+  let fileID = req.body.fileID;
+  let reqDocID = req.body.requiredDocumentID;
+  let name = req.files[0].filename;
+  let path = req.files[0].path;
+  let document = {contactID: contactID, fileID: fileID, requiredDocumentID: reqDocID, name: name, path: path}
+  Document.create(document, (err, rd) => {
+    if(err) next(err);
+    else {
+      res.send(true);
+    }
+  })
+});
+// ============================ UPLOAD ROUTES  =========================
 
 module.exports = userRoutes;
 

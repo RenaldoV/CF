@@ -6,6 +6,7 @@ let Document = new mongoose.Schema({
     path: String,
     fileID: {type: Schema.Types.ObjectId, ref: 'File'},
     requiredDocumentID: {type: Schema.Types.ObjectId, ref: 'File'},
+    contactID : {type: Schema.Types.ObjectId, ref: 'Contact'}
   },
   {
     collection: 'documents'
