@@ -984,7 +984,7 @@ export class AdminSetupComponent implements OnInit {
     });
   }
   getAllReqDocs() {
-    this.rdService.getllReqDocs()
+    this.rdService.getAllReqDocs()
       .subscribe(res => {
         if (res) {
           this.allRDs = res;

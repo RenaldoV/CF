@@ -14,3 +14,11 @@ mat-form-field {
   color: white;
   margin-left: 5px;
 }
+
+.main-container {
+  max-width: 85%;
+  padding-right: 15px;
+  padding-left: 15px;
+  margin-right: auto;
+  margin-left: auto;
+}

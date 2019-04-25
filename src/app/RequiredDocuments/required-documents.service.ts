@@ -30,7 +30,7 @@ export class RequiredDocumentsService {
   deleteRequiredDocument(id) {
     return this.http.delete<any>(`${this.host}/requiredDocument/${id}`);
   }
-  getllReqDocs() {
+  getAllReqDocs() {
     return this.http.get<any>(`${this.host}/requiredDocuments`);
   }
   getRequiredDoc(id) {

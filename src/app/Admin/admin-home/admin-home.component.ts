@@ -24,7 +24,7 @@ export class AdminHomeComponent implements OnInit {
   ) {
     this.fileService.getMyFiles()
       .subscribe(res => {
-        // console.log(res);
+          console.log(res);
           this.files = res;
       }, err => {
         console.log(err);

@@ -8,7 +8,7 @@
     <br>
   </div>
   <div class="home-container">
-    <mat-tab-group *ngIf="file" mat-align-tabs="center">
+    <mat-tab-group *ngIf="file" mat-align-tabs="center" (selectedTabChange)="tabChanged($event)">
       <mat-tab label="{{file.milestoneList._id.title}} Details">
         <br>
         <div class="row">
@@ -133,6 +133,56 @@
               </div>
             </div>
             <p class="text-center" *ngIf="file.summaries.length < 1" style="color: gray;">No summary added.</p>
+          </div>
+        </div>
+      </mat-tab>
+      <mat-tab label="Document Uploads" *ngIf="requiredDocs">
+        <ng-template matTabLabel>
+          <span matBadge="{{requiredDocs.length}}" matBadgeOverlap="false">Document Uploads</span>
+        </ng-template>
+        <div class="row">
+          <div class="col-12" *ngIf="uploads">
+            <mat-accordion>
+              <br>
+              <p class="text-center" style="color: #888888"
+                 *ngIf="requiredDocs.length < 1">No required documents to be uploaded</p>
+              <mat-expansion-panel *ngFor="let rd of requiredDocs">
+                <mat-expansion-panel-header>
+                  <mat-panel-title>
+                    {{ rd.name }}
+                  </mat-panel-title>
+                </mat-expansion-panel-header>
+                <div class="row">
+                  <div class="col-3" *ngFor="let u of uploads" style="padding: 0px 0px 10px 0px">
+                    <div *ngIf="u.requiredDocumentID._id === rd._id">
+                      <div *ngIf="u.mimeType.substring(0, u.mimeType.indexOf('/')) === 'application'">
+                        <i class="fas fa-file-{{docType(u.mimeType)}} fa-9x" style="color: #888888; margin-left: calc(50% - 95px);"></i> <br>
+                      </div>
+                      <div *ngIf="u.mimeType.substring(0, u.mimeType.indexOf('/')) === 'image'">
+                        <img [src]="u.path" style="height: 126px; max-width: 95px; border-radius: 4px; margin-left: calc(50% - 95px);"> <br>
+                      </div>
+                      <span style="color: darkslategray">{{rd.name + u.name.substring(u.name.lastIndexOf('.'), u.name.length)}}</span>
+                    </div>
+                  </div>
+                  <div class="col-12 text-center" *ngIf="hasUploads(rd._id)">
+                    <span style="color: gray">You haven't uploaded any documents.</span>
+                  </div>
+                  <div class="col-12 text-center">
+                    <small style="color: lightgray;">Note: No action is required if you are not the relevant party.</small>
+                    <br>
+                  </div>
+                  <div class="col-2 offset-5">
+                    <button class="btn btn-md btn-primary" (click)="gotoUpload(rd._id)">
+                      Upload More
+                    </button>
+                  </div>
+                </div>
+              </mat-expansion-panel>
+                <!--<img [src]="'data:image/png;base64,' + upload.path" height="50px" width="50px" (click)="downloadFile(upload)">-->
+            </mat-accordion>
+          </div>
+          <div class="text-center col-12" *ngIf="loaderService.isLoading | async">
+            <i class="fas fa-3x fa-spinner fa-spin x3"></i>
           </div>
         </div>
       </mat-tab>

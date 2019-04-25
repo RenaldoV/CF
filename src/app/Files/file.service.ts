@@ -25,13 +25,7 @@ export class FileService {
     return this.http.post<any>(`${this.host}/addFile`, {file: file, uid: uid});
   }
   getMyFiles() {
-    let uid;
-    if (this.auth.isTopLevelUser()) {
-      uid = this.auth.getID();
-    } else {
-      uid = this.auth.getAdminID();
-    }
-    const url = `${this.host}/files/` + uid;
+    const url = `${this.host}/files/`;
     return this.http.get(url);
   }
   completeMilestone(file, milestone, notiProps?) {

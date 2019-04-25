@@ -4,7 +4,8 @@
     <div class="col-12 text-center">
       <br>
       <h3>Upload <b>{{requiredDoc.name}}</b> for:</h3>
-      <h4 class="routeHeader" style="color: gray">File: {{file.fileRef}}</h4>
+      <h4 class="routeHeader" style="color: gray">File: {{file.fileRef + '  '}}
+        <button (click)="gotoLogin()" class="btn btn-sm btn-secondary">View File</button></h4>
       <h4 class="routeHeader" style="color: gray">Milestone: {{requiredDoc.milestone.name}}</h4>
       <small style="color: lightgray">Note: No action is required if you are not the relevant party.</small>
       <br>
@@ -20,7 +21,7 @@
            [uploader]="uploader"
            class="well my-drop-zone text-center">
         Drag and drop document/s here. <br>
-        <small><b>images (png, jpg, gif, svg)</b></small>
+        <small><b>images (png, jpg, gif)</b></small>
         <br>
         <small><b>documents (pdf, doc, docx, odt)</b></small>
         <br>
@@ -87,4 +88,5 @@
 </div>
 
 <input #fileSelect type="file" ng2FileSelect [uploader]="uploader" multiple  hidden/>
+
 

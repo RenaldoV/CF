@@ -24,13 +24,14 @@ const storage = multer.diskStorage({
     cb(null, './uploads/')
   },
   filename: function (req, file, cb) {
-    let extArray = file.mimetype.split("/");
     let origName = file.originalname.substring(0, file.originalname.lastIndexOf("."));
     let ext = file.originalname.substring(file.originalname.lastIndexOf("."), file.originalname.length);
-    cb(null, origName + '_' + Date.now() + ext)
+    cb(null, origName + Date.now() + ext)
   }
 });
 const upload = multer({storage: storage}).any();
+const fs = require('fs');
+
 
 
 // ============================ ADMIN ROUTES ===========================
@@ -1098,9 +1099,8 @@ userRoutes.route('/updateFile').post((req, res, next) => {
     }
   })
 });
-userRoutes.route('/files/:id').get((req, res, next) => {
-  // get user's Files
-  const id = req.params.id;
+userRoutes.route('/files').get((req, res, next) => {
+  // get all Files
   File.find({})
     .populate('milestoneList.milestones._id')
     .populate('milestoneList._id', 'title')
@@ -1824,13 +1824,13 @@ userRoutes.route('/requiredDocument/:id').get((req, res, next) => {
 // ============================ REQUIRED DOCUMENTS ROUTES  =============
 // ============================ UPLOAD ROUTES  =========================
 userRoutes.route('/upload').post(upload, (req, res, next) => {
-  console.log(req);
   let contactID = req.body.contactID;
   let fileID = req.body.fileID;
   let reqDocID = req.body.requiredDocumentID;
   let name = req.files[0].filename;
   let path = req.files[0].path;
-  let document = {contactID: contactID, fileID: fileID, requiredDocumentID: reqDocID, name: name, path: path}
+  let mime = req.files[0].mimetype;
+  let document = {contactID: contactID, fileID: fileID, requiredDocumentID: reqDocID, name: name, path: path, mimeType: mime};
   Document.create(document, (err, rd) => {
     if(err) next(err);
     else {
@@ -1838,7 +1838,91 @@ userRoutes.route('/upload').post(upload, (req, res, next) => {
     }
   })
 });
+userRoutes.route('/contactUploads/:id').get((req, res, next) => {
+  const cid = req.params.id;
+  Document.find({contactID: cid})
+    .populate({
+      path: 'milestoneID',
+      select: 'name'
+    })
+    .populate({
+      path: 'requiredDocumentID',
+      select: 'name',
+      populate: {
+        path: 'milestone',
+        select: 'name'
+      }
+    })
+    .exec((err, uploads) => {
+    if(err) next(err);
+    else if(uploads.length > 0) {
+      async.each(uploads, (u, cb) => {
+        let fullPath = __dirname + '/../../' + u.path;
+        fs.readFile(fullPath, (er, data) => {
+          if(er) cb(er);
+          else {
+            if (u.mimeType.split('/')[0] === 'image') {
+              u.path =  new Buffer(data).toString('base64');
+            }
+            cb();
+          }
+        });
+      }, (er) => {
+        if (er) next(er);
+        else {
+          res.send(uploads);
+        }
+      });
+    } else {
+      res.send(false);
+    }
+  })
+});
+userRoutes.route('/getAllUploads').get((req, res, next) => {
+  Document.find({})
+    .populate({
+      path: 'milestoneID',
+      select: 'name'
+    })
+    .populate({
+      path: 'requiredDocumentID',
+      select: 'name',
+      populate: {
+        path: 'milestone',
+        select: 'name'
+      }
+    })
+    .populate({
+      path: 'contactID',
+      select: 'name'
+    })
+    .exec((err, uploads) => {
+      if(err) next(err);
+      else if(uploads.length > 0) {
+        async.each(uploads, (u, cb) => {
+          let fullPath = __dirname + '/../../' + u.path;
+          fs.readFile(fullPath, (er, data) => {
+            if(er) cb(er);
+            else {
+              if (u.mimeType.split('/')[0] === 'image') {
+                u.path =  new Buffer(data).toString('base64');
+              }
+              cb();
+            }
+          });
+        }, (er) => {
+          if (er) next(er);
+          else {
+            res.send(uploads);
+          }
+        });
+      } else {
+        res.send(false);
+      }
+    })
+});
 // ============================ UPLOAD ROUTES  =========================
+
 
 module.exports = userRoutes;
 

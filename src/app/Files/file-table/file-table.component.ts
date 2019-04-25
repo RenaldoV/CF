@@ -8,6 +8,8 @@ import {AlwaysAskNotificationsComponent} from '../always-ask-notifications/alway
 import {AddContactDialogComponent} from '../../Contact/add-contact-dialog/add-contact-dialog.component';
 import {Router} from '@angular/router';
 import {AddEntityDialogComponent} from '../../Entities/add-entity-dialog/add-entity-dialog.component';
+import {UploadService} from '../../Uploads/upload.service';
+import {RequiredDocumentsService} from '../../RequiredDocuments/required-documents.service';
 
 
 @Component({
@@ -27,6 +29,8 @@ export class FileTableComponent implements OnInit {
   dataSource;
   archived = false;
   allFiles: any[];
+  uploads: any[];
+  reqDocs: any[];
   @Input() files;
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -38,7 +42,9 @@ export class FileTableComponent implements OnInit {
     private matSnack: MatSnackBar,
     public loaderService: LoaderService,
     private dialog: MatDialog,
-    private router: Router
+    private router: Router,
+    private uploadService: UploadService,
+    private reqDocService: RequiredDocumentsService
   ) {}
 
   ngOnInit() {
@@ -321,6 +327,59 @@ export class FileTableComponent implements OnInit {
       }
     });
   }
+  getUploads() {
+    if (!this.uploads) {
+      this.uploadService.getAllUploadsFile()
+        .subscribe(res => {
+          if (res.length > 0) {
+            this.uploads = res;
+            return true;
+          } else {
+            return false;
+          }
+        }, err => {
+          console.log(err);
+        });
+    }
+  }
+  numUploads(fid) {
+    if (this.uploads && this.reqDocs) {
+      const numUploads = this.uploads.filter(u => u.fileID === fid).length;
+      if (numUploads > 0) { // if file has uploads build required Documents / uploads structure.
+        this.reqDocsPerFile(fid);
+      }
+      return  numUploads;
+    }
+  }
+  getFileUploads(fid) {
+    return this.uploads.filter(u => u.fileID === fid);
+  }
+  reqDocsPerFile(fid) { // sort required documents in files and add relevant uploads to them to display
+    const thisFile = this.allFiles.find(f => f._id === fid);
+    if (!thisFile.requiredDocuments) {
+      thisFile.requiredDocuments = [];
+      const uploadsInFile = this.getFileUploads(fid);
+        let newReqDocs = JSON.parse(JSON.stringify(this.reqDocs));
+        newReqDocs.forEach(rd => {
+          rd.uploads = [];
+          rd.uploads = uploadsInFile.filter(u => u.requiredDocumentID._id === rd._id);
+        });
+        thisFile.requiredDocuments = newReqDocs.filter(rd => rd.uploads.length > 0);
+        this.files = this.files.map(f => f._id === fid ? thisFile : f);
+    }
+  }
+  getRequiredDocs() {
+    this.reqDocService.getAllReqDocs()
+      .subscribe(res => {
+        if (res) {
+          this.reqDocs = res;
+        }
+      }, err => {
+        if (err) {
+          console.log(err);
+        }
+      });
+  }
 
 }
 
@@ -339,6 +398,7 @@ export interface File {
   archived: boolean;
   entity: any;
   _v: any;
+  requiredDocuments: any;
 }
 export interface MilestoneList {
   _id: any;

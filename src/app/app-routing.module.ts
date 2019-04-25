@@ -94,8 +94,7 @@ const appRoutes: Routes = [
   },
   {
     path: 'upload/:file/:requiredDoc/:contact',
-    component: UploadComponent,
-    canActivate: [NotAuthService]
+    component: UploadComponent
   },
   { path: '**',  redirectTo: ''}
 ];

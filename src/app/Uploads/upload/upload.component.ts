@@ -7,6 +7,7 @@ import {LoaderService} from '../../Common/Loader';
 import {FileItem, FileLikeObject, FileUploader} from 'ng2-file-upload';
 import {WINDOW} from '../../window.service';
 import {MatSnackBar} from '@angular/material';
+import {AuthService} from '../../auth/auth.service';
 
 @Component({
   selector: 'app-upload',
@@ -24,7 +25,6 @@ export class UploadComponent implements OnInit {
     'image/jpeg',
     'image/gif',
     'image/png',
-    'image/svg+xml',
     'application/pdf',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     'application/msword',
@@ -38,6 +38,7 @@ export class UploadComponent implements OnInit {
     private router: Router,
     public loaderService: LoaderService,
     public matSnack: MatSnackBar,
+    public authService: AuthService,
     @Inject(WINDOW) private window: Window
   ) {
     this.url = 'http://' + window.location.hostname + ':4000/user/upload';
@@ -52,8 +53,8 @@ export class UploadComponent implements OnInit {
       maxFileSize: 10 * 1024 * 1024
     });
     this.uploader.onAfterAddingFile = (file: FileItem) => {
-      file.file.name = this.requiredDoc.name.replace(/[^a-z0-9_\-]/gi, '_') +
-        (this.uploader.getIndexOfItem(file) + 1) + file.file.name.substring(file.file.name.lastIndexOf('.'), file.file.name.length);
+      file.file.name = this.requiredDoc.name.replace(/[^a-z0-9_\-]/gi, '_') + (this.uploader.getIndexOfItem(file) + 1) +
+        '_' + contactID + file.file.name.substring(file.file.name.lastIndexOf('.'), file.file.name.length);
     };
     this.uploader.onWhenAddingFileFailed = (item: FileLikeObject, filter: any, options: any) => {
       if (this.allowedFileTypes.indexOf(item.type) === - 1) {
@@ -108,11 +109,13 @@ export class UploadComponent implements OnInit {
   public fileOverBase(e: any): void {
     this.hasBaseDropZoneOver = e;
   }
-  changeName(i) {
-    const whole =  this.requiredDoc.name.replace(/[^a-z0-9_\-]/gi, '_');
-    const preExt = whole.substring(0, whole.lastIndexOf('.'));
-    const ext = whole.substring(whole.lastIndexOf('.'), whole.length);
-    return preExt + i + '.' + ext;
+  gotoLogin() {
+    if (this.authService.getUser()) {
+      this.router.navigate(['file', this.file._id]);
+    } else {
+      this.router.navigate(['login', this.file._id, this.contact._id]);
+    }
+
   }
 
 }
