@@ -10,6 +10,8 @@ import {Router} from '@angular/router';
 import {AddEntityDialogComponent} from '../../Entities/add-entity-dialog/add-entity-dialog.component';
 import {UploadService} from '../../Uploads/upload.service';
 import {RequiredDocumentsService} from '../../RequiredDocuments/required-documents.service';
+import * as FileSave from 'file-saver';
+import * as FileSaver from 'file-saver';
 
 
 @Component({
@@ -130,7 +132,6 @@ export class FileTableComponent implements OnInit {
         const dialogRef = this.dialog.open(AlwaysAskNotificationsComponent, dialConfig);
         dialogRef.afterClosed().subscribe(notiProps => {
           if (notiProps) {
-            console.log(notiProps);
             if (confirm('Are you sure you want to mark this milestone as done?')) {
               this.fileService.completeMilestone(fileID, m._id, notiProps)
                 .subscribe(res => {
@@ -332,6 +333,14 @@ export class FileTableComponent implements OnInit {
       this.uploadService.getAllUploadsFile()
         .subscribe(res => {
           if (res.length > 0) {
+            res = res.map(u => {
+              if (u.mimeType.substring(0, u.mimeType.indexOf('/')) === 'image') {
+                u.path = 'data:' + u.mimeType + ';base64,' + u.path;
+                return u;
+              } else {
+                return u;
+              }
+            });
             this.uploads = res;
             return true;
           } else {
@@ -359,13 +368,13 @@ export class FileTableComponent implements OnInit {
     if (!thisFile.requiredDocuments) {
       thisFile.requiredDocuments = [];
       const uploadsInFile = this.getFileUploads(fid);
-        let newReqDocs = JSON.parse(JSON.stringify(this.reqDocs));
-        newReqDocs.forEach(rd => {
-          rd.uploads = [];
-          rd.uploads = uploadsInFile.filter(u => u.requiredDocumentID._id === rd._id);
-        });
-        thisFile.requiredDocuments = newReqDocs.filter(rd => rd.uploads.length > 0);
-        this.files = this.files.map(f => f._id === fid ? thisFile : f);
+      const newReqDocs = JSON.parse(JSON.stringify(this.reqDocs));
+      newReqDocs.forEach(rd => {
+        rd.uploads = [];
+        rd.uploads = uploadsInFile.filter(u => u.requiredDocumentID._id === rd._id);
+      });
+      thisFile.requiredDocuments = newReqDocs.filter(rd => rd.uploads.length > 0);
+      this.files = this.files.map(f => f._id === fid ? thisFile : f);
     }
   }
   getRequiredDocs() {
@@ -379,6 +388,17 @@ export class FileTableComponent implements OnInit {
           console.log(err);
         }
       });
+  }
+  docType(type) {
+    if (type.substring(type.lastIndexOf('/') + 1, type.length) === 'pdf') {
+      return 'pdf';
+    } else {
+      return 'word';
+    }
+  }
+  downloadDoc(d) {
+    this.uploadService.download(d.name)
+      .subscribe(res => FileSaver.saveAs(res, d.name), er => console.log(er));
   }
 
 }

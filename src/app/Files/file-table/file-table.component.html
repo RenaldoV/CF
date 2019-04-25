@@ -92,32 +92,35 @@
                 <div class="milestonesBox col-12">
                   <mat-accordion>
                     <mat-expansion-panel *ngFor="let milestone of element.milestoneList.milestones; let i = index"
-                                         hideToggle (opened)="milestoneOpenState = true" (closed)="milestoneOpenState = false">
+                                         hideToggle (opened)="milestoneOpenState = true"
+                                         (closed)="milestoneOpenState = false">
                       <mat-expansion-panel-header collapsedHeight="*" expandedHeight="*">
                         <mat-panel-title [style.text-decoration]="milestone.completed ? 'line-through' : 'none'"
                                          [style.text-decoration-color]="milestone.completed ? 'red' : ''">
                           Milestone {{i + 1}}
                         </mat-panel-title>
                         <mat-panel-description>
-              <span class="mTitle">{{ milestone._id.name }}
-                <small style="color: #1DA1F2">({{milestone.comments.length}} Comment{{milestone.comments.length > 1 || milestone.comments.length < 1? 's' : ''}})</small>
-                <small class="comment" *ngIf="milestone.comments.length > 0 && !milestoneOpenState">
-                  <br/>
-                  <span style="color:red">Last comment:</span>
-                  <i class="fas fa-user-tie"></i> <span style="font-weight: bold; color: darkslategray"> {{milestone.comments[milestone.comments.length - 1]?.user?.name}}</span>
-                  <div class="speech">
-                    {{milestone.comments[milestone.comments.length - 1]?.comment}}<small style="color: #888888"> {{milestone.comments[milestone.comments.length - 1]?.timestamp | amTimeAgo}}</small>
-                  </div>
-                  <br>
-                </small>
-              </span>
+                          <span class="mTitle">{{ milestone._id.name }}
+                            <small style="color: #1DA1F2">({{milestone.comments.length}} Comment{{milestone.comments.length > 1 || milestone.comments.length < 1? 's' : ''}})</small>
+                            <small class="comment" *ngIf="milestone.comments.length > 0 && !milestoneOpenState">
+                              <br/>
+                              <span style="color:red">Last comment:</span>
+                              <i class="fas fa-user-tie"></i> <span style="font-weight: bold; color: darkslategray"> {{milestone.comments[milestone.comments.length - 1]?.user?.name}}</span>
+                              <div class="speech">
+                                {{milestone.comments[milestone.comments.length - 1]?.comment}}<small style="color: #888888"> {{milestone.comments[milestone.comments.length - 1]?.timestamp | amTimeAgo}}</small>
+                              </div>
+                              <br>
+                            </small>
+                          </span>
                           <small class="mUpdated" style="color: darkgrey">
-                            Last Updated: {{convertDate('dd/mm/yyyy', milestone.updatedAt)}} <br>by {{milestone.updatedBy.name}}
+                            Last Updated: {{convertDate('dd/mm/yyyy', milestone.updatedAt)}} <br>by
+                            {{milestone.updatedBy.name}}
                           </small>
                           <div class="mCheck">
                             <mat-checkbox
                               *ngIf="!milestone.completed" (click)="$event.stopPropagation()"
-                              [checked]="milestone.completed" (change)="markMilestone($event, milestone, element, chbx)" #chbx></mat-checkbox>
+                              [checked]="milestone.completed" (change)="markMilestone($event, milestone, element, chbx)"
+                              #chbx></mat-checkbox>
                           </div>
                         </mat-panel-description>
                       </mat-expansion-panel-header>
@@ -127,12 +130,14 @@
                         <div class="comment" *ngFor="let c of milestone.comments">
                           <i class="fas fa-user-tie"></i> <span style="font-weight: bold; color: darkslategray"> {{c.user?.name}}</span>
                           <div class="speech">
-                            {{c.comment}}<small style="color: #888888"> {{c.timestamp | amTimeAgo}}</small>
+                            {{c.comment}}
+                            <small style="color: #888888"> {{c.timestamp | amTimeAgo}}</small>
                           </div>
                         </div>
                         <div class="milestoneComments">
                           <div class="btn-group" role="group" aria-label="action buttons" style="margin-top: 5px;">
-                            <button class="btn btn-primary btn-sm saveButton" color="primary" (click)="addComment(milestone, i, element)">
+                            <button class="btn btn-primary btn-sm saveButton" color="primary"
+                                    (click)="addComment(milestone, i, element)">
                               <span *ngIf="!(loaderService.isLoading | async)"><i class="far fa-comment"></i> Add comment</span>
                               <i *ngIf="loaderService.isLoading | async" class="fas fa-spinner fa-spin"></i>
                             </button>
@@ -246,11 +251,36 @@
                         {{rd.name}}
                       </mat-panel-title>
                       <mat-panel-description>
-                        <mat-panel-description>
-                          <span style="color: #1DA1F2" class="mTitle">({{ rd.uploads.length }} Document{{rd.uploads.length > 1 || rd.uploads.length === 0 ? 's' : ''}})</span>
-                        </mat-panel-description>
+                        <span style="color: #1DA1F2" class="mTitle">({{ rd.uploads.length }} Document{{rd.uploads.length > 1 || rd.uploads.length === 0 ? 's' : ''}})</span>
                       </mat-panel-description>
                     </mat-expansion-panel-header>
+                    <table class="table">
+                      <thead>
+                      <tr>
+                        <th>Preview</th>
+                        <th>name</th>
+                        <th>Actions</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr *ngFor="let u of rd.uploads; let i = index">
+                        <td nowrap>
+                          <div *ngIf="u.mimeType.substring(0, u.mimeType.indexOf('/')) === 'application'">
+                            <i class="fas fa-file-{{docType(u.mimeType)}} fa-7x" style="color: #888888;"></i> <br>
+                          </div>
+                          <div *ngIf="u.mimeType.substring(0, u.mimeType.indexOf('/')) === 'image'">
+                            <img [src]="u.path" style="height: 96px; border-radius: 4px;"> <br>
+                          </div>
+                        </td>
+                        <td nowrap>{{  u.name  }} </td>
+                        <td nowrap>
+                          <button type="button" class="btn btn-primary btn-xs" (click)="downloadDoc(u)">
+                            <i class="fas fa-file-download"></i> Download
+                          </button>
+                        </td>
+                      </tr>
+                      </tbody>
+                    </table>
                   </mat-expansion-panel>
                 </mat-accordion>
               </div>

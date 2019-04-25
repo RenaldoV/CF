@@ -29,7 +29,6 @@ export class FileComponent implements OnInit {
     private fileService: FileService,
     public loaderService: LoaderService,
     public uploadService: UploadService,
-    public sanitizer: DomSanitizer,
     public reqDocService: RequiredDocumentsService
   ) { }
 
@@ -41,7 +40,6 @@ export class FileComponent implements OnInit {
       .subscribe(res => {
         if (res) {
           this.file = res;
-          console.log(res.milestoneList.milestones);
           this.reqDocService.getAllReqDocs()
             .subscribe(rds => {
               if (rds) {
@@ -102,13 +100,6 @@ export class FileComponent implements OnInit {
       return 0;
     }
   }
-  numCards() {
-    if (this.iAmAgent()) {
-      return this.file.contacts.length + 1 + this.file.refUser.length <= 4 ? '' : '-3';
-    } else {
-      return this.file.contacts.length + 1 + this.file.refUser.length - this.file.contacts.filter(ct => ct.type === 'Agent').length <= 4 ? '' : '-3';
-    }
-  }
   formatDate(date) {
     const d = new Date(date);
     return [d.getDate(), d.getMonth() + 1, d.getFullYear()]
@@ -120,19 +111,20 @@ export class FileComponent implements OnInit {
         .subscribe(res => {
           res = res.map(u => {
             if (u.mimeType.substring(0, u.mimeType.indexOf('/')) === 'image') {
-              return {
-                contactID: u.contactID,
-                fileID: u.fileID,
-                mimeType: u.mimeType,
-                name: u.name,
-                path: 'data:' + u.mimeType + ';base64,' + u.path,
-                requiredDocumentID: u.requiredDocumentID,
-                _id: u._id
-              };
+              u.path = 'data:' + u.mimeType + ';base64,' + u.path;
+              return u;
             } else {
               return u;
             }
           });
+          if (this.requiredDocs) {
+            const newReqDocs = JSON.parse(JSON.stringify(this.requiredDocs));
+            newReqDocs.forEach(rd => {
+              rd.uploads = [];
+              rd.uploads = res.filter(u => u.requiredDocumentID._id === rd._id);
+            });
+            this.requiredDocs = newReqDocs;
+          }
           this.uploads = res;
         }, err => {
           if (err) {
@@ -148,15 +140,11 @@ export class FileComponent implements OnInit {
       return 'word';
     }
   }
-  downloadFile(doc) {
-    const blob = new Blob([doc.path], {type: doc.mimeType});
-    FileSaver.saveAs(blob, doc.name);
+  downloadDoc(d) {
+    this.uploadService.download(d.name)
+      .subscribe(res => FileSaver.saveAs(res, d.name), er => console.log(er));
   }
   gotoUpload(reqDocID) {
     this.router.navigate(['/upload', this.fileID, reqDocID, this.userID]);
-  }
-  hasUploads(rdID) {
-
-    return this.uploads.filter(u => u.requiredDocumentID. _id === rdID).length < 1;
   }
 }

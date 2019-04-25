@@ -31,6 +31,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({storage: storage}).any();
 const fs = require('fs');
+const path = require('path');
 
 
 
@@ -1920,6 +1921,10 @@ userRoutes.route('/getAllUploads').get((req, res, next) => {
         res.send(false);
       }
     })
+});
+userRoutes.route('/download').post((req, res, next) => {
+  let filePath = path.join(__dirname, '../../uploads/') + req.body.doc;
+  res.sendFile(filePath);
 });
 // ============================ UPLOAD ROUTES  =========================
 

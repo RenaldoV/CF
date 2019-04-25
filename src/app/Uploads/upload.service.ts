@@ -25,4 +25,9 @@ export class UploadService {
     const url = `${this.host}/getAllUploads`;
     return this.http.get<any>(url);
   }
+  download(d) {
+    return this.http.post(`${this.host}/download`, {doc: d}, {
+      responseType: 'blob'
+    });
+  }
 }

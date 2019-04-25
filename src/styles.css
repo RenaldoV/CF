@@ -72,6 +72,7 @@ mat-panel-description {
 }
 
 mat-panel-title {
+  width: 30%;
   align-items: center;
 }
 
