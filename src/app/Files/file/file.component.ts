@@ -109,23 +109,25 @@ export class FileComponent implements OnInit {
     if (e.tab.textLabel === 'Document Uploads' && !this.uploads) {
       this.uploadService.getContactUploads(this.userID)
         .subscribe(res => {
-          res = res.map(u => {
-            if (u.mimeType.substring(0, u.mimeType.indexOf('/')) === 'image') {
-              u.path = 'data:' + u.mimeType + ';base64,' + u.path;
-              return u;
-            } else {
-              return u;
-            }
-          });
-          if (this.requiredDocs) {
-            const newReqDocs = JSON.parse(JSON.stringify(this.requiredDocs));
-            newReqDocs.forEach(rd => {
-              rd.uploads = [];
-              rd.uploads = res.filter(u => u.requiredDocumentID._id === rd._id);
+          if (res) {
+            res = res.map(u => {
+              if (u.mimeType.substring(0, u.mimeType.indexOf('/')) === 'image') {
+                u.path = 'data:' + u.mimeType + ';base64,' + u.path;
+                return u;
+              } else {
+                return u;
+              }
             });
-            this.requiredDocs = newReqDocs;
+            if (this.requiredDocs) {
+              const newReqDocs = JSON.parse(JSON.stringify(this.requiredDocs));
+              newReqDocs.forEach(rd => {
+                rd.uploads = [];
+                rd.uploads = res.filter(u => u.requiredDocumentID._id === rd._id);
+              });
+              this.requiredDocs = newReqDocs;
+            }
+            this.uploads = res;
           }
-          this.uploads = res;
         }, err => {
           if (err) {
             console.log(err);

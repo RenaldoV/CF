@@ -17,7 +17,7 @@ export class ContactService {
     private auth: AuthService,
     @Inject(WINDOW) private window: Window,
   ) {
-    this.host = 'http://' + window.location.hostname + ':4000/user';
+    this.host = `${window.location.protocol}//${window.location.host}` + '/user';
   }
 
   getContact(id): Observable<any> {

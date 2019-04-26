@@ -136,12 +136,12 @@
           </div>
         </div>
       </mat-tab>
-      <mat-tab label="Document Uploads" *ngIf="requiredDocs">
+      <mat-tab label="Document Uploads" *ngIf="requiredDocs?.length > 0">
         <ng-template matTabLabel>
           <span matBadge="{{requiredDocs.length}}" matBadgeOverlap="false">Document Uploads</span>
         </ng-template>
         <div class="row">
-          <div class="col-12" *ngIf="uploads">
+          <div class="col-12">
             <mat-accordion>
               <br>
               <p class="text-center" style="color: #888888"
@@ -151,7 +151,7 @@
                   <mat-panel-title>
                     {{ rd.name }}
                   </mat-panel-title>
-                  <mat-panel-description>
+                  <mat-panel-description *ngIf="rd.uploads">
                     <span style="color: #1DA1F2" class="mTitle">({{ rd.uploads?.length }} Document{{rd.uploads?.length > 1 || rd.uploads?.length === 0 ? 's' : ''}})</span>
                   </mat-panel-description>
                 </mat-expansion-panel-header>

@@ -16,7 +16,7 @@ export class FileService {
     @Inject(WINDOW) private window: Window,
     private auth: AuthService
   ) {
-    this.host = 'http://' + window.location.hostname + ':4000/user';
+    this.host = `${window.location.protocol}//${window.location.host}` + '/user';
   }
   createFile(file) {
     const uid = this.auth.getID();
