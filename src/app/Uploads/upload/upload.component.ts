@@ -41,7 +41,7 @@ export class UploadComponent implements OnInit {
     public authService: AuthService,
     @Inject(WINDOW) private window: Window
   ) {
-    this.url = 'http://' + window.location.hostname + ':4000/user/upload';
+    this.url = `${window.location.protocol}//${window.location.host}` + '/user/upload';
      // route snapshot in order upload/fileID/reqDocID/contactID
     const fileID = route.snapshot.paramMap.get('file');
     const contactID = route.snapshot.paramMap.get('contact');

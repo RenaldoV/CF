@@ -47,7 +47,6 @@ export class FileComponent implements OnInit {
                 this.requiredDocs = rds.filter(rd => { // get all required docs that are part of milestones that are completed
                   return milestoneIds.indexOf(rd.milestone._id) > -1;
                 });
-                console.log(rds);
               }
             }, er => {
               console.log(er);

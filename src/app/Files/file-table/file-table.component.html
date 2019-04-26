@@ -150,6 +150,55 @@
               </div>
             <br>
           </mat-tab>
+          <mat-tab label="Document Uploads" *ngIf="numUploads(element._id) > 0">
+            <ng-template matTabLabel>
+              <span matBadge="{{numUploads(element._id)}}" matBadgeOverlap="false">Document Uploads</span>
+            </ng-template>
+            <div class="row">
+              <div class="col-12 milestonesBox">
+                <mat-accordion>
+                  <br>
+                  <mat-expansion-panel *ngFor="let rd of element.requiredDocuments">
+                    <mat-expansion-panel-header>
+                      <mat-panel-title>
+                        {{rd.name}}
+                      </mat-panel-title>
+                      <mat-panel-description>
+                        <span style="color: #1DA1F2" class="mTitle">({{ rd.uploads.length }} Document{{rd.uploads.length > 1 || rd.uploads.length === 0 ? 's' : ''}})</span>
+                      </mat-panel-description>
+                    </mat-expansion-panel-header>
+                    <table class="table">
+                      <thead>
+                      <tr>
+                        <th>Preview</th>
+                        <th>name</th>
+                        <th>Actions</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr *ngFor="let u of rd.uploads; let i = index">
+                        <td nowrap>
+                          <div *ngIf="u.mimeType.substring(0, u.mimeType.indexOf('/')) === 'application'">
+                            <i class="fas fa-file-{{docType(u.mimeType)}} fa-7x" style="color: #888888;"></i> <br>
+                          </div>
+                          <div *ngIf="u.mimeType.substring(0, u.mimeType.indexOf('/')) === 'image'">
+                            <img [src]="u.path" style="height: 96px; border-radius: 4px;"> <br>
+                          </div>
+                        </td>
+                        <td nowrap>{{  u.name  }} </td>
+                        <td nowrap>
+                          <button type="button" class="btn btn-primary btn-xs" (click)="downloadDoc(u)">
+                            <i class="fas fa-file-download"></i> Download
+                          </button>
+                        </td>
+                      </tr>
+                      </tbody>
+                    </table>
+                  </mat-expansion-panel>
+                </mat-accordion>
+              </div>
+            </div>
+          </mat-tab>
           <mat-tab label="Summary Progress Report">
             <div class="row">
               <div class="col-12" style="padding-top: 20px; padding-bottom: 20px;">
@@ -236,55 +285,6 @@
                 </div>
               </div>
             <br>
-          </mat-tab>
-          <mat-tab label="Document Uploads" *ngIf="numUploads(element._id) > 0">
-            <ng-template matTabLabel>
-              <span matBadge="{{numUploads(element._id)}}" matBadgeOverlap="false">Document Uploads</span>
-            </ng-template>
-            <div class="row">
-              <div class="col-12 milestonesBox">
-                <mat-accordion>
-                  <br>
-                  <mat-expansion-panel *ngFor="let rd of element.requiredDocuments">
-                    <mat-expansion-panel-header>
-                      <mat-panel-title>
-                        {{rd.name}}
-                      </mat-panel-title>
-                      <mat-panel-description>
-                        <span style="color: #1DA1F2" class="mTitle">({{ rd.uploads.length }} Document{{rd.uploads.length > 1 || rd.uploads.length === 0 ? 's' : ''}})</span>
-                      </mat-panel-description>
-                    </mat-expansion-panel-header>
-                    <table class="table">
-                      <thead>
-                      <tr>
-                        <th>Preview</th>
-                        <th>name</th>
-                        <th>Actions</th>
-                      </tr>
-                      </thead>
-                      <tbody>
-                      <tr *ngFor="let u of rd.uploads; let i = index">
-                        <td nowrap>
-                          <div *ngIf="u.mimeType.substring(0, u.mimeType.indexOf('/')) === 'application'">
-                            <i class="fas fa-file-{{docType(u.mimeType)}} fa-7x" style="color: #888888;"></i> <br>
-                          </div>
-                          <div *ngIf="u.mimeType.substring(0, u.mimeType.indexOf('/')) === 'image'">
-                            <img [src]="u.path" style="height: 96px; border-radius: 4px;"> <br>
-                          </div>
-                        </td>
-                        <td nowrap>{{  u.name  }} </td>
-                        <td nowrap>
-                          <button type="button" class="btn btn-primary btn-xs" (click)="downloadDoc(u)">
-                            <i class="fas fa-file-download"></i> Download
-                          </button>
-                        </td>
-                      </tr>
-                      </tbody>
-                    </table>
-                  </mat-expansion-panel>
-                </mat-accordion>
-              </div>
-            </div>
           </mat-tab>
         </mat-tab-group>
       </div>
