@@ -1100,9 +1100,10 @@ userRoutes.route('/updateFile').post((req, res, next) => {
     }
   })
 });
-userRoutes.route('/files').get((req, res, next) => {
+userRoutes.route('/files/:archived').get((req, res, next) => {
   // get all Files
-  File.find({})
+  const arch = req.params.archived;
+  File.find({archived: arch})
     .populate('milestoneList.milestones._id')
     .populate('milestoneList._id', 'title')
     .populate('milestoneList.milestones.updatedBy', 'name')

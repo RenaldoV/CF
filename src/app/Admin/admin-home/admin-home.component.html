@@ -26,12 +26,7 @@
         <h5>Files</h5>
       </div>
       <div class="col-12">
-        <app-file-table *ngIf="files" [files]="files"></app-file-table>
-        <div class="row" *ngIf="!files">
-          <div class="text-center col-12">
-            <i class="fas fa-3x fa-spinner fa-spin x3"></i>
-          </div>
-        </div>
+        <app-file-table></app-file-table>
       </div>
     </div>
   </div>

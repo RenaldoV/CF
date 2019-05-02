@@ -24,8 +24,8 @@ export class FileService {
     headers.set('Content-Type', 'application/json');
     return this.http.post<any>(`${this.host}/addFile`, {file: file, uid: uid});
   }
-  getMyFiles() {
-    const url = `${this.host}/files/`;
+  getMyFiles(archived) {
+    const url = `${this.host}/files/` + archived;
     return this.http.get(url);
   }
   completeMilestone(file, milestone, notiProps?) {

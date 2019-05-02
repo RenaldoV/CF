@@ -13,7 +13,6 @@ import {AddContactDialogComponent} from '../../Contact/add-contact-dialog/add-co
   styleUrls: ['./admin-home.component.css']
 })
 export class AdminHomeComponent implements OnInit {
-  files;
   constructor(
     private fb: FormBuilder,
     private adminService: AdminService,
@@ -21,14 +20,7 @@ export class AdminHomeComponent implements OnInit {
     public fileService: FileService,
     private router: Router,
     private dialog: MatDialog
-  ) {
-    this.fileService.getMyFiles()
-      .subscribe(res => {
-          this.files = res;
-      }, err => {
-        console.log(err);
-      });
-  }
+  ) {}
   showRoute() {
     let route = this.router.url.replace('/', '').replace('-', ' ');
     route = route.toLowerCase()

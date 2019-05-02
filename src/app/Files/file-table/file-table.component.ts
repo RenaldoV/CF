@@ -1,4 +1,4 @@
-import {ViewChild, Component, OnInit, Input, ChangeDetectorRef} from '@angular/core';
+import {ViewChild, Component, OnInit, Input, ChangeDetectorRef, Output, EventEmitter} from '@angular/core';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import {MatTableDataSource, MatSort, MatPaginator, MatSnackBar, MatDialogConfig, MatDialog} from '@angular/material';
 import {FileService} from '../file.service';
@@ -29,11 +29,11 @@ import * as FileSaver from 'file-saver';
 export class FileTableComponent implements OnInit {
   displayedColumns: string[] = ['action', 'fileRef', 'secretary', 'created', 'updated', 'actions'];
   dataSource;
-  archived = false;
-  allFiles: any[];
   uploads: any[];
   reqDocs: any[];
-  @Input() files;
+  files;
+  archFiles;
+  archived;
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
 
@@ -50,9 +50,14 @@ export class FileTableComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.allFiles = this.files;
-    this.dataSource = new MatTableDataSource<File>(this.files.filter(f => !f.archived));
-    this.initDataSource();
+    this.fileService.getMyFiles(false)
+      .subscribe(res => {
+        this.files = res;
+        this.dataSource = new MatTableDataSource<File>(this.files);
+        this.initDataSource();
+      }, err => {
+        console.log(err);
+      });
   }
   initDataSource() {
     this.dataSource.paginator = this.paginator;
@@ -258,9 +263,13 @@ export class FileTableComponent implements OnInit {
         this.fileService.updateFile({_id: file._id, archived: !file.archived})
           .subscribe(res => {
             if (res) {
-              const i = this.allFiles.findIndex(f => f._id === res._id);
-              this.allFiles[i].archived = res.archived;
-              this.dataSource = new MatTableDataSource<File>(this.allFiles.filter(f => !f.archived));
+              const i = this.files.findIndex(f => f._id === res._id);
+              this.files[i].archived = res.archived;
+              if (this.archFiles) { // if archived files have been fetched, add this file to archived array
+                this.archFiles.unshift(this.files[i]);
+              }
+              this.files.splice(i, 1);
+              this.dataSource = new MatTableDataSource<File>(this.files);
               this.initDataSource();
               this.matSnack.open('File has successfully been archived');
             } else {
@@ -273,9 +282,11 @@ export class FileTableComponent implements OnInit {
         this.fileService.updateFile({_id: file._id, archived: !file.archived})
           .subscribe(res => {
             if (res) {
-              const i = this.allFiles.findIndex(f => f._id === res._id);
-              this.allFiles[i].archived = res.archived;
-              this.dataSource = new MatTableDataSource<File>(this.allFiles.filter(f => f.archived));
+              const i = this.archFiles.findIndex(f => f._id === res._id);
+              this.archFiles[i].archived = res.archived;
+              this.files.unshift(this.archFiles[i]);
+              this.archFiles.splice(i, 1);
+              this.dataSource = new MatTableDataSource<File>(this.archFiles);
               this.initDataSource();
               this.matSnack.open('File has successfully been restored');
             } else {
@@ -286,11 +297,22 @@ export class FileTableComponent implements OnInit {
     }
   }
   showArchived() {
-    this.dataSource = new MatTableDataSource<File>(this.allFiles.filter(f => f.archived));
-    this.initDataSource();
+    if (!this.archFiles) {
+      this.fileService.getMyFiles(true)
+        .subscribe(res => {
+          this.archFiles = res;
+          this.dataSource = new MatTableDataSource<File>(this.archFiles);
+          this.initDataSource();
+        }, err => {
+          console.log(err);
+        });
+    } else {
+      this.dataSource = new MatTableDataSource<File>(this.archFiles);
+      this.initDataSource();
+    }
   }
   hideArchived() {
-    this.dataSource = new MatTableDataSource<File>(this.allFiles.filter(f => !f.archived));
+    this.dataSource = new MatTableDataSource<File>(this.files);
     this.initDataSource();
   }
   editContact(ct) {
@@ -364,7 +386,7 @@ export class FileTableComponent implements OnInit {
     return this.uploads.filter(u => u.fileID === fid);
   }
   reqDocsPerFile(fid) { // sort required documents in files and add relevant uploads to them to display
-    const thisFile = this.allFiles.find(f => f._id === fid);
+    const thisFile = this.archived ? this.archFiles.find(f => f._id === fid) : this.files.find(f => f._id === fid);
     if (!thisFile.requiredDocuments) {
       thisFile.requiredDocuments = [];
       const uploadsInFile = this.getFileUploads(fid);
