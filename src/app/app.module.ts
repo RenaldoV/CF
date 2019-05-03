@@ -13,7 +13,7 @@ import {
   MAT_SNACK_BAR_DEFAULT_OPTIONS,
   MatAutocompleteModule, MatBadgeModule, MatCardModule, MatCheckboxModule, MatChipsModule, MatDialogModule, MatExpansionModule,
   MatFormFieldModule, MatIconModule,
-  MatInputModule, MatMenuModule, MatPaginatorModule, MatRadioModule,
+  MatInputModule, MatMenuModule, MatPaginatorModule, MatProgressBarModule, MatRadioModule,
   MatSelectModule, MatSnackBarModule, MatSortModule,
   MatStepperModule, MatTableModule, MatTabsModule, MatTooltipModule
 } from '@angular/material';
@@ -111,7 +111,8 @@ import {FileUploadModule} from 'ng2-file-upload';
     ReactiveFormsModule,
     LoaderModule,
     FormsModule,
-    FileUploadModule
+    FileUploadModule,
+    MatProgressBarModule
   ],
   providers: [
     AuthService,

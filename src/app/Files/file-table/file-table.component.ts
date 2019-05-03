@@ -297,6 +297,7 @@ export class FileTableComponent implements OnInit {
     }
   }
   showArchived() {
+    this.dataSource = null;
     if (!this.archFiles) {
       this.fileService.getMyFiles(true)
         .subscribe(res => {
@@ -312,6 +313,7 @@ export class FileTableComponent implements OnInit {
     }
   }
   hideArchived() {
+    this.dataSource = null;
     this.dataSource = new MatTableDataSource<File>(this.files);
     this.initDataSource();
   }
@@ -400,16 +402,18 @@ export class FileTableComponent implements OnInit {
     }
   }
   getRequiredDocs() {
-    this.reqDocService.getAllReqDocs()
-      .subscribe(res => {
-        if (res) {
-          this.reqDocs = res;
-        }
-      }, err => {
-        if (err) {
-          console.log(err);
-        }
-      });
+    if (!this.reqDocs) {
+      this.reqDocService.getAllReqDocs()
+        .subscribe(res => {
+          if (res) {
+            this.reqDocs = res;
+          }
+        }, err => {
+          if (err) {
+            console.log(err);
+          }
+        });
+    }
   }
   docType(type) {
     if (type.substring(type.lastIndexOf('/') + 1, type.length) === 'pdf') {
