@@ -1836,7 +1836,31 @@ userRoutes.route('/upload').post(upload, (req, res, next) => {
   Document.create(document, (err, rd) => {
     if(err) next(err);
     else {
-      res.send(true);
+      Document.findById(rd._id).populate({
+        path: 'requiredDocumentID'
+      }).populate({
+        path: 'fileID',
+        select: 'fileRef refUser',
+        populate: {
+          path: 'refUser',
+          select: 'email'
+        }
+      }).populate({path: 'contactID', select: 'name surname'}).exec((er, rd) => {
+        if(er) next(er);
+        const link = req.protocol + '://' + req.get('host') + '/admin-home';
+        async.each(rd.fileID.refUser, (u, cb) => {
+          mailer.docUploaded(rd.contactID.name + ' ' + rd.contactID.surname, u.email, rd.requiredDocumentID.name, rd.fileID.fileRef, link)
+            .then(() => {
+              cb();
+            }).catch(err => {
+              if(err) cb(err);
+          })
+        }, (err) => {
+          if(err) next(err);
+          res.send(true);
+        });
+      });
+
     }
   })
 });

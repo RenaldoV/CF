@@ -117,6 +117,22 @@ class Mailer {
       });
     });
   }
+  docUploaded(contactName, email, reqDoc, fileRef, link) {
+    const context = {
+      name: contactName,
+      doc: reqDoc,
+      fileRef: fileRef,
+      link: link
+    };
+    const subject = 'New ' + reqDoc + ' uploaded by ' + contactName;
+    return new Promise((resolve, reject) => {
+      this.send('docUploaded', context, email, subject).then(res => {
+        resolve(res);
+      }).catch(err => {
+        reject(err);
+      });
+    });
+  }
   adminFileCreated(email, link, fileRef) {
     const message = 'Your file with reference ' + fileRef + ' has successfully been created. \n to view the file click the link below.';
     const subject = 'File successfully created';
