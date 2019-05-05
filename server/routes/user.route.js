@@ -1840,7 +1840,7 @@ userRoutes.route('/upload').post(upload, (req, res, next) => {
         path: 'requiredDocumentID'
       }).populate({
         path: 'fileID',
-        select: 'fileRef refUser',
+        select: 'fileRef refUser propertyDescription',
         populate: {
           path: 'refUser',
           select: 'email'
@@ -1849,7 +1849,7 @@ userRoutes.route('/upload').post(upload, (req, res, next) => {
         if(er) next(er);
         const link = req.protocol + '://' + req.get('host') + '/admin-home';
         async.each(rd.fileID.refUser, (u, cb) => {
-          mailer.docUploaded(rd.contactID.name + ' ' + rd.contactID.surname, u.email, rd.requiredDocumentID.name, rd.fileID.fileRef, link)
+          mailer.docUploaded(rd.contactID.name + ' ' + rd.contactID.surname, u.email, rd.requiredDocumentID.name, rd.fileID.fileRef, rd.fileID.propertyDescription, link)
             .then(() => {
               cb();
             }).catch(err => {

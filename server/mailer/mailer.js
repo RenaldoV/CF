@@ -117,12 +117,13 @@ class Mailer {
       });
     });
   }
-  docUploaded(contactName, email, reqDoc, fileRef, link) {
+  docUploaded(contactName, email, reqDoc, fileRef, propDesc, link) {
     const context = {
       name: contactName,
       doc: reqDoc,
       fileRef: fileRef,
-      link: link
+      link: link,
+      propDesc
     };
     const subject = 'New ' + reqDoc + ' uploaded by ' + contactName;
     return new Promise((resolve, reject) => {
