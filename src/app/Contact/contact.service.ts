@@ -106,13 +106,7 @@ export class ContactService {
       );
   }
   searchEntries(term): Observable<any[]> {
-    let uid;
-    if (this.auth.isTopLevelUser()) {
-      uid = this.auth.getID();
-    } else {
-      uid = this.auth.getAdminID();
-    }
-    const url = `${this.host}/contacts/` + uid + '/' + term;
-    return this.http.get<any[]>(url);
+    const url = `${this.host}/searchContacts`;
+    return this.http.post<any[]>(url, {searchTerm: term});
   }
 }

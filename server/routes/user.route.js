@@ -787,20 +787,18 @@ userRoutes.route('/updateContact').post((req, res, next) => {
       }
     });
 });
-userRoutes.route('/contacts/:uid/:search').get((req, res, next) => {
+userRoutes.route('/searchContacts').post((req, res, next) => {
   // get user's contacts
-  const uid = req.params.uid;
-  const searchTerm = req.params.search;
-  User.findById(uid, 'contacts').populate('contacts', 'name email cell type surname').exec((err, user) => {
-    if(err) {
-      return next(err);
-    }
-    if (user) {
-      res.send(find(user.contacts, searchTerm));
-    }else {
-      res.send(false);
-    }
-  });
+  const searchTerm = req.body.searchTerm;
+  Contact.find({})
+    .exec((err, contacts) => {
+      if(err) next(err);
+      if (contacts) {
+        res.send(find(contacts, searchTerm));
+      } else {
+        res.send(false);
+      }
+    })
 });
 userRoutes.route('/contact').post((req, res, next) => {
   // get user's contacts

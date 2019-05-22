@@ -24,24 +24,41 @@ import {GlobalValidators} from '../../Common/Validators/globalValidators';
 import {Router} from '@angular/router';
 import {ContactService} from '../../Contact/contact.service';
 import {EntityService} from '../../Entities/entity.service';
-import {Observable} from 'rxjs';
+import {Observable, Subject} from 'rxjs';
 import {map, startWith} from 'rxjs/operators';
 import {COMMA, ENTER} from '@angular/cdk/keycodes';
 import {AddContactDialogComponent} from '../../Contact/add-contact-dialog/add-contact-dialog.component';
 import {AddEntityDialogComponent} from '../../Entities/add-entity-dialog/add-entity-dialog.component';
 import {AddRequiredDocumentDialogComponent} from '../../RequiredDocuments/add-required-document-dialog/add-required-document-dialog.component';
 import {RequiredDocumentsService} from '../../RequiredDocuments/required-documents.service';
+import {animate, animateChild, query, stagger, style, transition, trigger} from '@angular/animations';
 
 @Component({
   selector: 'app-admin-setup',
   templateUrl: './admin-setup.component.html',
-  styleUrls: ['./admin-setup.component.css']
+  styleUrls: ['./admin-setup.component.css'],
+  animations: [
+    trigger('listAnimation', [
+      transition('* => *', [ // each time the binding value changes
+        query(':leave', [
+          stagger(100, [
+            animate('0.5s', style({ opacity: 0 }))
+          ])
+        ], { optional: true }),
+        query(':enter', [
+          style({ opacity: 0 }),
+          stagger(100, [
+            animate('0.5s', style({ opacity: 1 }))
+          ])
+        ], { optional: true })
+      ])
+    ])
+  ]
 })
 export class AdminSetupComponent implements OnInit {
   MilestoneListForm: FormGroup;
   allLists;
   PropertiesForm: FormGroup;
-  ContactsForm: FormGroup;
   UsersForm: FormGroup;
   EmailPropsForm: FormGroup;
   origContacts;
@@ -51,6 +68,7 @@ export class AdminSetupComponent implements OnInit {
   allContacts: any[] = [];
   allEntities: any[] = [];
   allRDs: any[] = [];
+  searchTerm$ = new Subject<string>();
 
   constructor(
     private fb: FormBuilder,
@@ -69,12 +87,16 @@ export class AdminSetupComponent implements OnInit {
     this.createPropertiesForm();
     this.creatEmailPropertiesForm();
     this.getProperties();
-    this.createContactsForm();
-    this.getContacts();
     this.createUsersForm();
     this.getUsers();
     this.getAllEntities();
     this.getAllReqDocs();
+    this.contactService.searchContacts(this.searchTerm$)
+      .subscribe(res => {
+        if (res) {
+          this.allContacts = res;
+        }
+      });
   }
 
   ngOnInit() {}
@@ -575,164 +597,51 @@ export class AdminSetupComponent implements OnInit {
   }
   // ================== FILE PROPERTIES FUNCTIONS ========================
   // ================== CONTACTS FUNCTIONS ===============================
-  createContactsForm() {
-    this.ContactsForm = this.fb.group({
-      contacts: this.fb.array([])
-    });
-  }
-  get contacts(): FormArray {
-    return this.ContactsForm.get('contacts') as FormArray;
-  }
-  getContacts() {
-    this.contactService.getContacts()
-      .subscribe(res => {
-        if (res) {
-          this.origContacts = res;
-          this.patchContacts(res.slice(0, this.contactsCount));
+  createNewContactDialog(ct?) {
+    let index = -1;
+    const dialConfig = new MatDialogConfig();
+    dialConfig.disableClose = true;
+    dialConfig.autoFocus = true;
+    if (ct) {
+      dialConfig.data = ct;
+      index = this.allContacts.indexOf(ct);
+    }
+    const dialogRef = this.dialog.open(AddContactDialogComponent, dialConfig);
+    dialogRef.afterClosed().subscribe(res => {
+      if (res) {
+        if (index > -1) {
+          this.allContacts[index] = res;
+        } else {
+          this.allContacts.push(res);
         }
-      }, err => {
-        console.log(err);
-      });
-  }
-  patchContacts(cts) {
-    cts.forEach((ct, i) => {
-      if (!this.contacts.at(i)) {
-        this.addContact(true);
-        this.contacts.at(i).patchValue(ct);
-      } else {
-        ct.updatedBy = 'existing';
-        this.contacts.at(i).patchValue(ct);
       }
     });
   }
-  addContact(existing?) {
-    const ct = this.fb.group({
-      _id: [''],
-      title: ['', Validators.required],
-      name: ['', Validators.required],
-      surname: ['', Validators],
-      cell: ['', [GlobalValidators.cellRegex]],
-      email: ['', [GlobalValidators.validEmail],
-        existing ? null : this.shouldBeUniqueContact.bind(this)],
-      updatedBy: [existing ? 'existing' : 'new'],
-      type: ['', Validators.required]
-    });
-    const arrayControl = <FormArray>this.contacts;
-    arrayControl.push(ct);
+  addContact() {
+    this.createNewContactDialog();
   }
-  checkUniquenessValidator(i) {
-    this.contacts.at(i).get('email').setAsyncValidators(this.shouldBeUniqueContact.bind(this));
-  }
-  removeContact(e, i) {
-    e.stopPropagation();
-    e.preventDefault();
-    const ct = this.contacts.at(i);
-    if (confirm('Are you sure you want to delete ' +
-      (ct.get('name').value ? ct.get('name').value : 'this contact') + ' from your contact list?')) {
-      const control = <FormArray>this.contacts;
-      if (ct.value.updatedBy === 'new') {
-        control.removeAt(i);
-        this.matSnack.open('Contact removed successfully');
-      } else {
-        this.contactService.deleteContact(ct.value._id)
-          .subscribe(res => {
-            if (res) {
-              this.matSnack.open('Contact removed successfully');
-              control.removeAt(i);
-            } else {
-              const sb = this.matSnack.open('Contact not removed successful', 'retry');
-              sb.onAction().subscribe(() => {
-                this.removeContact(e, i);
-              });
-            }
-          }, err => {
+  removeContact(ct, i) {
+    const index = this.allContacts.indexOf(ct);
+    if (confirm('Are you sure you want to delete ' + ct.name  + ' from your contact list?')) {
+      this.contactService.deleteContact(ct._id)
+        .subscribe(res => {
+          if (res) {
+            this.matSnack.open('Contact removed successfully');
+            this.allContacts.splice(index, 1);
+          } else {
             const sb = this.matSnack.open('Contact not removed successful', 'retry');
             sb.onAction().subscribe(() => {
-              this.removeContact(e, i);
-            });
-            console.log(err);
-          });
-      }
-    }
-  }
-  onContactChange(i) {
-    const ct = this.contacts.at(i);
-    if (ct.value.updatedBy === 'existing') {
-      console.log('setting contact as updated');
-      ct.get('updatedBy').setValue('updated');
-    }
-  }
-  submitContact(i) {
-    const ct = this.contacts.at(i);
-    if (ct.value.updatedBy === 'new') {
-      const newContact = ct.value;
-      delete newContact.updatedBy;
-      delete newContact._id;
-      this.contactService.createContact(newContact)
-        .subscribe(res => {
-          if (res) {
-            this.matSnack.open('Contact created successfully');
-            ct.patchValue(res);
-            ct.get('email').clearAsyncValidators();
-            ct.get('email').updateValueAndValidity();
-            ct.get('updatedBy').setValue('existing');
-          } else {
-            const sb = this.matSnack.open('Contact not created successful', 'retry');
-            sb.onAction().subscribe(() => {
-              this.submitContact(i);
+              this.removeContact(ct, i);
             });
           }
         }, err => {
-          const sb = this.matSnack.open('Contact not created successful', 'retry');
+          const sb = this.matSnack.open('Contact not removed successful', 'retry');
           sb.onAction().subscribe(() => {
-            this.submitContact(i);
-          });
-          console.log(err);
-        });
-    } else if (ct.value.updatedBy === 'updated') {
-      const newContact = ct.value;
-      delete newContact.updatedBy;
-      this.contactService.updateContact(newContact)
-        .subscribe(res => {
-          if (res) {
-            ct.patchValue(res);
-            ct.get('updatedBy').setValue('existing');
-            ct.get('email').clearAsyncValidators();
-            ct.get('email').updateValueAndValidity();
-            this.matSnack.open('Update successful');
-          } else {
-            const sb = this.matSnack.open('Update unsuccessful', 'retry');
-            sb.onAction().subscribe(() => {
-              this.submitContact(i);
-            });
-          }
-        }, err => {
-          const sb = this.matSnack.open('Update unsuccessful', 'retry');
-          sb.onAction().subscribe(() => {
-            this.submitContact(i);
+            this.removeContact(ct, i);
           });
           console.log(err);
         });
     }
-    // console.log(this.contacts.at(i).value);
-  }
-  shouldBeUniqueContact(control: AbstractControl): Promise<ValidationErrors> | null {
-    const q = new Promise((resolve, reject) => {
-      setTimeout(() => {
-        if (control.value === '') {
-          resolve(null);
-        } else {
-          this.contactService.getContactByEmail(control.value).subscribe((res) => {
-            if (!res) {
-              resolve(null);
-            } else {
-              resolve({'emailNotUnique': true});
-            }
-          });
-        }
-      }, 100);
-    });
-    return q;
   }
   // ================== CONTACTS FUNCTIONS ===============================
   // ================== USER FUNCTIONS ===================================

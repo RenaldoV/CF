@@ -399,111 +399,42 @@
           </mat-expansion-panel-header>
           <div class="row">
             <div class="col-10 offset-1" style="margin-bottom: 10px;">
-              <form class="ContactsForm" [formGroup]="ContactsForm">
-                <mat-accordion>
-                  <mat-expansion-panel hideToggle class="msListPanel" [expanded]="i + 1 === contacts.length"
-                                       *ngFor="let c of contacts.controls; let i = index" formArrayName="contacts">
-                      <mat-expansion-panel-header>
-                        <mat-panel-description>
-                          {{c.get('name').value ? c.get('name').value : 'Contact ' + (i+1)}}
-                          <i class="fas fa-trash-alt float-right deleteBtn" (click)="removeContact($event, i)"></i>
-                        </mat-panel-description>
-                      </mat-expansion-panel-header>
-                      <div [formGroupName]="i" (change)="onContactChange(i)">
-                        <mat-form-field class="innerFormFields">
-                          <mat-select (valueChange)="onContactChange(i)" placeholder="Contact's title" formControlName="title" required>
-                            <mat-option value="Mr.">
-                              Mr.
-                            </mat-option>
-                            <mat-option value="Mrs.">
-                              Mrs.
-                            </mat-option>
-                            <mat-option value="Ms.">
-                              Ms.
-                            </mat-option>
-                            <mat-option value="Dr.">
-                              Dr.
-                            </mat-option>
-                            <mat-option value="Prof.">
-                              Prof.
-                            </mat-option>
-                            <mat-option value="Adv.">
-                              Adv.
-                            </mat-option>
-                          </mat-select>
-                          <mat-error>
-                            Contact title is required.
-                          </mat-error>
-                        </mat-form-field>
-                        <br>
-                        <mat-form-field class="innerFormFields">
-                          <input matInput placeholder="Name" formControlName="name" required>
-                          <mat-error>
-                            Contact name is required.
-                          </mat-error>
-                        </mat-form-field>
-                        <br>
-                        <mat-form-field class="innerFormFields">
-                          <input matInput placeholder="Surname" formControlName="surname" required>
-                          <mat-error>
-                            Contact surname is required.
-                          </mat-error>
-                        </mat-form-field>
-                        <br>
-                        <mat-form-field class="innerFormFields">
-                          <input matInput placeholder="Cell number" formControlName="cell">
-                          <mat-error *ngIf="c.get('cell').hasError('length')">
-                            A valid cell must be 10 digits long.
-                          </mat-error>
-                          <mat-error *ngIf="c.get('cell').hasError('numbers')">
-                            A valid cell must consist of only numbers.
-                          </mat-error>
-                          <mat-error *ngIf="c.get('cell').hasError('firstZero')">
-                            A valid cell must start with a 0.
-                          </mat-error>
-                        </mat-form-field>
-                        <br>
-                        <mat-form-field class="innerFormFields">
-                          <input (change)="checkUniquenessValidator(i)" type="email" matInput placeholder="Email address" formControlName="email">
-                          <mat-error *ngIf="c.get('email').hasError('invalidEmail')">
-                            Email must be a valid email address.
-                          </mat-error>
-                          <mat-error *ngIf="c.get('email').hasError('emailNotUnique')">
-                            You already have a contact with this email.
-                          </mat-error>
-                        </mat-form-field>
-                        <br>
-                        <mat-form-field class="innerFormFields">
-                          <mat-select (valueChange)="onContactChange(i)" placeholder="Contact type" formControlName="type" required>
-                            <mat-option value="Buyer">
-                              Buyer
-                            </mat-option>
-                            <mat-option value="Seller">
-                              Seller
-                            </mat-option>
-                            <mat-option value="Agent">
-                              Agent
-                            </mat-option>
-                          </mat-select>
-                          <mat-error>
-                            Contact type is required.
-                          </mat-error>
-                        </mat-form-field>
-                        <br>
-                        <div class="btn-group" role="group" aria-label="action buttons" style="margin-top: 5px;">
-                          <button class="btn btn-primary btn-sm saveButton" color="primary"
-                                  [disabled]="!contacts.at(i).valid || (loaderService.isLoading | async) || contacts.at(i).get('updatedBy').value === 'existing'" (click)="submitContact(i)">
-                            <span *ngIf="!(loaderService.isLoading | async)"><i class="far fa-save"></i> Save</span>
-                            <i *ngIf="loaderService.isLoading | async" class="fas fa-spinner fa-spin"></i>
-                          </button>
-                        </div>
-                      </div>
-                  </mat-expansion-panel>
-                </mat-accordion>
-              </form>
+              <mat-form-field style="width: 100%">
+                <input matInput placeholder="Search My Contacts"
+                       (keyup)="searchTerm$.next($event.target.value)">
+                <span matPrefix><i class="fas fa-search"></i>&nbsp;</span>
+                <span *ngIf="loaderService.isLoading | async" matSuffix>
+                            <i class="fas fa-spinner fa-spin"></i>
+                          </span>
+              </mat-form-field>
+              <div class="list-container" [@listAnimation]="allContacts.length">
+                <div class="row contact-box" *ngFor="let ct of allContacts; let i = index;">
+                  <div class="col-12">
+                    <span style="font-weight: bold"><i
+                      class="far fa-id-card"></i> {{ct?.name + ' ' + ct?.surname}}</span>
+                    <i class="fas fa-ellipsis-h float-right" [matMenuTriggerFor]="cActionsMenu"></i>
+                  </div>
+                  <mat-menu #cActionsMenu="matMenu">
+                    <button mat-menu-item (click)="createNewContactDialog(ct)"><i class="far fa-edit"></i> Edit</button>
+                    <button mat-menu-item (click)="removeContact(ct, i)"><i class="fas fa-trash-alt deleteBtn"></i>
+                      Delete
+                    </button>
+                  </mat-menu>
+                  <div class="col-8">
+                    <small *ngIf="ct.email" style="color: darkgray"><i class="far fa-envelope"></i> {{ct?.email}}
+                    </small>
+                    <small *ngIf="!ct.email && ct.cell" style="color: darkgray"><i class="fas fa-phone-square"></i> {{
+                      ct?.cell }}
+                    </small>
+                  </div>
+                  <div class="col-4">
+                    <small style="color: darkgray">| <i class="fas fa-user-friends"></i> {{ct?.type}}</small>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-          <button [disabled]="!ContactsForm.valid" class="btn btn-outline-primary btn-sm" color="primary" (click)="addContact()">
+          <button class="btn btn-outline-primary btn-sm" color="primary" (click)="addContact()">
             <i class="fas fa-plus"></i> Add Contact
           </button>
         </mat-expansion-panel>
@@ -691,7 +622,7 @@
               </form>
             </div>
           </div>
-          <button [disabled]="!ContactsForm.valid || (loaderService.isLoading | async)" class="btn btn-outline-primary btn-sm" (click)="addUser()" color="primary"><i class="fas fa-plus"></i> Add User</button>
+          <button [disabled]="!UsersForm.valid || (loaderService.isLoading | async)" class="btn btn-outline-primary btn-sm" (click)="addUser()" color="primary"><i class="fas fa-plus"></i> Add User</button>
         </mat-expansion-panel>
       </mat-accordion>
     </div>
