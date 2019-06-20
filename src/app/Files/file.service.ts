@@ -63,6 +63,10 @@ export class FileService {
     const url = `${this.host}/file/` + id;
     return this.http.get<any>(url);
   }
+  getFileForAdmin(id) {
+    const url = `${this.host}/adminFile/` + id;
+    return this.http.get<any>(url);
+  }
   updateFile(f) {
     const uid = this.auth.getID();
     return this.http.post<any>(`${this.host}/updateFile`, {file: f, uid: uid});

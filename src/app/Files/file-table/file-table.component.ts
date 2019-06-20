@@ -59,6 +59,7 @@ export class FileTableComponent implements OnInit {
         console.log(err);
       });
   }
+
   initDataSource() {
     this.dataSource.paginator = this.paginator;
     this.dataSource.sort = this.sort;
@@ -74,33 +75,38 @@ export class FileTableComponent implements OnInit {
     };
     this.dataSource.filterPredicate =
       (data: File, filters: string) => {
-		if(!data.updatedBy) {
-			delete data.updatedBy;
-		}
-		if(!data.createdBy) {
-			delete data.createdBy;
-		}
+        if (!data.updatedBy) {
+          delete data.updatedBy;
+        }
+        if (!data.createdBy) {
+          delete data.createdBy;
+        }
         const matchFilter = [];
         const filterArray = filters.split('+');
         // slim down objects to only filterable fields
         const tempData = JSON.parse(JSON.stringify(data));
-        tempData.contacts.forEach(ct => {
-          delete ct._id;
-          delete ct.passwordHash;
-          delete ct.verified;
-          delete ct.type;
-          delete ct._v;
-        });
-        tempData.milestoneList.milestones.forEach(m => {
-          delete m.completed;
-          delete m.comments;
-		  if(!m.updatedBy) {
-			delete m.updatedBy;
-		  }else {
-			delete m.updatedBy._id;
-		  }
-          delete m._id;
-        });
+        if (tempData.contacts) {
+          tempData.contacts.forEach(ct => {
+            delete ct._id;
+            delete ct.passwordHash;
+            delete ct.verified;
+            delete ct.type;
+            delete ct._v;
+          });
+        }
+        if (tempData.milestoneList.milestones) {
+          tempData.milestoneList.milestones.forEach(m => {
+            delete m.completed;
+            delete m.comments;
+            if (!m.updatedBy) {
+              delete m.updatedBy;
+            } else {
+              delete m.updatedBy._id;
+            }
+            delete m._id;
+          });
+        }
+
         tempData.milestoneList._id = tempData.milestoneList._id.title;
         delete tempData._id;
         delete tempData.updatedBy;
@@ -425,6 +431,18 @@ export class FileTableComponent implements OnInit {
         });
     }
   }
+  getFile(id) {
+    this.fileService.getFileForAdmin(id)
+      .subscribe(file => {
+        if (file) {
+          this.files = this.files.map(f => f._id === file._id ? file : f);
+        }
+      }, err => {
+        if (err) {
+          console.log(err);
+        }
+      });
+  }
   docType(type) {
     if (type.substring(type.lastIndexOf('/') + 1, type.length) === 'pdf') {
       return 'pdf';
@@ -436,7 +454,6 @@ export class FileTableComponent implements OnInit {
     this.uploadService.download(d.name)
       .subscribe(res => FileSaver.saveAs(res, d.name), er => console.log(er));
   }
-
 }
 
 export interface File {
@@ -444,17 +461,18 @@ export interface File {
   fileRef: string;
   action: string;
   userRef: string;
-  milestoneList: MilestoneList;
-  contacts: [any];
+  milestoneList?: MilestoneList;
+  contacts?: [any];
   propertyDescription: string;
   updatedBy: any;
   createdBy: any;
   updatedAt: any;
   createdAt: any;
   archived: boolean;
-  entity: any;
+  entity?: any;
   _v: any;
-  requiredDocuments: any;
+  requiredDocuments?: any;
+  fullFile?: boolean;
 }
 export interface MilestoneList {
   _id: any;

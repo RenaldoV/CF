@@ -1099,9 +1099,33 @@ userRoutes.route('/updateFile').post((req, res, next) => {
   })
 });
 userRoutes.route('/files/:archived').get((req, res, next) => {
-  // get all Files
+  // get all Files that are not archived
   const arch = req.params.archived;
-  File.find({archived: arch})
+  // show only cause of act | FileRef | SecNames | created at by | updated at by | prop details
+  File.find({archived: arch}, {
+    fileRef: 1,
+    refUser: 1,
+    "milestoneList.id" : 1,
+    createdAt: 1,
+    createdBy: 1,
+    propertyDescription: 1,
+    updatedAt: 1
+  })
+  .populate('milestoneList._id', 'title')
+  .populate('refUser', 'name')
+  .populate('createdBy', 'name')
+  .populate('updatedBy', 'name')
+  .sort({createdAt: -1})
+  .exec((er, files) => {
+    if (er) {
+      return next(er);
+    } else if (files) {
+      res.send(files);
+    } else {
+      res.send(false);
+    }
+  });
+  /* File.find({archived: arch})
     .populate('milestoneList.milestones._id')
     .populate('milestoneList._id', 'title')
     .populate('milestoneList.milestones.updatedBy', 'name')
@@ -1138,7 +1162,7 @@ userRoutes.route('/files/:archived').get((req, res, next) => {
       } else {
         res.send(false);
       }
-    });
+    }); */
 });
 userRoutes.route('/file/:id').get((req, res, next) => {
   const id = req.params.id;
@@ -1170,6 +1194,45 @@ userRoutes.route('/file/:id').get((req, res, next) => {
       res.send(file);
     }
   });
+});
+userRoutes.route('/adminFile/:id').get((req, res, next) => {
+  const id = req.params.id;
+  File.findById(id)
+    .populate('milestoneList.milestones._id')
+    .populate('milestoneList._id', 'title')
+    .populate('milestoneList.milestones.updatedBy', 'name')
+    .populate('contacts', 'name surname title email cell type')
+    .populate('milestoneList.milestones.comments.user', 'name')
+    .populate('summaries.user', 'name')
+    .populate('createdBy', 'name')
+    .populate('updatedBy', 'name')
+    .populate('refUser', 'name')
+    .populate({ // to display entity on file
+      path: 'entity',
+      populate: {
+        path: 'contacts'
+      }
+    })
+    .populate({ // to have file info when editing entity
+      path: 'entity',
+      populate: {
+        path: 'files',
+        select: 'fileRef'
+      }
+    })
+    .sort({createdAt: -1})
+    .exec((er, file) => {
+      if (er) {
+        return next(er);
+      } else if (file) {
+        file.milestoneList.milestones.sort((a, b) => {
+          return a._id.number - b._id.number;
+        });
+        res.send(file);
+      } else {
+        res.send(false);
+      }
+    });
 });
 userRoutes.route('/fileRef/:id').get((req, res, next) => {
   const id = req.params.id;

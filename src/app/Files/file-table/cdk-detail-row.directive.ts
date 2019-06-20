@@ -29,7 +29,7 @@ export class CdkDetailRowDirective {
     }
   }
 
-  constructor(public vcRef: ViewContainerRef) { }
+  constructor(public vcRef: ViewContainerRef) {}
 
   @HostListener('click')
   onClick(): void {

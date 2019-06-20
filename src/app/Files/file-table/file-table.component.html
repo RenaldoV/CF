@@ -59,7 +59,7 @@
     </ng-container>
 
     <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-    <mat-row *matRowDef="let row; columns: displayedColumns;" matRipple class="element-row" (click)="getUploads(); getRequiredDocs();"
+    <mat-row *matRowDef="let row; columns: displayedColumns;" matRipple class="element-row" (click)="getUploads(); getRequiredDocs(); getFile(row._id)"
              [cdkDetailRow]="row" [cdkDetailRowTpl]="tpl" [ngClass]="{'archived': row.archived}">
     </mat-row>
   </mat-table>
@@ -88,7 +88,7 @@
             </div>
             <br>
           </mat-tab>
-          <mat-tab label="Milestones">
+          <mat-tab *ngIf="element.milestoneList.milestones" label="Milestones">
             <br>
               <div class="row">
                 <div class="milestonesBox col-12">
@@ -201,7 +201,7 @@
               </div>
             </div>
           </mat-tab>
-          <mat-tab label="Summary Progress Report">
+          <mat-tab *ngIf="element.summaries" label="Summary Progress Report">
             <div class="row">
               <div class="col-12" style="padding-top: 20px; padding-bottom: 20px;">
                 <div class="row" *ngFor="let summary of element.summaries; let i = index;" style="width: 80%; margin-left: 10%;">
@@ -222,7 +222,7 @@
               </div>
             </div>
           </mat-tab>
-          <mat-tab label="Contacts">
+          <mat-tab *ngIf="element.contacts" label="Contacts">
             <br>
               <div class="contactsBox row">
                 <div class="col-sm-12 col-md-6 col-lg{{numCards(element)}}" *ngFor="let ct of element.contacts; let i = index">
@@ -244,7 +244,7 @@
               </div>
             <br>
           </mat-tab>
-          <mat-tab label="Entity" *ngIf="element.entity">
+          <mat-tab *ngIf="element.entity" label="Entity">
             <br>
               <div class="contactsBox row">
                 <div class="col-sm-12">
