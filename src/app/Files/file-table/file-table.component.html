@@ -42,7 +42,7 @@
       <mat-header-cell *matHeaderCellDef mat-sort-header> Updated </mat-header-cell>
       <mat-cell *matCellDef="let element">
         <small style="color: darkgrey">
-          {{convertDate('yyyy/mm/dd', element.updatedAt)}} <br>by {{element.updatedBy.name}}
+          {{convertDate('yyyy/mm/dd', element.updatedAt)}} <br>by {{element.updatedBy?.name}}
         </small>
       </mat-cell>
     </ng-container>

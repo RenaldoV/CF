@@ -74,6 +74,12 @@ export class FileTableComponent implements OnInit {
     };
     this.dataSource.filterPredicate =
       (data: File, filters: string) => {
+		if(!data.updatedBy) {
+			delete data.updatedBy;
+		}
+		if(!data.createdBy) {
+			delete data.createdBy;
+		}
         const matchFilter = [];
         const filterArray = filters.split('+');
         // slim down objects to only filterable fields
@@ -88,13 +94,17 @@ export class FileTableComponent implements OnInit {
         tempData.milestoneList.milestones.forEach(m => {
           delete m.completed;
           delete m.comments;
-          delete m.updatedBy._id;
+		  if(!m.updatedBy) {
+			delete m.updatedBy;
+		  }else {
+			delete m.updatedBy._id;
+		  }
           delete m._id;
         });
         tempData.milestoneList._id = tempData.milestoneList._id.title;
         delete tempData._id;
-        delete tempData.updatedBy._id;
-        delete tempData.createdBy._id;
+        delete tempData.updatedBy;
+        delete tempData.createdBy;
         delete tempData._v;
         const columns = (<any>Object).values(this.flatten(tempData));
         // console.log(tempData);
