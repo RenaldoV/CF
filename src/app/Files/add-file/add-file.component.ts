@@ -50,18 +50,18 @@ export class AddFileComponent implements OnInit {
   allSecretaries: any[] = [];
   secretaries: any[] = [];
   matcher = new ErrorStateMatcher();
-  @ViewChild('secInput') secretaryInput: ElementRef<HTMLInputElement>;
-  @ViewChild('auto') secretaryAutoComp: MatAutocomplete;
-  @ViewChild('secTrigger') secInput: MatAutocompleteTrigger;
+  @ViewChild('secInput', {static: true}) secretaryInput: ElementRef<HTMLInputElement>;
+  @ViewChild('auto', {static: true}) secretaryAutoComp: MatAutocomplete;
+  @ViewChild('secTrigger', {static: true}) secInput: MatAutocompleteTrigger;
   // Entity chips autocomplete
   entity = new FormControl('');
   entityChips = new FormControl('');
   filteredEntities: Observable<any[]>;
   allEntities: any[] = [];
   selectedEntity: any[] = [];
-  @ViewChild('entityInput') entityInput: ElementRef<HTMLInputElement>;
-  @ViewChild('autoEntities') autoEntities: MatAutocomplete;
-  @ViewChild('enTrigger') enInputTrigger: MatAutocompleteTrigger;
+  @ViewChild('entityInput', {static: true}) entityInput: ElementRef<HTMLInputElement>;
+  @ViewChild('autoEntities', {static: true}) autoEntities: MatAutocomplete;
+  @ViewChild('enTrigger', {static: true}) enInputTrigger: MatAutocompleteTrigger;
   constructor(
     private fb: FormBuilder,
     private auth: AuthService,

@@ -36,16 +36,16 @@ export class AddEntityDialogComponent implements OnInit {
   allContacts: any[] = [];
   contactsForEntities: any[] = [];
   matcher = new ErrorStateMatcher();
-  @ViewChild('conPersonInput') conPersonInput: ElementRef<HTMLInputElement>;
-  @ViewChild('auto') conPersonAutoComp: MatAutocomplete;
-  @ViewChild('conTrigger') conInput: MatAutocompleteTrigger;
+  @ViewChild('conPersonInput', {static: true}) conPersonInput: ElementRef<HTMLInputElement>;
+  @ViewChild('auto', {static: true}) conPersonAutoComp: MatAutocomplete;
+  @ViewChild('conTrigger', {static: true}) conInput: MatAutocompleteTrigger;
 
   filteredFiles: Observable<any[]>;
   allFiles: any[] = [];
   selectedFiles: any[] = [];
-  @ViewChild('fileInput') fileInput: ElementRef<HTMLInputElement>;
-  @ViewChild('autoFiles') autoFiles: MatAutocomplete;
-  @ViewChild('fileTrigger') fileInputTrigger: MatAutocompleteTrigger;
+  @ViewChild('fileInput', {static: true}) fileInput: ElementRef<HTMLInputElement>;
+  @ViewChild('autoFiles', {static: true}) autoFiles: MatAutocomplete;
+  @ViewChild('fileTrigger', {static: true}) fileInputTrigger: MatAutocompleteTrigger;
 
   constructor(
     private fb: FormBuilder,

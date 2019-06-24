@@ -26,7 +26,7 @@ export class FileService {
   }
   getMyFiles(archived) {
     const url = `${this.host}/files/` + archived;
-    return this.http.get(url);
+    return this.http.get<any>(url);
   }
   completeMilestone(file, milestone, notiProps?) {
     const uid = this.auth.getID(); // complete milestone as me
