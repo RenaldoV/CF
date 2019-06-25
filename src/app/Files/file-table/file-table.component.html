@@ -447,9 +447,9 @@
                       </div>
                       <br>
                     </mat-tab>
-                    <mat-tab label="Document Uploads" *ngIf="numUploads(element._id) > 0">
+                    <mat-tab label="Document Uploads" *ngIf="element.uploads?.length > 0">
                       <ng-template matTabLabel>
-                        <span matBadge="{{numUploads(element._id)}}" matBadgeOverlap="false">Document Uploads</span>
+                        <span matBadge="{{element.uploads?.length}}" matBadgeOverlap="false">Document Uploads</span>
                       </ng-template>
                       <div class="row">
                         <div class="col-12 milestonesBox">
@@ -594,9 +594,9 @@
       <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
       <tr mat-row *matRowDef="let element; columns: columnsToDisplay;" matRipple
           class="element-row example-element-row"
-          (click)="getUploads(); getRequiredDocs(); getFile(element)" [ngClass]="{'archived': element.archived}"
+          [ngClass]="{'archived': element.archived}"
           [class.example-expanded-row]="expandedElement === element"
-          (click)="expandedElement = expandedElement === element ? null : element">
+          (click)="expandedElement = expandedElement === element ? null : element; getFile(element)">
       </tr>
       <tr mat-row *matRowDef="let element; columns: ['expandedDetail']" class="example-detail-row"></tr>
     </table>

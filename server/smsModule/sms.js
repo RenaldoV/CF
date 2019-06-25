@@ -54,6 +54,7 @@ class Sms {
     })()
   }
   sendMessage(sessionid, message, contact) {
+    message = message.replace(/[\\\[\]^<>]/g, " "); // replace all illegal characters with a space.
     let messageBody = {
       api_action: 'sendmessages', api_sessionid: sessionid, action_content: {
         sms : {
@@ -85,6 +86,7 @@ class Sms {
         });
         return response.result;
       } catch (err) {
+        console.log(message);
         throw err;
       }
     })()
@@ -116,9 +118,7 @@ class Sms {
     })()
   }
   async send(contact, message) {
-
     try {
-      var message = message.replace(/\\|\[|\]|\^/g, " "); // replace all illegal characters with a space.
       let sessionid = await this.login();
       let status = await this.sendMessage(sessionid, message, contact);
       let logout = await this.logout(sessionid);
@@ -132,6 +132,7 @@ class Sms {
       return promise;
     } catch (e) {
       if (e) {
+        console.log(message);
         throw e;
       }
     }
@@ -183,8 +184,9 @@ class Sms {
       let cutIndice = comment.length - overflow;
       comment = comment.substring(0, cutIndice);
     }
-    const message = adminName + ' added a comment: ' + propDesc + '. ' + milestone + '. ' + comment + '. ' + footer;
+    let message = adminName + ' added a comment: ' + propDesc + '. ' + milestone + '. ' + comment + '. ' + footer;
     // console.log('final total length: ' + message.length);
+    message = message.replace(/[\\\[\]^<>]/g, " "); // replace all illegal characters with a space.
     return this.send(contact, message)
       .then(res => {}).catch(err => {
         console.log(err);
@@ -201,8 +203,9 @@ class Sms {
       let cutIndice = summary.length - overflow;
       summary = summary.substring(0, cutIndice);
     }
-    const message = adminName + ' added a summary progress report: ' + propDesc + '. ' + fileRef + '. ' + summary + '. ' + footer;
+    let message = adminName + ' added a summary progress report: ' + propDesc + '. ' + fileRef + '. ' + summary + '. ' + footer;
     // console.log('final total length: ' + message.length);
+    message = message.replace(/[\\\[\]^<>]/g, " "); // replace all illegal characters with a space.
     return this.send(contact, message)
       .then(res => {
         // console.log(res);

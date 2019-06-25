@@ -68,6 +68,7 @@ export class FileTableComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.getRequiredDocs(); // get required document templates
     this.fileService.getMyFiles(false)
       .subscribe(res => {
         this.files = res;
@@ -93,17 +94,16 @@ export class FileTableComponent implements OnInit {
     };
     this.dataSource.filterPredicate =
       (data: File, filters: string) => {
-        if (!data.updatedBy) {
-          delete data.updatedBy;
-        }
-        if (!data.createdBy) {
-          delete data.createdBy;
-        }
+        const searchObject = { // searchable fields
+          fileRef: data.fileRef,
+          propertyDescription: data.propertyDescription,
+          refUser: data.refUser.map(u => u.name)
+        };
         const matchFilter = [];
         const filterArray = filters.split('+');
         // slim down objects to only filterable fields
-        const tempData = JSON.parse(JSON.stringify(data));
-        if (tempData.contacts) {
+        const tempData = JSON.parse(JSON.stringify(searchObject));
+        /*if (tempData.contacts) {
           tempData.contacts.forEach(ct => {
             delete ct._id;
             delete ct.passwordHash;
@@ -129,7 +129,7 @@ export class FileTableComponent implements OnInit {
         delete tempData._id;
         delete tempData.updatedBy;
         delete tempData.createdBy;
-        delete tempData._v;
+        delete tempData._v;*/
         const columns = (<any>Object).values(this.flatten(tempData));
         // console.log(tempData);
         // OR be more specific [data.name, data.race, data.color];
@@ -386,7 +386,7 @@ export class FileTableComponent implements OnInit {
       }
     });
   }
-  getUploads() {
+  /*getUploads() {
     if (!this.uploads) {
       this.uploadService.getAllUploadsFile()
         .subscribe(res => {
@@ -434,6 +434,19 @@ export class FileTableComponent implements OnInit {
       thisFile.requiredDocuments = newReqDocs.filter(rd => rd.uploads.length > 0);
       this.files = this.files.map(f => f._id === fid ? thisFile : f);
     }
+  }*/
+  getThisFileReqDocs(file) {
+    let reqDocs = JSON.parse(JSON.stringify(this.reqDocs)).filter(rd => file.uploads.map(u => u.requiredDocumentID).indexOf(rd._id));
+    // reqDocs = reqDocs.filter(rd => file.uploads.map(u => u.requiredDocumentID).indexOf(rd._id));
+    reqDocs.forEach(rd => {
+      rd.uploads = [];
+      file.uploads.forEach(u => {
+        if (rd._id === u.requiredDocumentID._id) {
+          rd.uploads.push(u);
+        }
+      });
+    });
+    return reqDocs.filter(rd => rd.uploads.length > 0); // only return reqdocs with 1 or more uploads
   }
   getRequiredDocs() {
     if (!this.reqDocs) {
@@ -450,13 +463,21 @@ export class FileTableComponent implements OnInit {
     }
   }
   getFile(row) {
-    if (row !== this.expandedElement) {
+    if (row === this.expandedElement) {
       this.fileService.getFileForAdmin(row._id)
         .subscribe(file => {
           if (file) {
-            this.files = this.files.map(f => f._id === file._id ? file : f);
-            const rowIndex = this.dataSource.data.indexOf(row);
-            this.dataSource.data = this.files;
+            let resFile = JSON.parse(JSON.stringify(file));
+            resFile.requiredDocuments = this.getThisFileReqDocs(resFile); // sort uploads into their req docs
+            if (this.archived) {
+              this.archFiles = this.archFiles.map(f => f._id === resFile._id ? resFile : f);
+              const rowIndex = this.dataSource.data.indexOf(row);
+              this.dataSource.data = this.archFiles;
+            } else {
+              this.files = this.files.map(f => f._id === resFile._id ? resFile : f);
+              const rowIndex = this.dataSource.data.indexOf(row);
+              this.dataSource.data = this.files;
+            }
             this.expandedElement = this.dataSource.data[rowIndex];
             this.initDataSource();
           }
@@ -484,7 +505,8 @@ export interface File {
   _id: string;
   fileRef: string;
   action: string;
-  userRef: string;
+  refUser: [any];
+  uploads?: [any];
   milestoneList?: MilestoneList;
   contacts?: [any];
   propertyDescription: string;
@@ -518,94 +540,3 @@ export interface Milestone {
   }];
   completed: boolean;
 }
-
-
-export interface PeriodicElement {
-  name: string;
-  position: number;
-  weight: number;
-  symbol: string;
-  description: string;
-}
-
-const ELEMENT_DATA: PeriodicElement[] = [
-  {
-    position: 1,
-    name: 'Hydrogen',
-    weight: 1.0079,
-    symbol: 'H',
-    description: `Hydrogen is a chemical element with symbol H and atomic number 1. With a standard
-        atomic weight of 1.008, hydrogen is the lightest element on the periodic table.`
-  }, {
-    position: 2,
-    name: 'Helium',
-    weight: 4.0026,
-    symbol: 'He',
-    description: `Helium is a chemical element with symbol He and atomic number 2. It is a
-        colorless, odorless, tasteless, non-toxic, inert, monatomic gas, the first in the noble gas
-        group in the periodic table. Its boiling point is the lowest among all the elements.`
-  }, {
-    position: 3,
-    name: 'Lithium',
-    weight: 6.941,
-    symbol: 'Li',
-    description: `Lithium is a chemical element with symbol Li and atomic number 3. It is a soft,
-        silvery-white alkali metal. Under standard conditions, it is the lightest metal and the
-        lightest solid element.`
-  }, {
-    position: 4,
-    name: 'Beryllium',
-    weight: 9.0122,
-    symbol: 'Be',
-    description: `Beryllium is a chemical element with symbol Be and atomic number 4. It is a
-        relatively rare element in the universe, usually occurring as a product of the spallation of
-        larger atomic nuclei that have collided with cosmic rays.`
-  }, {
-    position: 5,
-    name: 'Boron',
-    weight: 10.811,
-    symbol: 'B',
-    description: `Boron is a chemical element with symbol B and atomic number 5. Produced entirely
-        by cosmic ray spallation and supernovae and not by stellar nucleosynthesis, it is a
-        low-abundance element in the Solar system and in the Earth's crust.`
-  }, {
-    position: 6,
-    name: 'Carbon',
-    weight: 12.0107,
-    symbol: 'C',
-    description: `Carbon is a chemical element with symbol C and atomic number 6. It is nonmetallic
-        and tetravalent—making four electrons available to form covalent chemical bonds. It belongs
-        to group 14 of the periodic table.`
-  }, {
-    position: 7,
-    name: 'Nitrogen',
-    weight: 14.0067,
-    symbol: 'N',
-    description: `Nitrogen is a chemical element with symbol N and atomic number 7. It was first
-        discovered and isolated by Scottish physician Daniel Rutherford in 1772.`
-  }, {
-    position: 8,
-    name: 'Oxygen',
-    weight: 15.9994,
-    symbol: 'O',
-    description: `Oxygen is a chemical element with symbol O and atomic number 8. It is a member of
-         the chalcogen group on the periodic table, a highly reactive nonmetal, and an oxidizing
-         agent that readily forms oxides with most elements as well as with other compounds.`
-  }, {
-    position: 9,
-    name: 'Fluorine',
-    weight: 18.9984,
-    symbol: 'F',
-    description: `Fluorine is a chemical element with symbol F and atomic number 9. It is the
-        lightest halogen and exists as a highly toxic pale yellow diatomic gas at standard
-        conditions.`
-  }, {
-    position: 10,
-    name: 'Neon',
-    weight: 20.1797,
-    symbol: 'Ne',
-    description: `Neon is a chemical element with symbol Ne and atomic number 10. It is a noble gas.
-        Neon is a colorless, odorless, inert monatomic gas under standard conditions, with about
-        two-thirds the density of air.`
-  },
-];

@@ -1109,7 +1109,8 @@ userRoutes.route('/files/:archived').get((req, res, next) => {
     createdAt: 1,
     createdBy: 1,
     propertyDescription: 1,
-    updatedAt: 1
+    updatedAt: 1,
+    archived: 1
   })
   .populate('milestoneList._id', 'title')
   .populate('refUser', 'name')
@@ -1196,43 +1197,99 @@ userRoutes.route('/file/:id').get((req, res, next) => {
   });
 });
 userRoutes.route('/adminFile/:id').get((req, res, next) => {
+  // get one file and it's uploads to display on admin home
   const id = req.params.id;
-  File.findById(id)
-    .populate('milestoneList.milestones._id')
-    .populate('milestoneList._id', 'title')
-    .populate('milestoneList.milestones.updatedBy', 'name')
-    .populate('contacts', 'name surname title email cell type')
-    .populate('milestoneList.milestones.comments.user', 'name')
-    .populate('summaries.user', 'name')
-    .populate('createdBy', 'name')
-    .populate('updatedBy', 'name')
-    .populate('refUser', 'name')
-    .populate({ // to display entity on file
-      path: 'entity',
-      populate: {
-        path: 'contacts'
-      }
-    })
-    .populate({ // to have file info when editing entity
-      path: 'entity',
-      populate: {
-        path: 'files',
-        select: 'fileRef'
-      }
-    })
-    .sort({createdAt: -1})
-    .exec((er, file) => {
-      if (er) {
-        return next(er);
-      } else if (file) {
-        file.milestoneList.milestones.sort((a, b) => {
-          return a._id.number - b._id.number;
+  async.parallel({
+    file: (callback) => {
+      File.findById(id)
+        .populate('milestoneList.milestones._id')
+        .populate('milestoneList._id', 'title')
+        .populate('milestoneList.milestones.updatedBy', 'name')
+        .populate('contacts', 'name surname title email cell type')
+        .populate('milestoneList.milestones.comments.user', 'name')
+        .populate('summaries.user', 'name')
+        .populate('createdBy', 'name')
+        .populate('updatedBy', 'name')
+        .populate('refUser', 'name')
+        .populate({ // to display entity on file
+          path: 'entity',
+          populate: {
+            path: 'contacts'
+          }
+        })
+        .populate({ // to have file info when editing entity
+          path: 'entity',
+          populate: {
+            path: 'files',
+            select: 'fileRef'
+          }
+        })
+        .exec((er, file) => {
+          if (er) {
+            callback(er);
+          } else if (file) {
+            file.milestoneList.milestones.sort((a, b) => {
+              return a._id.number - b._id.number;
+            });
+            callback(null, file);
+          } else {
+            callback(null, file)
+          }
         });
-        res.send(file);
-      } else {
-        res.send(false);
-      }
-    });
+    },
+    uploads: (callback) => {
+      Document.find({fileID: id})
+        .populate({
+          path: 'milestoneID',
+          select: 'name'
+        })
+        .populate({
+          path: 'requiredDocumentID',
+          select: 'name',
+          populate: {
+            path: 'milestone',
+            select: 'name'
+          }
+        })
+        .populate({
+          path: 'contactID',
+          select: 'name'
+        })
+        .exec((err, uploads) => {
+          if(err) callback(err);
+          else if(uploads.length > 0) {
+            async.each(uploads, (u, cb) => {
+              let fullPath = __dirname + '/../../' + u.path;
+              fs.readFile(fullPath, (er, data) => {
+                if(er) cb(er);
+                else {
+                  if (u.mimeType.split('/')[0] === 'image') {
+                    u.path =  new Buffer(data).toString('base64');
+                  }
+                  cb();
+                }
+              });
+            }, (er) => {
+              if (er) callback(er);
+              else {
+                callback(null, uploads);
+              }
+            });
+          } else {
+            callback(null, uploads);
+          }
+        })
+    }
+  }, (er, callback) => {
+    if(er) next(er);
+    else if(callback.file) {
+      let resFile = JSON.parse(JSON.stringify(callback.file));
+      resFile.uploads = callback.uploads;
+      res.send(resFile);
+    } else {
+      res.send(false);
+    }
+  });
 });
 userRoutes.route('/fileRef/:id').get((req, res, next) => {
   const id = req.params.id;

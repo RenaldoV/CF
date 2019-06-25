@@ -54,7 +54,6 @@ class Scheduler {
                 if(err) {
                   cb(err);
                 } else {
-
                   cb(null, files);
                 }
               })
