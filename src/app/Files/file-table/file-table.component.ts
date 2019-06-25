@@ -469,13 +469,12 @@ export class FileTableComponent implements OnInit {
           if (file) {
             let resFile = JSON.parse(JSON.stringify(file));
             resFile.requiredDocuments = this.getThisFileReqDocs(resFile); // sort uploads into their req docs
+            const rowIndex = this.dataSource.data.indexOf(row);
             if (this.archived) {
               this.archFiles = this.archFiles.map(f => f._id === resFile._id ? resFile : f);
-              const rowIndex = this.dataSource.data.indexOf(row);
               this.dataSource.data = this.archFiles;
             } else {
               this.files = this.files.map(f => f._id === resFile._id ? resFile : f);
-              const rowIndex = this.dataSource.data.indexOf(row);
               this.dataSource.data = this.files;
             }
             this.expandedElement = this.dataSource.data[rowIndex];
