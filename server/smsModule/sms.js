@@ -116,7 +116,9 @@ class Sms {
     })()
   }
   async send(contact, message) {
+
     try {
+      var message = message.replace(/\\|\[|\]|\^/g, " "); // replace all illegal characters with a space.
       let sessionid = await this.login();
       let status = await this.sendMessage(sessionid, message, contact);
       let logout = await this.logout(sessionid);
