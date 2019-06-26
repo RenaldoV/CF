@@ -54,7 +54,7 @@ class Sms {
     })()
   }
   sendMessage(sessionid, message, contact) {
-    message = message.replace(/[\\\[\]^<>]/g, " "); // replace all illegal characters with a space.
+    message = this.escapeSpecialChars(message);
     let messageBody = {
       api_action: 'sendmessages', api_sessionid: sessionid, action_content: {
         sms : {
@@ -174,7 +174,7 @@ class Sms {
     return ct;
   }
   commentMade(contact, comment, adminName, propDesc, milestone, footer) {
-    const preMessage = adminName + ' added a comment: ' + propDesc + '. ' + milestone + '. ';
+    /*const preMessage = adminName + ' added a comment: ' + propDesc + '. ' + milestone + '. ';
     let lengthPreComment = preMessage.length + footer.length + 2; // get length of sms body without comment
     let totalLength = comment.length + lengthPreComment;
     if ( totalLength > 740 ) {
@@ -183,17 +183,17 @@ class Sms {
       // console.log('overflow: ' + overflow);
       let cutIndice = comment.length - overflow;
       comment = comment.substring(0, cutIndice);
-    }
+    }*/
     let message = adminName + ' added a comment: ' + propDesc + '. ' + milestone + '. ' + comment + '. ' + footer;
     // console.log('final total length: ' + message.length);
-    message = message.replace(/[\\\[\]^<>]/g, " "); // replace all illegal characters with a space.
+    message = this.escapeSpecialChars(message);
     return this.send(contact, message)
       .then(res => {}).catch(err => {
         console.log(err);
       });
   }
   summaryAdded(contact, summary, adminName, propDesc, fileRef, footer) {
-    const preMessage = adminName + ' added a summary progress report: ' + propDesc + '. ' + fileRef + '. ';
+    /*const preMessage = adminName + ' added a summary progress report: ' + propDesc + '. ' + fileRef + '. ';
     let lengthPreComment = preMessage.length + footer.length + 2; // get length of sms body without comment
     let totalLength = summary.length + lengthPreComment;
     if ( totalLength > 740 ) {
@@ -202,10 +202,10 @@ class Sms {
       // console.log('overflow: ' + overflow);
       let cutIndice = summary.length - overflow;
       summary = summary.substring(0, cutIndice);
-    }
+    }*/
     let message = adminName + ' added a summary progress report: ' + propDesc + '. ' + fileRef + '. ' + summary + '. ' + footer;
     // console.log('final total length: ' + message.length);
-    message = message.replace(/[\\\[\]^<>]/g, " "); // replace all illegal characters with a space.
+    message = this.escapeSpecialChars(message);
     return this.send(contact, message)
       .then(res => {
         // console.log(res);
@@ -252,6 +252,13 @@ class Sms {
       });
     });
     return promise;*/
+  }
+  escapeSpecialChars(message) {
+    message = message.replace(/[\\\[\]^<>]/g, " "); // replace all illegal characters with a space.
+    message = message.replace('’', "'");
+    message = message.replace('–', '-');
+    message = message.replace('½', 'half');
+    return message;
   }
 }
 
