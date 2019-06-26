@@ -1,15 +1,20 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {AddContactDialogComponent} from '../../Contact/add-contact-dialog/add-contact-dialog.component';
-import {MAT_DIALOG_DATA, MatDialogRef, MatSnackBar} from '@angular/material';
+import {ErrorStateMatcher, MAT_DIALOG_DATA, MatDialogRef, MatSnackBar, ShowOnDirtyErrorStateMatcher} from '@angular/material';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {LoaderService} from '../../Common/Loader';
 import {AdminService} from '../../Admin/admin.service';
 import {GlobalValidators} from '../../Common/Validators/globalValidators';
+import {last} from "rxjs/internal/operators";
+import Global = NodeJS.Global;
 
 @Component({
   selector: 'app-add-comment-dialog',
   templateUrl: './add-comment-dialog.component.html',
-  styleUrls: ['./add-comment-dialog.component.css']
+  styleUrls: ['./add-comment-dialog.component.css'],
+  providers: [
+    { provide: ErrorStateMatcher, useClass: ShowOnDirtyErrorStateMatcher },
+  ],
 })
 export class AddCommentDialogComponent implements OnInit {
   formType;
@@ -41,7 +46,10 @@ export class AddCommentDialogComponent implements OnInit {
   }
   createCommentForm() {
     this.commentForm = this.fb.group({
-      comment: ['', Validators.required],
+      comment: ['', [
+        Validators.required,
+        GlobalValidators.validSMS
+      ]],
       sendSMS: [true],
       sendEmail: [true],
       smsContacts: [this.filteredCellContacts],
@@ -50,12 +58,50 @@ export class AddCommentDialogComponent implements OnInit {
   }
   createSummaryForm() {
     this.summaryForm = this.fb.group({
-      summary: ['', Validators.required],
+      summary: ['', [
+        Validators.required,
+        GlobalValidators.validSMS
+      ]],
       sendSMS: [true],
       sendEmail: [true],
       smsContacts: [this.filteredCellContacts],
       emailContacts: [this.filteredEmailContacts]
     });
+  }
+  returnInvalidCharacter(str, elem) {
+    const regex = /[^@£$¥èéùìò\f\n !\"#%&'\(\)\*\+,-.\/0-9:;=\?ÄÖÑÜa-zäöñüà\^\|€_]/gi;
+    let m;
+    let lastMatch;
+    let lastIndex;
+    while ((m = regex.exec(str)) !== null) {
+      // This is necessary to avoid infinite loops with zero-width matches
+      if (m.index === regex.lastIndex) {
+        regex.lastIndex++;
+      }
+      // The result can be accessed through the `m`-variable.
+      m.forEach((match, groupIndex) => {
+        lastIndex = regex.lastIndex;
+        lastMatch = match;
+      });
+    }
+    this.setCaretPosition(elem, lastIndex);
+    return  lastMatch + ' at index ' +  lastIndex;
+  }
+  setCaretPosition(elem, caretPos) {
+    if (elem != null) {
+      if (elem.createTextRange) {
+        let range = elem.createTextRange();
+        range.move('character', caretPos);
+        range.select();
+      } else {
+        if (elem.selectionStart) {
+          elem.focus();
+          elem.setSelectionRange(caretPos, caretPos);
+        } else {
+          elem.focus();
+        }
+      }
+    }
   }
   get sendSMS() {
     if (this.data.summary) {

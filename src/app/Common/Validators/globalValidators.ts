@@ -37,6 +37,18 @@ export class GlobalValidators {
     }
   }
 
+  static validSMS(control: AbstractControl): {[key: string]: boolean} | null {
+    let sms = control.value as string;
+    if (sms) {
+      const regex = /[^@£$¥èéùìò\f\n !\"#%&'\(\)\*\+,-.\/0-9:;=\?ÄÖÑÜa-zäöñüà\^\|€_]/gi;
+      if (regex.test(sms)) {
+        return {
+          invalidCharacter: true
+        };
+      }
+    }
+  }
+
     static required(control: AbstractControl): ValidationErrors | null {
     const val = control.value;
     if (val) {

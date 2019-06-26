@@ -4,9 +4,12 @@
   <div style="margin-bottom: 10px;">
     <mat-form-field class="innerFormFields" appearance="outline">
       <mat-label>Comment</mat-label>
-      <textarea matInput placeholder="Write a comment" formControlName="comment" rows="4" required></textarea>
-      <mat-error>
+      <textarea #commentTextArea matInput placeholder="Write a comment" formControlName="comment" rows="4" required></textarea>
+      <mat-error *ngIf="comment.getError('required')">
         Comment can't be empty text.
+      </mat-error>
+      <mat-error *ngIf="comment.getError('invalidCharacter')">
+        Sms text contains invalid characters: <b>{{returnInvalidCharacter(comment.value, commentTextArea)}}</b>
       </mat-error>
     </mat-form-field>
     <div class="col-12">
@@ -48,9 +51,12 @@
   <div style="margin-bottom: 10px;">
     <mat-form-field class="innerFormFields" appearance="outline">
       <mat-label>Summary</mat-label>
-      <textarea matInput placeholder="Write a summary" formControlName="summary" rows="4" required></textarea>
-      <mat-error>
+      <textarea #summaryTextArea matInput placeholder="Write a summary" formControlName="summary" rows="4" required></textarea>
+      <mat-error *ngIf="summary.getError('required')">
         Summary can't be empty text.
+      </mat-error>
+      <mat-error *ngIf="summary.getError('invalidCharacter')">
+        Sms text contains invalid characters: <b>{{returnInvalidCharacter(summary.value, summaryTextArea)}}</b>
       </mat-error>
     </mat-form-field>
     <div class="col-12">
