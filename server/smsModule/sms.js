@@ -86,7 +86,6 @@ class Sms {
         });
         return response.result;
       } catch (err) {
-        console.log(message);
         throw err;
       }
     })()
@@ -136,33 +135,6 @@ class Sms {
         throw e;
       }
     }
-    /*const ct = this.parseContact(contact);
-    const msg = encodeURIComponent(encodeURI(message));
-    const smsApiUrl = 'http://148.251.196.36/app/smsapi/index.php?key=' + config.smsAPIKey + '&type=text&contacts='+ ct +'&senderid=ULTIMATE&msg=' + msg;
-    let promise = new Promise(function(resolve, reject) {
-      if (message.length >= 740) {
-        reject(new Error('Message is too long'));
-      } else {
-        http.get(smsApiUrl, (resp) => {
-
-          let data = '';
-
-          // A chunk of data has been recieved.
-          resp.on('data', (chunk) => {
-            data += chunk;
-          });
-
-          // The whole response has been received. Print out the result.
-          resp.on('end', () => {
-            resolve(data);
-          });
-
-        }).on("error", (err) => {
-          reject("Error: " + err.message);
-        });
-      }
-    });
-    return promise;*/
   }
   parseContact(ct) {
     if (ct[0] === '0' && ct.length === 10) {
@@ -186,7 +158,6 @@ class Sms {
     }*/
     let message = adminName + ' added a comment: ' + propDesc + '. ' + milestone + '. ' + comment + '. ' + footer;
     // console.log('final total length: ' + message.length);
-    message = this.escapeSpecialChars(message);
     return this.send(contact, message)
       .then(res => {}).catch(err => {
         console.log(err);
@@ -205,7 +176,6 @@ class Sms {
     }*/
     let message = adminName + ' added a summary progress report: ' + propDesc + '. ' + fileRef + '. ' + summary + '. ' + footer;
     // console.log('final total length: ' + message.length);
-    message = this.escapeSpecialChars(message);
     return this.send(contact, message)
       .then(res => {
         // console.log(res);

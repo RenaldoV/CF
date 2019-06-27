@@ -69,7 +69,7 @@ export class AddCommentDialogComponent implements OnInit {
     });
   }
   returnInvalidCharacter(str, elem) {
-    const regex = /[^@£$¥èéùìò\f\n !\"#%&'\(\)\*\+,-.\/0-9:;=\?ÄÖÑÜa-zäöñüà\^\|€_]/gi;
+    const regex = /[^@£$¥èéùìò\f\n !#%&'\(\)\*\+,-.\/0-9:;=\?ÄÖÑÜa-zäöñüà\^\|€_]/gi;
     let m;
     let lastMatch;
     let lastIndex;
