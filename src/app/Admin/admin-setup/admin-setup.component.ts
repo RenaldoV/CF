@@ -603,7 +603,10 @@ export class AdminSetupComponent implements OnInit {
     dialConfig.autoFocus = true;
     if (ct) {
       dialConfig.data = ct;
+      dialConfig.data.existing = true;
       index = this.allContacts.indexOf(ct);
+    } else {
+      dialConfig.data.new = true;
     }
     const dialogRef = this.dialog.open(AddContactDialogComponent, dialConfig);
     dialogRef.afterClosed().subscribe(res => {

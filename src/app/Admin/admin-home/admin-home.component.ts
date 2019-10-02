@@ -43,6 +43,9 @@ export class AdminHomeComponent implements OnInit {
     const dialConfig = new MatDialogConfig();
     dialConfig.disableClose = true;
     dialConfig.autoFocus = true;
+    dialConfig.data = {
+      new: true
+    };
     const dialogRef = this.dialog.open(AddContactDialogComponent, dialConfig);
     dialogRef.afterClosed().subscribe();
   }

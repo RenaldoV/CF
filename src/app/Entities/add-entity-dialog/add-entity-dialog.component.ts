@@ -253,6 +253,7 @@ export class AddEntityDialogComponent implements OnInit {
     dialConfig.disableClose = true;
     dialConfig.autoFocus = true;
     dialConfig.data = contact;
+    dialConfig.data.new = true;
     const dialogRef = this.dialog.open(AddContactDialogComponent, dialConfig);
     dialogRef.afterClosed().subscribe(res => {
       if (res) {

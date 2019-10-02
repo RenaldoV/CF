@@ -27,12 +27,13 @@ export class AddContactDialogComponent implements OnInit {
   ) {
     this.createContactsForm();
     if (data) {
-      if (data.email) {
+      console.log(data);
+      if (data.existing) {
         this.existing = true;
         this.contactForm.patchValue(data);
         this.email.clearAsyncValidators();
         this.email.updateValueAndValidity();
-      } else if (data.name) {
+      } else if (data.new) {
         this.contactForm.patchValue(data);
       }
     }

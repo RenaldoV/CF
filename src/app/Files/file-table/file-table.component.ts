@@ -360,6 +360,7 @@ export class FileTableComponent implements OnInit {
     dialConfig.autoFocus = true;
     dialConfig.minWidth = 200;
     dialConfig.data = ct;
+    dialConfig.data.existing = true;
     const dialogRef = this.dialog.open(AddContactDialogComponent, dialConfig);
     dialogRef.afterClosed().subscribe(res => {
       if (res) {
