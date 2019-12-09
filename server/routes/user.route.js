@@ -1403,7 +1403,6 @@ userRoutes.route('/completeMilestone').post((req, res, next) => {
                         buildMessage(smsMessage, smsContext)
                       ).then(res => {}, (error) => {
                         console.log(error);
-                        res.send(false);
                       });
                     }
                   });
@@ -1440,7 +1439,7 @@ userRoutes.route('/completeMilestone').post((req, res, next) => {
                     smser.send(ct.cell, buildMessage(smsMessage, emailContext))
                       .then(res => {}, (error) => {
                         console.log(error);
-                        res.send(false);
+                       
                       });
                   }
                 }

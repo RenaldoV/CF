@@ -17,7 +17,7 @@ class Sms {
     let xml = builder.buildObject(loginBody);
     return (async () => {
       try {
-        const { response } = await soapRequest(config.smsApiUrl, this.headers, xml, 2000);
+        const { response } = await soapRequest(config.smsApiUrl, this.headers, xml, 10000);
         let parser = new xml2js.Parser();
         parser.parseString(response.body, (err, res) => {
           // parse xml response
@@ -42,7 +42,7 @@ class Sms {
     let xml = builder.buildObject(loginBody);
     return (async () => {
       try {
-        const { response } = await soapRequest(config.smsApiUrl, this.headers, xml, 2000);
+        const { response } = await soapRequest(config.smsApiUrl, this.headers, xml, 10000);
         let parser = new xml2js.Parser();
         parser.parseString(response.body, (err, res) => {
           response.result = res.sms_api.status[0];
@@ -67,7 +67,7 @@ class Sms {
     let xml = builder.buildObject(messageBody);
     return (async () => {
       try {
-        const { response } = await soapRequest(config.smsApiUrl, this.headers, xml, 2000);
+        const { response } = await soapRequest(config.smsApiUrl, this.headers, xml, 10000);
         let parser = new xml2js.Parser();
         parser.parseString(response.body, (err, res) => {
           // parse xml response
@@ -97,7 +97,7 @@ class Sms {
     let xml = builder.buildObject(messageBody);
     return (async () => {
       try {
-        const { response } = await soapRequest(config.smsApiUrl, this.headers, xml, 2000);
+        const { response } = await soapRequest(config.smsApiUrl, this.headers, xml, 10000);
         let parser = new xml2js.Parser();
         parser.parseString(response.body, (err, res) => {
           // parse xml response
