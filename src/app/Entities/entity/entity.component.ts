@@ -19,10 +19,12 @@ export class EntityComponent implements OnInit {
       .subscribe(en => {
         if (en) {
           this.entity = en;
+          this.entity.files = this.entity.files.filter(f => {
+            return !f.archived;
+          });
           this.entity.files.forEach(f => {
             f.milestoneList.milestones = f.milestoneList.milestones.filter(m => m.completed === true);
           });
-          console.log(en);
         } else {
           alert('entity does not exists');
         }

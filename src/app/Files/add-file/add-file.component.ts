@@ -516,6 +516,7 @@ export class AddFileComponent implements OnInit {
         this.entityChips.setValue(this.selectedEntity);
       }
     }
+    this.addEntity(event.option.value);
   }
   createNewEntityDialog(en?) {
     const dialConfig = new MatDialogConfig();
@@ -536,6 +537,8 @@ export class AddFileComponent implements OnInit {
       }
     });
   }
+
+  // Update file
   removeEntity(en): void {
     const index = this.selectedEntity.indexOf(en);
     if (this.file) {
@@ -556,5 +559,17 @@ export class AddFileComponent implements OnInit {
       }
     }
   }
-  // TODO: Update file, patch entity properly.
+  addEntity(enID): void {
+    if (this.file) {
+      this.entityService.addFileToEntity(enID, this.file._id)
+        .subscribe(res => {
+          if (res) {
+            this.matSnack.open('Entity added successfully');
+          }
+        }, err => {
+          this.matSnack.open('Server error, entity not added');
+          console.log(err);
+        });
+    }
+  }
 }
