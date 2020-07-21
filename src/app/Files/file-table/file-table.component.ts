@@ -294,7 +294,7 @@ export class FileTableComponent implements OnInit {
   archiveFile(file) {
     if (!file.archived) {
       if (confirm('Are you sure you want to archive this file?')) {
-        this.fileService.updateFile({_id: file._id, archived: !file.archived})
+        this.fileService.updateFile({_id: file._id, archived: !file.archived, archivedAt: new Date()})
           .subscribe(res => {
             if (res) {
               const i = this.files.findIndex(f => f._id === res._id);
@@ -313,7 +313,7 @@ export class FileTableComponent implements OnInit {
       }
     } else {
       if (confirm('Are you sure you want to restore this file?')) {
-        this.fileService.updateFile({_id: file._id, archived: !file.archived})
+        this.fileService.updateFile({_id: file._id, archived: !file.archived, archivedAt: null})
           .subscribe(res => {
             if (res) {
               const i = this.archFiles.findIndex(f => f._id === res._id);
@@ -515,6 +515,7 @@ export interface File {
   updatedAt: any;
   createdAt: any;
   archived: boolean;
+  archivedAt: Date;
   entity?: any;
   _v: any;
   requiredDocuments?: any;
