@@ -9,6 +9,7 @@ let Contact = new mongoose.Schema({
     surname: String,
     title: String,
     cell: String,
+    dob: String,
     forgotPassword: {
       token: String,
       expiry: Date

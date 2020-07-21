@@ -1205,7 +1205,7 @@ userRoutes.route('/adminFile/:id').get((req, res, next) => {
         .populate('milestoneList.milestones._id')
         .populate('milestoneList._id', 'title')
         .populate('milestoneList.milestones.updatedBy', 'name')
-        .populate('contacts', 'name surname title email cell type')
+        .populate('contacts', 'name surname title email cell type dob')
         .populate('milestoneList.milestones.comments.user', 'name')
         .populate('summaries.user', 'name')
         .populate('createdBy', 'name')
@@ -1439,7 +1439,7 @@ userRoutes.route('/completeMilestone').post((req, res, next) => {
                     smser.send(ct.cell, buildMessage(smsMessage, emailContext))
                       .then(res => {}, (error) => {
                         console.log(error);
-                       
+
                       });
                   }
                 }

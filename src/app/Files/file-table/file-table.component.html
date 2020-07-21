@@ -531,7 +531,8 @@
                               <mat-card-subtitle>
                                 <small><i class="fas fa-user-friends"></i> {{ct?.type}}</small><br>
                                 <small *ngIf="ct?.email"><i class="far fa-envelope"></i> {{ ct?.email }}</small><br *ngIf="ct?.email">
-                                <small *ngIf="ct?.cell"><i class="fas fa-phone-square"></i> {{ ct?.cell }}</small>
+                                <small *ngIf="ct?.cell"><i class="fas fa-phone-square"></i> {{ ct?.cell }}</small><br *ngIf="ct?.cell">
+                                <small *ngIf="ct?.dob"><i class="fas fa-birthday-cake"></i> {{ ct?.dob | date: 'dd/MM/yyyy' }}</small>
                               </mat-card-subtitle>
                             </mat-card-header>
                           </mat-card>

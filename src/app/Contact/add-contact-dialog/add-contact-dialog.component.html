@@ -42,6 +42,15 @@
       </mat-error>
     </mat-form-field>
     <br>
+    <mat-form-field>
+      <input (focus)="picker.open()" matInput [matDatepicker]="picker" [max]="maxDate" formControlName="dob" placeholder="Date of birth (dd/mm/yyy)">
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+      <mat-error *ngIf="dob.hasError('required')">
+        Date of birth is required.
+      </mat-error>
+    </mat-form-field>
+    <br>
     <mat-form-field class="innerFormFields">
       <input matInput placeholder="Cell number" formControlName="cell">
       <mat-error *ngIf="cell.hasError('length')">

@@ -9,13 +9,31 @@ import { WINDOW_PROVIDERS } from './window.service';
 import { AdminLogInComponent } from './Admin/admin-login/admin-log-in.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {
-  MAT_CHECKBOX_CLICK_ACTION, MAT_DIALOG_DEFAULT_OPTIONS,
+  MAT_CHECKBOX_CLICK_ACTION,
+  MAT_DIALOG_DEFAULT_OPTIONS,
   MAT_SNACK_BAR_DEFAULT_OPTIONS,
-  MatAutocompleteModule, MatBadgeModule, MatCardModule, MatCheckboxModule, MatChipsModule, MatDialogModule, MatExpansionModule,
-  MatFormFieldModule, MatIconModule,
-  MatInputModule, MatMenuModule, MatPaginatorModule, MatProgressBarModule, MatRadioModule,
-  MatSelectModule, MatSnackBarModule, MatSortModule,
-  MatStepperModule, MatTableModule, MatTabsModule, MatTooltipModule
+  MatAutocompleteModule,
+  MatBadgeModule,
+  MatCardModule,
+  MatCheckboxModule,
+  MatChipsModule,
+  MatDatepickerModule,
+  MatDialogModule,
+  MatExpansionModule,
+  MatFormFieldModule,
+  MatIconModule,
+  MatInputModule,
+  MatMenuModule, MatNativeDateModule,
+  MatPaginatorModule,
+  MatProgressBarModule,
+  MatRadioModule,
+  MatSelectModule,
+  MatSnackBarModule,
+  MatSortModule,
+  MatStepperModule,
+  MatTableModule,
+  MatTabsModule,
+  MatTooltipModule
 } from '@angular/material';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { AdminHomeComponent } from './Admin/admin-home/admin-home.component';
@@ -99,8 +117,9 @@ import {FileUploadModule} from 'ng2-file-upload';
     MatSortModule,
     MatChipsModule,
     MatTableModule,
-    MatCardModule,
     MatBadgeModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
     MomentModule,
     DragDropModule,
     MatTabsModule,
