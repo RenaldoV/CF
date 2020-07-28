@@ -7,8 +7,6 @@ const express = require('express'),
   fallback = require('express-history-api-fallback'),
   config = require('./config/config'),
   Scheduler = require ('./server/cron/scheduler');
-const Contact = require('./server/models/contact');
-
 
 mongoose.Promise = global.Promise;
 const mongooseOptions = {
@@ -24,16 +22,6 @@ mongoose.connect(config.DB, mongooseOptions).then(
   () => {console.log('Database is connected') },
   err => { console.log('Can not connect to the database'+ err)}
 );
-Contact.find({dob: {$ne: null}}, (err, cts) => {
-  cts.forEach(ct => {
-    let birthday = new Date(ct.dob);
-    ct.birthmonth = birthday.getMonth() + 1;
-    ct.birthday = birthday.getDate();
-    ct.save();
-  });
-
-  console.log(cts.length);
-});
 const userRoutes = require('./server/routes/user.route');
 const root = __dirname + '/dist/ConveyFeed';
 const app = express();
