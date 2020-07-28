@@ -643,6 +643,9 @@ userRoutes.route('/addOneDeedsOffice').post((req, res, next) => {
 // ============================ CONTACTS ROUTES  =======================
 userRoutes.route('/addContact').post((req, res, next) => {
   let contact = req.body.contact;
+  let birthday = new Date(contact.dob);
+  contact.birthmonth = birthday.getMonth() + 1;
+  contact.birthday = birthday.getDate();
   if (contact.email === "" || contact.email === null) {
     delete contact.email;
   } else {
@@ -732,6 +735,9 @@ userRoutes.route('/deleteContact').post((req, res, next) => {
 });
 userRoutes.route('/updateContact').post((req, res, next) => {
   const ct = req.body;
+  let birthday = new Date(ct.dob);
+  ct.birthmonth = birthday.getMonth() + 1;
+  ct.birthday = birthday.getDate();
   if (ct.email === "" || ct.email === null) {
     delete ct.email;
   } else {
@@ -948,6 +954,31 @@ userRoutes.route('/updateForgotPasswordContact').post((req, res, next) => {
             res.send(false);
           }
         });
+    }
+  });
+});
+userRoutes.route('/happyBirthdayContacts').get((req, res, next) => {
+  const now = new Date();
+  const day = now.getDate();
+  const month = now.getMonth() + 1; // numbered 0-11
+
+  Contact.find({ "birthday": day, "birthmonth": month, "cell": {$ne : null} }, (err, contacts) => {
+    if (err) {
+      next(err);
+    } else {
+      async.each(contacts, (ct, callback) => {
+        const message = `Dear ${ct.title} ${ct.surname} when it comes to your birthday, we just want to share our good wishes and cheer. Have a wonderful birthday and an even better year! Regards, the CBI Attorney Team.`;
+        smser.send(ct.cell, message).then((status) => {
+          callback();
+        }).catch((e) => {
+          callback(e);
+        });
+      }, (e) => {
+        if(e) next(e);
+        else {
+          res.json(contacts);
+        }
+      });
     }
   });
 });

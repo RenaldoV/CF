@@ -7,6 +7,7 @@
 
 # dependencies
 /node_modules
+/micro_services/birthday_cron/node_modules
 
 # config files
 /config
